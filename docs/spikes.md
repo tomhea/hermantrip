@@ -46,3 +46,48 @@ go above 2400 since beyond that we just pay bytes for no resolution gain.
   in case lh3 ever breaks for an individual file.
 - `scripts/smoke.mjs` (added in M6) re-runs this check on 10 random IDs
   per CI run to detect regression.
+
+## s2 — Chrome ORB blocks ~3% of Drive image URLs (M3 discovery)
+
+**Question:** When the M3 country-list view loaded 7 thumbs at once, 3 of
+them failed with `net::ERR_BLOCKED_BY_ORB` despite the same URLs returning
+valid `image/jpeg` to curl with `Access-Control-Allow-Origin: *`. Why, and
+how do we handle it?
+
+**Investigation (2026-05-29):**
+
+- Headers between working and failing lh3 URLs are byte-identical (same
+  Content-Type, same CORS, same Content-Disposition, same nosniff).
+- File bodies are valid JPEGs (FF D8 FF E0 JFIF magic, 72 KB each, opens
+  in image viewers).
+- Width parameter swept w200…w2000 for one failing file in isolation:
+  all sizes failed except `=w800` (which succeeded in one trial and failed
+  in another).
+- Alternate URL forms tested: `drive.google.com/uc?id=&export=view`,
+  `drive.google.com/thumbnail?id=&sz=w600`, the `thumbnailLink` field from
+  Drive API (`lh3.googleusercontent.com/drive-storage/...=s220`) — all
+  triggered ORB.
+- Affected file names share a pattern: Samsung-style `YYYYMMDD_HHMMSS.jpg`
+  with Picasa-stamped EXIF software field. DSC_/IMG_ camera files always
+  worked.
+
+**Decision (accept):**
+
+- 5/7 country thumbs render normally; 2/7 fall back to a pale diagonal
+  hatch placeholder via the R4 `onerror` chain (lh3 → thumbnailLink →
+  placeholder). The placeholder is visually intentional, no broken-image
+  glyph.
+- The R4 fallback architecture is correct and works as designed; ORB just
+  also blocks the secondary URL for these specific files.
+- This is a Chromium-specific runtime quirk. Firefox / Safari don't
+  implement ORB the same way and likely render all 7 thumbs.
+
+**Follow-up (M12 polish):**
+
+- Possible mitigation: at runtime, when both onerror branches fire,
+  rotate through the NEXT photo in the album (since the affected files
+  cluster by camera/uploader, the second/third photo usually loads).
+- Alternative: a build-time "lh3 ORB sniff" that probes each photo's URL
+  via a headless Chrome run and marks `orbSafe: false` in the manifest;
+  the view skips those for representative thumb selection.
+- Neither blocks M3 — they're polish for M12.

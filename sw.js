@@ -3,7 +3,7 @@
 // huge), does NOT cache data/manifest.json yet (M11/M12 will revisit once
 // the manifest's lifecycle is clearer).
 
-const SHELL_CACHE = 'hermantrip-shell-v1';
+const SHELL_CACHE = 'hermantrip-shell-v3';
 const SHELL_FILES = [
   '/',
   '/index.html',
@@ -12,6 +12,9 @@ const SHELL_FILES = [
   '/src/lib/router.js',
   '/src/lib/loading.js',
   '/src/lib/viewport.js',
+  '/src/lib/image-url.js',
+  '/src/lib/country-thumb.js',
+  '/src/views/country-list.js',
   '/icon.svg',
   '/manifest.webmanifest',
 ];
