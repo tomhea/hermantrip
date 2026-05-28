@@ -1,0 +1,208 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (0.7118ms)
+✖ empty input returns empty array (2.246ms)
+✖ no collisions: one entry per folder, folderIds wraps the source (0.3096ms)
+✖ same id: photos concatenated, both folderIds tracked (0.9544ms)
+✖ same id: first folder name wins (lex order preserves "Bhagsu 1") (0.2472ms)
+✖ mixed: some collide, some do not (0.1763ms)
+✔ does not mutate input photos arrays (0.3314ms)
+▶ extractAlbumNumber — common patterns
+  ✔ "01" → 1 (0.7359ms)
+  ✔ "1" → 1 (0.1403ms)
+  ✔ "01 קטמנדו" → 1 (0.106ms)
+  ✔ "1 - דהלי" → 1 (0.0749ms)
+  ✔ "1. דהלי" → 1 (0.0815ms)
+  ✔ "1-עלייה לאוורסט" → 1 (0.083ms)
+  ✔ "37 - יאנגשואו" → 37 (0.0794ms)
+  ✔ "037 - sometext" → 37 (0.0657ms)
+  ✔ "88 פוקט" → 88 (0.0975ms)
+  ✔ "88" → 88 (0.1108ms)
+  ✔ "14a" → 14 (0.0656ms)
+  ✔ "14a. הודו - באגסו 2" → 14 (0.0588ms)
+✔ extractAlbumNumber — common patterns (2.7058ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✔ ".temp" → null (0.1985ms)
+  ✔ ".temp_1" → null (0.7995ms)
+  ✔ ".temp_2" → null (0.0694ms)
+  ✔ ".temp_3" → null (0.0806ms)
+  ✔ ".hidden" → null (0.0233ms)
+  ✔ "export" → null (0.0209ms)
+  ✔ "Export" → null (0.0185ms)
+  ✔ "EXPORT" → null (0.0196ms)
+  ✔ "exports" → null (0.0204ms)
+✔ extractAlbumNumber — ignored folders return null (1.4398ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✔ "תיאור בלי מספר" → null (0.1575ms)
+  ✔ "random folder" → null (0.0261ms)
+  ✔ "a01" → null (0.0207ms)
+  ✔ "_01" → null (0.0201ms)
+  ✔ "" → null (0.0218ms)
+✔ extractAlbumNumber — names without leading digits return null (0.3223ms)
+✔ extractAlbumNumber strips leading zeros (0.0841ms)
+✔ COUNTRY_ORDER lists the seven countries in trip order (1.0635ms)
+✔ COUNTRIES exposes Hebrew + English names for every code (0.2ms)
+▶ assignAlbumToCountries — single-country
+  ✔ album 5 → only [np], primary np (0.2347ms)
+  ✔ album 12 → only [in], primary in (0.076ms)
+  ✔ album 25 → only [vn], primary vn (0.0894ms)
+  ✔ album 34 → only [cn], primary cn (0.0855ms)
+  ✔ album 45 → only [au], primary au (0.0631ms)
+  ✔ album 65 → only [nz], primary nz (0.0655ms)
+  ✔ album 80 → only [th], primary th (0.0721ms)
+  ✔ album 19 → only [th], primary th (0.1224ms)
+✔ assignAlbumToCountries — single-country (1.1913ms)
+✔ album 1 is Nepal + Thailand, primary Nepal (0.1208ms)
+✔ album 37 is China + Australia + Thailand, primary China (0.1437ms)
+▶ assignAlbumToCountries — range boundaries
+  ✔ album 7 → [np] (1.0209ms)
+  ✔ album 8 → [in] (0.1228ms)
+  ✔ album 18 → [in] (0.0489ms)
+  ✔ album 20 → [vn] (0.0385ms)
+  ✔ album 29 → [vn] (0.0481ms)
+  ✔ album 30 → [cn] (0.0276ms)
+  ✔ album 38 → [au] (0.0238ms)
+  ✔ album 53 → [au] (0.0225ms)
+  ✔ album 54 → [nz] (0.0212ms)
+  ✔ album 76 → [nz] (0.0297ms)
+  ✔ album 77 → [th] (0.0215ms)
+  ✔ album 88 → [th] (0.0209ms)
+✔ assignAlbumToCountries — range boundaries (1.6967ms)
+✔ album with no country range throws loudly (0.4084ms)
+✔ non-positive album throws (0.0737ms)
+✔ empty array returns empty (1.0808ms)
+✔ already-sorted returns equivalent order (0.2093ms)
+✔ reverse-sorted gets sorted (0.1014ms)
+✔ numeric suffixes sort lexicographically (NOT numerically) (0.9527ms)
+✔ case-sensitive: uppercase comes before lowercase (0.131ms)
+✔ does not mutate input array (0.1069ms)
+✔ returns a new array, not the original (0.1048ms)
+✔ extractPhotoMeta — full record with EXIF (0.8567ms)
+✔ extractPhotoMeta — missing EXIF leaves capturedAt null (0.1111ms)
+✔ extractPhotoMeta — imageMediaMetadata present but no time (0.0823ms)
+✔ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.149ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.1489ms)
+ℹ tests 72
+ℹ suites 5
+ℹ pass 67
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 124.8091
+
+✖ failing tests:
+
+test at src\lib\album-merge.test.mjs:5:1
+✖ empty input returns empty array (2.246ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   {
+  +     folderIds: [],
+  +     id: 999,
+  +     name: 'STUB',
+  +     photos: []
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-merge.test.mjs:6:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { id: 999, name: 'STUB', folderIds: [], photos: [] } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-merge.test.mjs:9:1
+✖ no collisions: one entry per folder, folderIds wraps the source (0.3096ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-merge.test.mjs:15:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-merge.test.mjs:24:1
+✖ same id: photos concatenated, both folderIds tracked (0.9544ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  999 !== 14
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-merge.test.mjs:31:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 999,
+    expected: 14,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-merge.test.mjs:36:1
+✖ same id: first folder name wins (lex order preserves "Bhagsu 1") (0.2472ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'STUB' !== 'Bhagsu 1'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-merge.test.mjs:44:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'STUB',
+    expected: 'Bhagsu 1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-merge.test.mjs:47:1
+✖ mixed: some collide, some do not (0.1763ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 3
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-merge.test.mjs:55:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 3,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
