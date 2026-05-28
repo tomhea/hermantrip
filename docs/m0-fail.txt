@@ -1,0 +1,34 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✖ M0 sentinel — answer() returns 42 (0.9392ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 64.2813
+
+✖ failing tests:
+
+test at scripts\trivial.test.mjs:5:1
+✖ M0 sentinel — answer() returns 42 (0.9392ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  41 !== 42
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/scripts/trivial.test.mjs:6:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 41,
+    expected: 42,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

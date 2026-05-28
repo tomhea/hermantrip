@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+
+# CR-ist work artifacts that don't belong in git (only the *-fail.txt / *-pass.txt do)
+docs/*.tmp.txt
+
+# rclone scratch
+.rclone-cache/
