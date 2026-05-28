@@ -1,0 +1,201 @@
+/* hermantrip — design tokens + base + components.
+ * Tokens documented at docs/design.md. */
+
+:root {
+  /* Color — paper base + earth-tone palette */
+  --bg: #f6f1ea;
+  --surface: #ffffff;
+  --text: #1a1815;
+  --text-muted: #5a534c;
+  --accent: #b56439;       /* terra (primary) — desert, outback */
+  --accent-dim: #8c4c2a;
+  --earth-sage: #6b8459;   /* jungle, forest, hills */
+  --earth-slate: #5d7593;  /* mountains, ocean, sky */
+  --earth-ochre: #c8943d;  /* sun, warm, tropical */
+  --earth-pale: #cfe0e8;   /* atlas-ocean pale */
+  --divider: #e3dccf;
+  --error: #993333;
+
+  /* Type */
+  --font-family: 'Rubik', system-ui, -apple-system, sans-serif;
+  --type-display: 2.5rem;
+  --type-h1: 1.75rem;
+  --type-h2: 1.25rem;
+  --type-body: 1rem;
+  --type-small: 0.875rem;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2rem;
+  --space-6: 3rem;
+  --space-7: 4rem;
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-family);
+  font-size: var(--type-body);
+  font-weight: 300;
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
+  min-height: 100vh;
+}
+img { display: block; max-width: 100%; height: auto; }
+
+/* Layout */
+main#app {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-3);
+}
+@media (min-width: 769px) {
+  main#app { padding: var(--space-6) var(--space-5); }
+}
+
+/* Typography */
+h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
+.display {
+  font-size: var(--type-display);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-3);
+}
+.tagline {
+  font-size: var(--type-body);
+  color: var(--text-muted);
+  margin: 0 0 var(--space-6);
+}
+.muted { color: var(--text-muted); }
+.small { font-size: var(--type-small); }
+
+/* Loading state */
+.loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  padding: var(--space-5) 0;
+}
+.loading-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--divider);
+  border-inline-end-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.loading-text { font-size: var(--type-small); }
+
+/* Error state */
+.error {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-inline-start: 3px solid var(--error);
+  padding: var(--space-3);
+  color: var(--text);
+  margin: var(--space-3) 0;
+}
+
+/* Home (M2 stub — replaced in M3 with the real country grid) */
+.home-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.home-header-text { flex: 1 1 auto; }
+.home-globe {
+  flex: 0 0 auto;
+  width: 4.5rem;
+  height: 4.5rem;
+}
+@media (min-width: 769px) {
+  .home-globe { width: 6rem; height: 6rem; }
+}
+.home-stats {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  padding: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.home-stats dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: var(--space-3);
+}
+.home-stats dt {
+  font-size: var(--type-small);
+  color: var(--text-muted);
+  margin-bottom: var(--space-1);
+}
+.home-stats dd {
+  margin: 0;
+  font-size: var(--type-h1);
+  font-weight: 500;
+  color: var(--text);
+}
+.home-countries {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1px;
+  background: var(--divider);
+  border: 1px solid var(--divider);
+}
+.home-countries li {
+  background: var(--surface);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.home-countries .country-dot {
+  flex: 0 0 auto;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--accent);
+  align-self: center;
+}
+.home-countries .country-name {
+  font-weight: 500;
+  flex: 1 1 auto;
+}
+.home-countries .country-count {
+  color: var(--text-muted);
+  font-size: var(--type-small);
+  flex: 0 0 auto;
+}
+.home-coming-soon {
+  margin-top: var(--space-6);
+  padding: var(--space-3);
+  font-size: var(--type-small);
+  color: var(--text-muted);
+  border-top: 1px solid var(--divider);
+}
+
+/* Not found */
+.notfound {
+  text-align: center;
+  padding: var(--space-7) 0;
+}
+.notfound a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+.notfound a:hover { color: var(--accent-dim); }

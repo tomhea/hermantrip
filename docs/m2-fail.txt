@@ -1,0 +1,865 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (1.8391ms)
+✔ empty input returns empty array (3.8551ms)
+✔ no collisions: one entry per folder, folderIds wraps the source (0.9708ms)
+✔ same id: photos concatenated, both folderIds tracked (0.5907ms)
+✔ same id: first folder name wins (lex order preserves "Bhagsu 1") (2.501ms)
+✔ mixed: some collide, some do not (0.6202ms)
+✔ does not mutate input photos arrays (0.3994ms)
+▶ extractAlbumNumber — common patterns
+  ✔ "01" → 1 (1.2008ms)
+  ✔ "1" → 1 (0.2064ms)
+  ✔ "01 קטמנדו" → 1 (0.1807ms)
+  ✔ "1 - דהלי" → 1 (0.1034ms)
+  ✔ "1. דהלי" → 1 (0.1246ms)
+  ✔ "1-עלייה לאוורסט" → 1 (0.1375ms)
+  ✔ "37 - יאנגשואו" → 37 (0.1162ms)
+  ✔ "037 - sometext" → 37 (0.1185ms)
+  ✔ "88 פוקט" → 88 (0.1916ms)
+  ✔ "88" → 88 (0.1907ms)
+  ✔ "14a" → 14 (0.118ms)
+  ✔ "14a. הודו - באגסו 2" → 14 (0.108ms)
+✔ extractAlbumNumber — common patterns (4.5334ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✔ ".temp" → null (0.2891ms)
+  ✔ ".temp_1" → null (0.1167ms)
+  ✔ ".temp_2" → null (0.1598ms)
+  ✔ ".temp_3" → null (0.0456ms)
+  ✔ ".hidden" → null (0.0397ms)
+  ✔ "export" → null (0.0233ms)
+  ✔ "Export" → null (0.0205ms)
+  ✔ "EXPORT" → null (0.03ms)
+  ✔ "exports" → null (0.0226ms)
+✔ extractAlbumNumber — ignored folders return null (1.7315ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✔ "תיאור בלי מספר" → null (0.0877ms)
+  ✔ "random folder" → null (0.021ms)
+  ✔ "a01" → null (0.0208ms)
+  ✔ "_01" → null (0.0205ms)
+  ✔ "" → null (0.025ms)
+✔ extractAlbumNumber — names without leading digits return null (0.2495ms)
+✔ extractAlbumNumber strips leading zeros (0.0652ms)
+✔ COUNTRY_ORDER lists the seven countries in trip order (1.3751ms)
+✔ COUNTRIES exposes Hebrew + English names for every code (0.2512ms)
+▶ assignAlbumToCountries — single-country
+  ✔ album 5 → only [np], primary np (0.3074ms)
+  ✔ album 12 → only [in], primary in (0.0773ms)
+  ✔ album 25 → only [vn], primary vn (0.1108ms)
+  ✔ album 34 → only [cn], primary cn (0.0988ms)
+  ✔ album 45 → only [au], primary au (0.0704ms)
+  ✔ album 65 → only [nz], primary nz (0.0668ms)
+  ✔ album 80 → only [th], primary th (0.134ms)
+  ✔ album 19 → only [th], primary th (0.1599ms)
+✔ assignAlbumToCountries — single-country (1.5677ms)
+✔ album 1 is Nepal + Thailand, primary Nepal (0.1056ms)
+✔ album 37 is China + Australia + Thailand, primary China (0.0975ms)
+▶ assignAlbumToCountries — range boundaries
+  ✔ album 7 → [np] (1.1988ms)
+  ✔ album 8 → [in] (0.1108ms)
+  ✔ album 18 → [in] (0.0372ms)
+  ✔ album 20 → [vn] (0.0359ms)
+  ✔ album 29 → [vn] (0.0561ms)
+  ✔ album 30 → [cn] (0.0452ms)
+  ✔ album 38 → [au] (0.0286ms)
+  ✔ album 53 → [au] (0.0228ms)
+  ✔ album 54 → [nz] (0.0329ms)
+  ✔ album 76 → [nz] (0.0313ms)
+  ✔ album 77 → [th] (0.0222ms)
+  ✔ album 88 → [th] (0.0217ms)
+✔ assignAlbumToCountries — range boundaries (1.981ms)
+✔ album with no country range throws loudly (0.9679ms)
+✔ non-positive album throws (0.0977ms)
+✖ default loading text is Hebrew "טוען..." (2.8718ms)
+✖ default error text is Hebrew and not auto-translated (0.3049ms)
+✔ loadingHTML uses default text (0.4156ms)
+✖ loadingHTML uses custom text (1.2093ms)
+✖ loadingHTML includes role="status" for assistive tech (0.2012ms)
+✖ loadingHTML includes aria-live="polite" (0.1381ms)
+✔ errorHTML uses default text (0.1017ms)
+✖ errorHTML uses custom text (0.1083ms)
+✖ errorHTML includes role="alert" (0.1146ms)
+✖ escapes HTML special chars in custom text to prevent XSS (0.3098ms)
+✔ empty array returns empty (1.0648ms)
+✔ already-sorted returns equivalent order (0.2174ms)
+✔ reverse-sorted gets sorted (0.1002ms)
+✔ numeric suffixes sort lexicographically (NOT numerically) (0.8949ms)
+✔ case-sensitive: uppercase comes before lowercase (0.1487ms)
+✔ does not mutate input array (0.1181ms)
+✔ returns a new array, not the original (0.1104ms)
+✔ extractPhotoMeta — full record with EXIF (1.1263ms)
+✔ extractPhotoMeta — missing EXIF leaves capturedAt null (0.1428ms)
+✔ extractPhotoMeta — imageMediaMetadata present but no time (0.0912ms)
+✔ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.1738ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.3042ms)
+▶ parseHash
+  ✖ "" → "/" (2.9815ms)
+  ✖ "#" → "/" (0.2752ms)
+  ✖ "#/" → "/" (0.15ms)
+  ✖ "#/country/np" → "/country/np" (0.1819ms)
+  ✖ "#/album/5" → "/album/5" (0.149ms)
+  ✖ "#/album/5/slide/12" → "/album/5/slide/12" (0.1645ms)
+  ✖ "/country/np" → "/country/np" (0.1193ms)
+  ✖ "#country/np" → "/country/np" (0.1345ms)
+  ✖ "#/random" → "/random" (0.1438ms)
+✖ parseHash (5.4085ms)
+▶ createRouter — static routes
+  ✖ matches home route (1.2861ms)
+  ✖ matches map route (0.2526ms)
+  ✖ unknown path returns null (0.1875ms)
+✖ createRouter — static routes (1.8885ms)
+▶ createRouter — param routes
+  ✖ single param (0.9315ms)
+  ✖ two params (0.2881ms)
+  ✖ static segment after param (0.1994ms)
+  ✖ decodes URI components in params (0.3545ms)
+  ✖ extra segments do not match shorter pattern (0.2177ms)
+  ✖ first matching route wins (0.1327ms)
+✖ createRouter — param routes (2.3089ms)
+✖ query strings target the documented breakpoints (1.7252ms)
+✖ isPhone true when matchMedia matches PHONE_QUERY (0.2378ms)
+✖ isPhone false when only desktop matches (0.1755ms)
+✖ isTablet true only at tablet breakpoint (0.2479ms)
+✖ isDesktop true only at desktop breakpoint (0.3448ms)
+ℹ tests 105
+ℹ suites 8
+ℹ pass 74
+ℹ fail 31
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 221.9061
+
+✖ failing tests:
+
+test at src\lib\loading.test.mjs:10:1
+✖ default loading text is Hebrew "טוען..." (2.8718ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - 'טוען...'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/loading.test.mjs:11:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'טוען...',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\loading.test.mjs:14:1
+✖ default error text is Hebrew and not auto-translated (0.3049ms)
+  AssertionError [ERR_ASSERTION]: expected Hebrew chars
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/loading.test.mjs:18:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /[֐-׿]/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\loading.test.mjs:27:1
+✖ loadingHTML uses custom text (1.2093ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /טוען תמונות\.\.\./. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/loading.test.mjs:29:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /טוען תמונות\.\.\./,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\loading.test.mjs:32:1
+✖ loadingHTML includes role="status" for assistive tech (0.2012ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /role="status"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/loading.test.mjs:33:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /role="status"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\loading.test.mjs:36:1
+✖ loadingHTML includes aria-live="polite" (0.1381ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /aria-live="polite"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/loading.test.mjs:37:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /aria-live="polite"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\loading.test.mjs:44:1
+✖ errorHTML uses custom text (0.1083ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /לא הצלחנו לטעון את האלבום/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/loading.test.mjs:45:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /לא הצלחנו לטעון את האלבום/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\loading.test.mjs:48:1
+✖ errorHTML includes role="alert" (0.1146ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /role="alert"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/loading.test.mjs:49:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /role="alert"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\loading.test.mjs:52:1
+✖ escapes HTML special chars in custom text to prevent XSS (0.3098ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /&lt;script&gt;/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/loading.test.mjs:55:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /&lt;script&gt;/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:18:5
+✖ "" → "/" (2.9815ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '/__STUB__' !== '/'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:19:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/__STUB__',
+    expected: '/',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:18:5
+✖ "#" → "/" (0.2752ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '/__STUB__' !== '/'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:19:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/__STUB__',
+    expected: '/',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:18:5
+✖ "#/" → "/" (0.15ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '/__STUB__' !== '/'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:19:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/__STUB__',
+    expected: '/',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:18:5
+✖ "#/country/np" → "/country/np" (0.1819ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '/__STUB__'
+  - '/country/np'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:19:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/__STUB__',
+    expected: '/country/np',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:18:5
+✖ "#/album/5" → "/album/5" (0.149ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '/__STUB__'
+  - '/album/5'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:19:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/__STUB__',
+    expected: '/album/5',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:18:5
+✖ "#/album/5/slide/12" → "/album/5/slide/12" (0.1645ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '/__STUB__'
+  - '/album/5/slide/12'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:19:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/__STUB__',
+    expected: '/album/5/slide/12',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:18:5
+✖ "/country/np" → "/country/np" (0.1193ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '/__STUB__'
+  - '/country/np'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:19:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/__STUB__',
+    expected: '/country/np',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:18:5
+✖ "#country/np" → "/country/np" (0.1345ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '/__STUB__'
+  - '/country/np'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:19:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/__STUB__',
+    expected: '/country/np',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:18:5
+✖ "#/random" → "/random" (0.1438ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '/__STUB__'
+  - '/random'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:19:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/__STUB__',
+    expected: '/random',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:31:3
+✖ matches home route (1.2861ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   name: '__STUB__',
+  -   name: 'home',
+      params: {}
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:32:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { name: '__STUB__', params: {} },
+    expected: { name: 'home', params: {} },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:35:3
+✖ matches map route (0.2526ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   name: '__STUB__',
+  -   name: 'map',
+      params: {}
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:36:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { name: '__STUB__', params: {} },
+    expected: { name: 'map', params: {} },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:39:3
+✖ unknown path returns null (0.1875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   name: '__STUB__',
+  +   params: {}
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:40:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { name: '__STUB__', params: {} },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:52:3
+✖ single param (0.9315ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   name: '__STUB__',
+  +   params: {}
+  -   name: 'country',
+  -   params: {
+  -     code: 'np'
+  -   }
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:53:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { name: '__STUB__', params: {} },
+    expected: { name: 'country', params: { code: 'np' } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:59:3
+✖ two params (0.2881ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   name: '__STUB__',
+  +   params: {}
+  -   name: 'slide',
+  -   params: {
+  -     id: '5',
+  -     idx: '12'
+  -   }
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { name: '__STUB__', params: {} },
+    expected: { name: 'slide', params: { id: '5', idx: '12' } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:66:3
+✖ static segment after param (0.1994ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   name: '__STUB__',
+  +   params: {}
+  -   name: 'country-random',
+  -   params: {
+  -     code: 'np'
+  -   }
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:67:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { name: '__STUB__', params: {} },
+    expected: { name: 'country-random', params: { code: 'np' } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:73:3
+✖ decodes URI components in params (0.3545ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   name: '__STUB__',
+  +   params: {}
+  -   name: 'country',
+  -   params: {
+  -     code: 'נפ'
+  -   }
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:74:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { name: '__STUB__', params: {} },
+    expected: { name: 'country', params: { code: 'נפ' } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:80:3
+✖ extra segments do not match shorter pattern (0.2177ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   name: '__STUB__',
+  +   params: {}
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:83:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { name: '__STUB__', params: {} },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\router.test.mjs:86:3
+✖ first matching route wins (0.1327ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - 'first'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/router.test.mjs:91:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'first',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\viewport.test.mjs:17:1
+✖ query strings target the documented breakpoints (1.7252ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '(max-width: 768px)'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/viewport.test.mjs:18:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '(max-width: 768px)',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\viewport.test.mjs:23:1
+✖ isPhone true when matchMedia matches PHONE_QUERY (0.2378ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  null !== true
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/viewport.test.mjs:24:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\viewport.test.mjs:27:1
+✖ isPhone false when only desktop matches (0.1755ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  null !== false
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/viewport.test.mjs:28:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\viewport.test.mjs:31:1
+✖ isTablet true only at tablet breakpoint (0.2479ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  null !== true
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/viewport.test.mjs:32:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\viewport.test.mjs:37:1
+✖ isDesktop true only at desktop breakpoint (0.3448ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  null !== true
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/viewport.test.mjs:38:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
