@@ -1,0 +1,13 @@
+{
+  "name": "hermantrip",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static Hebrew photo-album site for a 1-year family trip. See README.md.",
+  "scripts": {
+    "test": "node scripts/test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
