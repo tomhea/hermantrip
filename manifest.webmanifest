@@ -1,0 +1,20 @@
+{
+  "name": "הרמן בדרכים",
+  "short_name": "הרמן בדרכים",
+  "description": "אלבום משפחתי מטיול בן שנה: נפאל · הודו · ויאטנם · סין · אוסטרליה · ניו זילנד · תאילנד",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f1ea",
+  "theme_color": "#f6f1ea",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
