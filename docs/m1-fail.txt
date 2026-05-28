@@ -1,0 +1,1668 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (0.7584ms)
+✖ empty input returns empty array (1.8683ms)
+✖ no collisions: one entry per folder, folderIds wraps the source (0.2659ms)
+✖ same id: photos concatenated, both folderIds tracked (0.937ms)
+✖ same id: first folder name wins (lex order preserves "Bhagsu 1") (0.4455ms)
+✖ mixed: some collide, some do not (0.2257ms)
+✔ does not mutate input photos arrays (0.3843ms)
+▶ extractAlbumNumber — common patterns
+  ✖ "01" → 1 (1.8965ms)
+  ✖ "1" → 1 (0.2555ms)
+  ✖ "01 קטמנדו" → 1 (0.1992ms)
+  ✖ "1 - דהלי" → 1 (0.1473ms)
+  ✖ "1. דהלי" → 1 (0.1574ms)
+  ✖ "1-עלייה לאוורסט" → 1 (0.1589ms)
+  ✖ "37 - יאנגשואו" → 37 (0.1573ms)
+  ✖ "037 - sometext" → 37 (0.1708ms)
+  ✖ "88 פוקט" → 88 (0.196ms)
+  ✖ "88" → 88 (0.3134ms)
+  ✖ "14a" → 14 (0.1677ms)
+  ✖ "14a. הודו - באגסו 2" → 14 (0.1284ms)
+✖ extractAlbumNumber — common patterns (5.5582ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✖ ".temp" → null (0.9923ms)
+  ✖ ".temp_1" → null (0.1827ms)
+  ✖ ".temp_2" → null (0.1293ms)
+  ✖ ".temp_3" → null (0.1161ms)
+  ✖ ".hidden" → null (0.1376ms)
+  ✖ "export" → null (0.2178ms)
+  ✖ "Export" → null (0.097ms)
+  ✖ "EXPORT" → null (0.0583ms)
+  ✖ "exports" → null (0.0684ms)
+✖ extractAlbumNumber — ignored folders return null (2.2646ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✖ "תיאור בלי מספר" → null (0.1514ms)
+  ✖ "random folder" → null (0.0652ms)
+  ✖ "a01" → null (0.0519ms)
+  ✖ "_01" → null (0.0487ms)
+  ✖ "" → null (0.0512ms)
+✖ extractAlbumNumber — names without leading digits return null (0.4557ms)
+✖ extractAlbumNumber strips leading zeros (0.0945ms)
+✖ COUNTRY_ORDER lists the seven countries in trip order (1.8331ms)
+✖ COUNTRIES exposes Hebrew + English names for every code (0.2478ms)
+▶ assignAlbumToCountries — single-country
+  ✖ album 5 → only [np], primary np (0.4881ms)
+  ✖ album 12 → only [in], primary in (0.157ms)
+  ✖ album 25 → only [vn], primary vn (0.1399ms)
+  ✖ album 34 → only [cn], primary cn (0.1365ms)
+  ✖ album 45 → only [au], primary au (0.1059ms)
+  ✖ album 65 → only [nz], primary nz (0.1157ms)
+  ✖ album 80 → only [th], primary th (0.1282ms)
+  ✖ album 19 → only [th], primary th (0.176ms)
+✖ assignAlbumToCountries — single-country (1.8654ms)
+✖ album 1 is Nepal + Thailand, primary Nepal (0.1621ms)
+✖ album 37 is China + Australia + Thailand, primary China (0.1246ms)
+▶ assignAlbumToCountries — range boundaries
+  ✖ album 7 → [np] (0.259ms)
+  ✖ album 8 → [in] (0.1368ms)
+  ✖ album 18 → [in] (0.1036ms)
+  ✖ album 20 → [vn] (0.0818ms)
+  ✖ album 29 → [vn] (0.0734ms)
+  ✖ album 30 → [cn] (0.064ms)
+  ✖ album 38 → [au] (0.0629ms)
+  ✖ album 53 → [au] (0.1007ms)
+  ✖ album 54 → [nz] (0.0843ms)
+  ✖ album 76 → [nz] (0.1053ms)
+  ✖ album 77 → [th] (0.0756ms)
+  ✖ album 88 → [th] (0.0764ms)
+✖ assignAlbumToCountries — range boundaries (1.9894ms)
+✖ album with no country range throws loudly (0.2602ms)
+✖ non-positive album throws (0.1063ms)
+✖ empty array returns empty (2.2144ms)
+✖ already-sorted returns equivalent order (0.3599ms)
+✖ reverse-sorted gets sorted (0.9441ms)
+✖ numeric suffixes sort lexicographically (NOT numerically) (0.2478ms)
+✖ case-sensitive: uppercase comes before lowercase (0.2012ms)
+✔ does not mutate input array (0.2859ms)
+✔ returns a new array, not the original (0.1241ms)
+✖ extractPhotoMeta — full record with EXIF (1.309ms)
+✖ extractPhotoMeta — missing EXIF leaves capturedAt null (0.1872ms)
+✖ extractPhotoMeta — imageMediaMetadata present but no time (0.1603ms)
+✖ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.7532ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.1927ms)
+ℹ tests 72
+ℹ suites 5
+ℹ pass 5
+ℹ fail 67
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 132.5179
+
+✖ failing tests:
+
+test at src\lib\album-merge.test.mjs:5:1
+✖ empty input returns empty array (1.8683ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   {
+  +     folderIds: [],
+  +     id: 999,
+  +     name: '__STUB__',
+  +     photos: []
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-merge.test.mjs:6:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { id: 999, name: '__STUB__', folderIds: [], photos: [] } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-merge.test.mjs:9:1
+✖ no collisions: one entry per folder, folderIds wraps the source (0.2659ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-merge.test.mjs:15:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-merge.test.mjs:24:1
+✖ same id: photos concatenated, both folderIds tracked (0.937ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  999 !== 14
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-merge.test.mjs:31:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 999,
+    expected: 14,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-merge.test.mjs:36:1
+✖ same id: first folder name wins (lex order preserves "Bhagsu 1") (0.4455ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - 'Bhagsu 1'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-merge.test.mjs:44:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'Bhagsu 1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-merge.test.mjs:47:1
+✖ mixed: some collide, some do not (0.2257ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 3
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-merge.test.mjs:55:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 3,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:24:5
+✖ "01" → 1 (1.8965ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 1
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:25:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:24:5
+✖ "1" → 1 (0.2555ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 1
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:25:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:24:5
+✖ "01 קטמנדו" → 1 (0.1992ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 1
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:25:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:24:5
+✖ "1 - דהלי" → 1 (0.1473ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 1
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:25:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:24:5
+✖ "1. דהלי" → 1 (0.1574ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 1
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:25:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:24:5
+✖ "1-עלייה לאוורסט" → 1 (0.1589ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 1
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:25:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:24:5
+✖ "37 - יאנגשואו" → 37 (0.1573ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 37
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:25:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 37,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:24:5
+✖ "037 - sometext" → 37 (0.1708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 37
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:25:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 37,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:24:5
+✖ "88 פוקט" → 88 (0.196ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 88
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:25:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 88,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:24:5
+✖ "88" → 88 (0.3134ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 88
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:25:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 88,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:24:5
+✖ "14a" → 14 (0.1677ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 14
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:25:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 14,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:24:5
+✖ "14a. הודו - באגסו 2" → 14 (0.1284ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 14
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:25:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 14,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:43:5
+✖ ".temp" → null (0.9923ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:44:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:43:5
+✖ ".temp_1" → null (0.1827ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:44:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:43:5
+✖ ".temp_2" → null (0.1293ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:44:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:43:5
+✖ ".temp_3" → null (0.1161ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:44:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:43:5
+✖ ".hidden" → null (0.1376ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:44:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:43:5
+✖ "export" → null (0.2178ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:44:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:43:5
+✖ "Export" → null (0.097ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:44:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:43:5
+✖ "EXPORT" → null (0.0583ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:44:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:43:5
+✖ "exports" → null (0.0684ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:44:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:58:5
+✖ "תיאור בלי מספר" → null (0.1514ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:59:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:58:5
+✖ "random folder" → null (0.0652ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:59:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:58:5
+✖ "a01" → null (0.0519ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:59:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:58:5
+✖ "_01" → null (0.0487ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:59:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:58:5
+✖ "" → null (0.0512ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:59:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-name.test.mjs:64:1
+✖ extractAlbumNumber strips leading zeros (0.0945ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 1
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-name.test.mjs:65:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Suite.postRun (node:internal/test_runner/test:1447:19)
+      at Suite.run (node:internal/test_runner/test:1786:10)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:9:1
+✖ COUNTRY_ORDER lists the seven countries in trip order (1.8331ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'np',
+  -   'in',
+  -   'vn',
+  -   'cn',
+  -   'au',
+  -   'nz',
+  -   'th'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:10:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [
+      'np', 'in',
+      'vn', 'cn',
+      'au', 'nz',
+      'th'
+    ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:13:1
+✖ COUNTRIES exposes Hebrew + English names for every code (0.2478ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 7
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:14:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 7,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:36:5
+✖ album 5 → only [np], primary np (0.4881ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'np'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:38:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'np' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:36:5
+✖ album 12 → only [in], primary in (0.157ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'in'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:38:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'in' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:36:5
+✖ album 25 → only [vn], primary vn (0.1399ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'vn'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:38:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'vn' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:36:5
+✖ album 34 → only [cn], primary cn (0.1365ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'cn'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:38:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'cn' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:36:5
+✖ album 45 → only [au], primary au (0.1059ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'au'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:38:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'au' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:36:5
+✖ album 65 → only [nz], primary nz (0.1157ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'nz'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:38:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'nz' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:36:5
+✖ album 80 → only [th], primary th (0.1282ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'th'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:38:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'th' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:36:5
+✖ album 19 → only [th], primary th (0.176ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'th'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:38:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'th' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:45:1
+✖ album 1 is Nepal + Thailand, primary Nepal (0.1621ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'np',
+  -   'th'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:47:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Suite.postRun (node:internal/test_runner/test:1447:19)
+      at Suite.run (node:internal/test_runner/test:1786:10)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'np', 'th' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:51:1
+✖ album 37 is China + Australia + Thailand, primary China (0.1246ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'cn',
+  -   'au',
+  -   'th'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:53:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'cn', 'au', 'th' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:75:5
+✖ album 7 → [np] (0.259ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'np'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:77:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'np' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:75:5
+✖ album 8 → [in] (0.1368ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'in'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:77:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'in' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:75:5
+✖ album 18 → [in] (0.1036ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'in'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:77:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'in' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:75:5
+✖ album 20 → [vn] (0.0818ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'vn'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:77:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'vn' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:75:5
+✖ album 29 → [vn] (0.0734ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'vn'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:77:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'vn' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:75:5
+✖ album 30 → [cn] (0.064ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'cn'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:77:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'cn' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:75:5
+✖ album 38 → [au] (0.0629ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'au'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:77:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'au' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:75:5
+✖ album 53 → [au] (0.1007ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'au'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:77:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'au' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:75:5
+✖ album 54 → [nz] (0.0843ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'nz'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:77:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'nz' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:75:5
+✖ album 76 → [nz] (0.1053ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'nz'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:77:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'nz' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:75:5
+✖ album 77 → [th] (0.0756ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'th'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:77:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'th' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:75:5
+✖ album 88 → [th] (0.0764ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'th'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:77:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'th' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:83:1
+✖ album with no country range throws loudly (0.2602ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:84:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Suite.postRun (node:internal/test_runner/test:1447:19)
+      at Suite.run (node:internal/test_runner/test:1786:10)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /album.*100/i,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at src\lib\countries.test.mjs:88:1
+✖ non-positive album throws (0.1063ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/countries.test.mjs:89:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at src\lib\ordering.test.mjs:5:1
+✖ empty array returns empty (2.2144ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   {
+  +     name: '__STUB__'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/ordering.test.mjs:6:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { name: '__STUB__' } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\ordering.test.mjs:9:1
+✖ already-sorted returns equivalent order (0.3599ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'a.jpg',
+  -   'b.jpg',
+  -   'c.jpg'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/ordering.test.mjs:12:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'a.jpg', 'b.jpg', 'c.jpg' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\ordering.test.mjs:15:1
+✖ reverse-sorted gets sorted (0.9441ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'a.jpg',
+  -   'b.jpg',
+  -   'c.jpg'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/ordering.test.mjs:18:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'a.jpg', 'b.jpg', 'c.jpg' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\ordering.test.mjs:21:1
+✖ numeric suffixes sort lexicographically (NOT numerically) (0.2478ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'IMG_001.jpg',
+  -   'IMG_010.jpg',
+  -   'IMG_2.jpg'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/ordering.test.mjs:30:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'IMG_001.jpg', 'IMG_010.jpg', 'IMG_2.jpg' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\ordering.test.mjs:36:1
+✖ case-sensitive: uppercase comes before lowercase (0.2012ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   'A.jpg',
+  -   'b.jpg'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/ordering.test.mjs:39:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 'A.jpg', 'b.jpg' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-meta.test.mjs:5:1
+✖ extractPhotoMeta — full record with EXIF (1.309ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '1abc123'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-meta.test.mjs:19:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '1abc123',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-meta.test.mjs:27:1
+✖ extractPhotoMeta — missing EXIF leaves capturedAt null (0.1872ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-meta.test.mjs:37:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-meta.test.mjs:41:1
+✖ extractPhotoMeta — imageMediaMetadata present but no time (0.1603ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-meta.test.mjs:50:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-meta.test.mjs:53:1
+✖ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.7532ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-meta.test.mjs:62:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

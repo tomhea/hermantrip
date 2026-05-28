@@ -9,5 +9,10 @@ dist/
 # CR-ist work artifacts that don't belong in git (only the *-fail.txt / *-pass.txt do)
 docs/*.tmp.txt
 
-# rclone scratch
+# rclone scratch (kept in case a future rebuild uses rclone)
 .rclone-cache/
+
+# MCP-tool side files that may appear in the working tree
+ruvector.db
+*.duckdb
+

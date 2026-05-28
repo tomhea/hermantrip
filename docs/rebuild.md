@@ -1,18 +1,53 @@
 # Rebuild guide
 
-How to re-run `scripts/build-manifest.mjs` when the family adds (or removes)
-photos from the Drive folder.
+The Drive folder is frozen — `scripts/build-manifest.mjs` runs **once at
+M1** and the resulting `data/manifest.json` is committed forever. No CI
+re-run, no cron, no recurring secrets to rotate.
 
-## Placeholder
+This file exists in case the assumption ever breaks: if a photo gets
+deleted, renamed, or added years from now and someone needs to refresh
+the manifest, here's the recipe.
 
-Filled in during M1 once `scripts/build-manifest.mjs` exists. Will cover:
+## One-time setup
 
-1. One-time `rclone config` for the Drive remote (and the optional OAuth
-   client_id to avoid Google's shared throttle).
-2. The re-run command: `node scripts/build-manifest.mjs`.
-3. Review the `git diff data/manifest.json` (should be small — append-only
-   for new photos, removal for deleted ones, untouched for existing).
-4. Commit on a `fix/manifest-refresh-YYYYMMDD` branch.
-5. CR-ist re-runs (R1 passes vacuously for pure data; R2 needs a 10-photo
-   smoke).
-6. Tag `v0.M13.<n>` and `bash scripts/deploy.sh`.
+1. Open [console.cloud.google.com](https://console.cloud.google.com/).
+2. Top bar → "Select a project" → "New project" → name `hermantrip` →
+   Create. Switch to it.
+3. Left nav → APIs & Services → Library → search **Google Drive API** →
+   Enable.
+4. Left nav → APIs & Services → Credentials → "+ Create credentials" →
+   "API key". Copy the key.
+5. (Recommended) "Edit API key" → "API restrictions" → "Restrict key" →
+   tick **only** Google Drive API → Save.
+
+The key is read-only against public files. Revoke it after the build
+finishes — nothing on the site uses it at runtime.
+
+## Run
+
+```sh
+DRIVE_API_KEY=AIza... node scripts/build-manifest.mjs
+```
+
+Stderr prints per-album progress. Stdout is silent. Output written to
+`data/manifest.json`.
+
+## Verify
+
+- `git diff data/manifest.json` — expect a small diff if photos were
+  added/removed since last build.
+- `npm test` — pure-logic tests stay green (range assignment + ordering
+  + EXIF parsing).
+- Eyeball: photo counts per album look right.
+
+## Commit
+
+```sh
+git checkout -b fix/manifest-refresh-$(date +%Y%m%d)
+git add data/manifest.json
+git commit -m "Refresh manifest (Drive folder updated)"
+git push -u origin HEAD
+gh pr create --base main --title "Fix: refresh manifest" --body "..."
+```
+
+Then CR-ist re-review + literal merge + new tag `v0.M13.<n>`.
