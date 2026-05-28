@@ -108,12 +108,12 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   margin: var(--space-3) 0;
 }
 
-/* Home (M2 stub — replaced in M3 with the real country grid) */
+/* Home header */
 .home-header {
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-5);
 }
 .home-header-text { flex: 1 1 auto; }
 .home-globe {
@@ -124,46 +124,72 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 @media (min-width: 769px) {
   .home-globe { width: 6rem; height: 6rem; }
 }
-.home-stats {
-  background: var(--surface);
-  border: 1px solid var(--divider);
-  padding: var(--space-4);
-  margin-bottom: var(--space-5);
-}
-.home-stats dl {
-  margin: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-  gap: var(--space-3);
-}
-.home-stats dt {
-  font-size: var(--type-small);
-  color: var(--text-muted);
-  margin-bottom: var(--space-1);
-}
-.home-stats dd {
-  margin: 0;
-  font-size: var(--type-h1);
-  font-weight: 500;
-  color: var(--text);
-}
-.home-countries {
+
+/* Country grid (home) */
+.country-grid {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 1px;
-  background: var(--divider);
-  border: 1px solid var(--divider);
-}
-.home-countries li {
-  background: var(--surface);
-  padding: var(--space-3) var(--space-4);
-  display: flex;
-  align-items: baseline;
+  grid-template-columns: 1fr;
   gap: var(--space-3);
 }
-.home-countries .country-dot {
+@media (min-width: 540px) {
+  .country-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 900px) {
+  .country-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.country-card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+}
+.country-card a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.country-card a:hover,
+.country-card a:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+}
+.country-thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--earth-pale);
+}
+.country-thumb-empty {
+  background: var(--divider);
+}
+.country-thumb-broken {
+  /* Set by inline onerror when BOTH the lh3 URL and the thumbnailLink
+   * fallback fail (typically Chrome's ORB blocking specific Drive files).
+   * Render as a pale atlas-ocean block with no broken-image glyph so the
+   * card looks intentional rather than failed. R4 fallback path. */
+  background:
+    repeating-linear-gradient(
+      45deg,
+      var(--earth-pale) 0 6px,
+      var(--bg) 6px 12px
+    );
+}
+.country-thumb-broken::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.country-card-meta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-3);
+}
+.country-card-meta .country-dot {
   flex: 0 0 auto;
   width: 0.5rem;
   height: 0.5rem;
@@ -171,15 +197,16 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   background: var(--accent);
   align-self: center;
 }
-.home-countries .country-name {
+.country-card-meta .country-name {
   font-weight: 500;
   flex: 1 1 auto;
 }
-.home-countries .country-count {
+.country-card-meta .country-count {
   color: var(--text-muted);
   font-size: var(--type-small);
   flex: 0 0 auto;
 }
+
 .home-coming-soon {
   margin-top: var(--space-6);
   padding: var(--space-3);
