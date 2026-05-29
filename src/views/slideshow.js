@@ -63,7 +63,7 @@ export function renderSlideshow({ manifest, error, id, idx, dpr = 1, viewport = 
          data-next="${nextHref}" data-prev="${prevHref}" data-exit="${exitHref}">
       <div class="slideshow-stage">
         <img class="slideshow-photo" src="${src}" alt="${escapeHTML(album.name)} — ${i + 1}"
-             decoding="async" onerror="${onerror}">
+             decoding="async" fetchpriority="high" onerror="${onerror}">
         <a class="slideshow-zone slideshow-zone-next" href="${nextHref}" aria-label="התמונה הבאה"></a>
         <a class="slideshow-zone slideshow-zone-prev" href="${prevHref}" aria-label="התמונה הקודמת"></a>
       </div>

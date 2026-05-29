@@ -19,12 +19,12 @@ const manifest = {
 
 test('renders the photo at the given index via slide intent', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '2', viewport: 'phone' });
-  assert.match(html, /lh3\.googleusercontent\.com\/d\/p002=w800/);
+  assert.match(html, /lh3\.googleusercontent\.com\/d\/p002=w520/);
 });
 
 test('desktop viewport requests the larger slide width', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '0', viewport: 'desktop' });
-  assert.match(html, /=w1600/);
+  assert.match(html, /=w920/);
 });
 
 test('shows a 1-based position counter (idx 2 of 5 → "3 / 5")', () => {

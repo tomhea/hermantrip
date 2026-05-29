@@ -11,17 +11,17 @@ const photo = {
 test('builds an img with the lh3 thumb URL for the given intent', () => {
   const html = photoImgHTML(photo, { intent: 'thumb' });
   assert.match(html, /<img\b/);
-  assert.match(html, /src="https:\/\/lh3\.googleusercontent\.com\/d\/FILE123=w300"/);
+  assert.match(html, /src="https:\/\/lh3\.googleusercontent\.com\/d\/FILE123=w140"/);
 });
 
 test('passes dpr through to the URL', () => {
   const html = photoImgHTML(photo, { intent: 'thumb', dpr: 2 });
-  assert.match(html, /=w600/);
+  assert.match(html, /=w280/);
 });
 
 test('passes viewport through for slide intent', () => {
   const html = photoImgHTML(photo, { intent: 'slide', viewport: 'desktop' });
-  assert.match(html, /=w1600/);
+  assert.match(html, /=w920/);
 });
 
 test('includes loading="lazy" by default (R5)', () => {
@@ -30,6 +30,14 @@ test('includes loading="lazy" by default (R5)', () => {
 
 test('eager loading when loading:"eager" passed (first paint above the fold)', () => {
   assert.match(photoImgHTML(photo, { intent: 'thumb', loading: 'eager' }), /loading="eager"/);
+});
+
+test('no fetchpriority attribute by default', () => {
+  assert.equal(/fetchpriority/.test(photoImgHTML(photo, { intent: 'thumb' })), false);
+});
+
+test('fetchpriority="high" emitted when priority:"high" passed (on-screen images)', () => {
+  assert.match(photoImgHTML(photo, { intent: 'thumb', priority: 'high' }), /fetchpriority="high"/);
 });
 
 test('onerror chain falls back to thumbnailLink then broken class (R4)', () => {

@@ -55,8 +55,16 @@ export function renderAlbumGrid({ manifest, error, id, dpr = 1 }) {
   }
 
   const tiles = photos.map((photo, i) => {
-    const loading = i < EAGER_COUNT ? 'eager' : 'lazy';
-    const img = photoImgHTML(photo, { intent: 'thumb', dpr, className: 'photo album-photo', loading });
+    const eager = i < EAGER_COUNT;
+    const img = photoImgHTML(photo, {
+      intent: 'thumb',
+      dpr,
+      className: 'photo album-photo',
+      loading: eager ? 'eager' : 'lazy',
+      // The first screenful jumps the network queue so on-screen thumbs
+      // appear fast (ask #2); off-screen tiles stay lazy + normal priority.
+      priority: eager ? 'high' : null,
+    });
     return `<li class="photo-tile"><a href="#/album/${album.id}/slide/${i}">${img}</a></li>`;
   });
 
