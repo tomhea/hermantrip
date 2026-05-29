@@ -1,0 +1,884 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (0.552ms)
+▶ albumDateRange
+  ✔ min/max of captured dates (1.3847ms)
+  ✔ ignores photos without capturedAt (0.1191ms)
+  ✔ single dated photo → start === end (0.0806ms)
+  ✔ no dated photos → null (0.1167ms)
+  ✔ spans months/years (0.0912ms)
+✔ albumDateRange (2.9678ms)
+▶ formatDateRange
+  ✔ same day (0.3441ms)
+  ✔ same month → "23–27 ביולי 2011" (0.1122ms)
+  ✔ same year, different month (0.1059ms)
+  ✔ across years → both full (0.0884ms)
+  ✔ garbage → empty (0.1538ms)
+✔ formatDateRange (1.0641ms)
+▶ albumDateLabel
+  ✔ formats the album range (0.142ms)
+  ✔ no dates → empty string (0.0837ms)
+✔ albumDateLabel (0.3061ms)
+✔ empty input returns empty array (3.5228ms)
+✔ no collisions: one entry per folder, folderIds wraps the source (0.5946ms)
+✔ same id: photos concatenated, both folderIds tracked (0.1733ms)
+✔ same id: first folder name wins (lex order preserves "Bhagsu 1") (1.133ms)
+✔ mixed: some collide, some do not (0.3525ms)
+✔ does not mutate input photos arrays (0.2009ms)
+▶ extractAlbumNumber — common patterns
+  ✔ "01" → 1 (0.7608ms)
+  ✔ "1" → 1 (0.1813ms)
+  ✔ "01 קטמנדו" → 1 (0.115ms)
+  ✔ "1 - דהלי" → 1 (0.0751ms)
+  ✔ "1. דהלי" → 1 (0.1432ms)
+  ✔ "1-עלייה לאוורסט" → 1 (0.1243ms)
+  ✔ "37 - יאנגשואו" → 37 (0.1168ms)
+  ✔ "037 - sometext" → 37 (0.1187ms)
+  ✔ "88 פוקט" → 88 (0.1768ms)
+  ✔ "88" → 88 (0.193ms)
+  ✔ "14a" → 14 (0.1315ms)
+  ✔ "14a. הודו - באגסו 2" → 14 (0.0807ms)
+✔ extractAlbumNumber — common patterns (3.6545ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✔ ".temp" → null (0.2925ms)
+  ✔ ".temp_1" → null (0.1477ms)
+  ✔ ".temp_2" → null (0.2066ms)
+  ✔ ".temp_3" → null (0.0786ms)
+  ✔ ".hidden" → null (0.0449ms)
+  ✔ "export" → null (0.0432ms)
+  ✔ "Export" → null (0.0371ms)
+  ✔ "EXPORT" → null (0.0499ms)
+  ✔ "exports" → null (0.0391ms)
+✔ extractAlbumNumber — ignored folders return null (2.7732ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✔ "תיאור בלי מספר" → null (0.1542ms)
+  ✔ "random folder" → null (0.0473ms)
+  ✔ "a01" → null (0.0377ms)
+  ✔ "_01" → null (0.0342ms)
+  ✔ "" → null (0.0345ms)
+✔ extractAlbumNumber — names without leading digits return null (0.4721ms)
+✔ extractAlbumNumber strips leading zeros (0.1197ms)
+✔ strips "NN. {country} - " prefix, returns the place (1.3976ms)
+✔ album 1 "ההתחלה - בנגקוק וקטמנדו" → place after the dash (0.1704ms)
+✔ no " - " separator → cleaned remainder (number prefix stripped) (0.1503ms)
+✔ handles the "NNa." merged-folder prefix (0.1917ms)
+✔ takes text after the LAST dash when multiple (0.1935ms)
+✔ trims surrounding whitespace (0.1466ms)
+✔ empty / non-string → empty string (0.2226ms)
+✔ name with only a number → empty (0.1468ms)
+✔ albumsForCountry returns albums where code is in countries[], sorted by id (2.224ms)
+✔ albumsForCountry includes cross-country albums (0.4114ms)
+✔ albumsForCountry for thailand returns [1, 19] sorted (0.2766ms)
+✔ albumsForCountry unknown country returns empty array (0.1847ms)
+✔ albumsForCountry does not mutate manifest.albums order (0.201ms)
+✔ albumById returns the matching album (0.2072ms)
+✔ albumById accepts string id (router params are strings) (0.1644ms)
+✔ albumById unknown id returns null (0.1846ms)
+✔ albumById non-numeric string returns null (0.2097ms)
+✔ default title strips number + country prefix (albumPlace) (2.3909ms)
+✔ merge 3+4 → one album id 3, title "טרק פון היל", photos combined (0.199ms)
+✔ merged photos are in id order (3 then 4) (0.6668ms)
+✔ explicit renames: 14 → באגסו, 19 → בנגקוק (0.1727ms)
+✔ country primaryAlbums drop the absorbed id (4) (0.1332ms)
+✔ counts.albums reflects the merge; no photos lost (0.132ms)
+✔ does not mutate the input manifest (0.1097ms)
+✔ idempotent-ish: every album ends with a non-empty title (0.1455ms)
+✔ CONTROLS_HIDE_MS is 5 seconds (0.6428ms)
+✔ hides once idle ≥ hide window (1.0521ms)
+✔ stays visible while still within the window (0.1611ms)
+✔ never hides while the pointer is over the bar (0.1479ms)
+✔ respects a custom hideAfterMs (0.1914ms)
+✔ exactly at the boundary hides (>= window) (0.1032ms)
+▶ controlsVisible
+  ✔ NOT fullscreen → always visible, even after long idle (0.1644ms)
+  ✔ NOT fullscreen → visible regardless of hovering (0.1075ms)
+  ✔ fullscreen + recent activity → visible (0.1393ms)
+  ✔ fullscreen + idle past window → hidden (0.2122ms)
+  ✔ fullscreen + hovering bar → visible even when idle (0.1894ms)
+✔ controlsVisible (1.1949ms)
+▶ slug ↔ code (M12)
+  ✔ every country has a unique non-empty slug (0.8375ms)
+  ✔ slugFromCode (0.1397ms)
+  ✔ codeFromSlug (0.0984ms)
+  ✔ codeFromSlug unknown → null (0.1092ms)
+  ✔ round-trips for every country (0.1447ms)
+✔ slug ↔ code (M12) (2.4361ms)
+✔ COUNTRY_ORDER lists the seven countries in trip order (0.6289ms)
+✔ COUNTRIES exposes Hebrew + English names for every code (0.1496ms)
+▶ assignAlbumToCountries — single-country
+  ✔ album 5 → only [np], primary np (0.3029ms)
+  ✔ album 12 → only [in], primary in (0.1069ms)
+  ✔ album 25 → only [vn], primary vn (0.1325ms)
+  ✔ album 34 → only [cn], primary cn (0.0713ms)
+  ✔ album 45 → only [au], primary au (0.1053ms)
+  ✔ album 65 → only [nz], primary nz (0.1102ms)
+  ✔ album 80 → only [th], primary th (0.0379ms)
+  ✔ album 19 → only [th], primary th (0.0746ms)
+✔ assignAlbumToCountries — single-country (2.164ms)
+✔ album 1 is Nepal + Thailand, primary Nepal (0.0854ms)
+✔ album 37 is China + Australia + Thailand, primary China (0.0453ms)
+▶ assignAlbumToCountries — range boundaries
+  ✔ album 7 → [np] (0.1123ms)
+  ✔ album 8 → [in] (0.0268ms)
+  ✔ album 18 → [in] (0.0222ms)
+  ✔ album 20 → [vn] (0.0203ms)
+  ✔ album 29 → [vn] (0.0282ms)
+  ✔ album 30 → [cn] (0.0209ms)
+  ✔ album 38 → [au] (0.0219ms)
+  ✔ album 53 → [au] (0.0216ms)
+  ✔ album 54 → [nz] (0.0252ms)
+  ✔ album 76 → [nz] (0.0428ms)
+  ✔ album 77 → [th] (0.0244ms)
+  ✔ album 88 → [th] (0.0219ms)
+✔ assignAlbumToCountries — range boundaries (0.5315ms)
+✔ album with no country range throws loudly (0.4876ms)
+✔ non-positive album throws (0.107ms)
+✔ returns first photo of lowest-id primary album (0.7701ms)
+✔ Thailand uses album 19 (its lowest primary), not album 1 (Nepal primary) (0.1411ms)
+✔ country with no primary albums returns null (0.0744ms)
+✔ unknown country returns null (0.2814ms)
+✔ country whose primary album has no photos falls through to next primary album (0.3999ms)
+✔ country with all-empty primary albums returns null (0.1982ms)
+✔ does not mutate manifest (0.2198ms)
+✔ sets capturedAt for the album-6 PNGs by id (0.7674ms)
+✔ shifts Chiang Mai (album 78) 2011-01-25 → 2012-01-25, keeping the time (0.1591ms)
+✔ does NOT shift other dates in album 78 (0.1068ms)
+✔ does NOT shift 2011-01-25 in OTHER albums (scoped to 78) (0.7341ms)
+✔ returns the same object unchanged when nothing matches (0.1309ms)
+✔ non-matching id + no capturedAt is left as-is (0.0998ms)
+✔ thumb intent: /img/{id}/140 at DPR 1 (0.8615ms)
+✔ thumb intent: /280 at DPR 2 (0.169ms)
+✔ thumb intent caps at 280 even at DPR 3 (0.0816ms)
+✔ card intent: /360 at DPR 1 (preview hero) (0.0706ms)
+✔ card intent: /720 at DPR 2 (0.082ms)
+✔ card intent caps at 720 even at DPR 3 (0.1001ms)
+✔ pin intent: /120 default (0.0806ms)
+✔ pin intent caps at 240 at high DPR (0.0648ms)
+✔ slide on phone: /520 at DPR 1 (0.0936ms)
+✔ slide on phone DPR 2: /1040 (0.1356ms)
+✔ slide on phone caps at 1080 at DPR 3 (0.1091ms)
+✔ slide on tablet: /760 baseline (0.0671ms)
+✔ slide on desktop: /920 baseline (0.0539ms)
+✔ slide on desktop DPR 2: /1840 (0.0835ms)
+✔ slide on desktop caps at 2000 at DPR 3 (0.0633ms)
+✔ original intent: /2400 regardless of DPR (0.1048ms)
+✔ download intent: /img/{id}/orig (full original, server adds attachment header) (0.0559ms)
+✔ emits NO raw Google URL (same-origin only) (0.191ms)
+✔ unknown intent throws (0.3226ms)
+✔ missing fileId throws (0.9818ms)
+✔ fileId with special URL chars is rejected (0.2076ms)
+▶ parseImgPath
+  ✔ width path → { id, size } (1.2012ms)
+  ✔ orig path → { id, size: "orig" } (0.1676ms)
+  ✔ id with - and _ accepted (0.111ms)
+  ✔ non-/img path → null (0.1928ms)
+  ✔ bad size (not digits/orig) → null (0.2283ms)
+  ✔ path traversal / extra segments → null (0.1995ms)
+  ✔ id with illegal chars → null (no upstream injection) (0.212ms)
+✔ parseImgPath (3.4996ms)
+▶ lh3UrlFor
+  ✔ numeric size → =w{size} (0.301ms)
+  ✔ orig → =s0 (full original) (0.2102ms)
+✔ lh3UrlFor (0.8059ms)
+▶ client URLs round-trip through the server parser
+  ✔ server parses client URL /img/FILE1/280 (0.5697ms)
+  ✔ server parses client URL /img/FILE2/720 (0.1698ms)
+  ✔ server parses client URL /img/FILE3/1040 (0.143ms)
+  ✔ server parses client URL /img/FILE4/orig (0.169ms)
+✔ client URLs round-trip through the server parser (1.281ms)
+✔ default loading text is Hebrew "טוען..." (0.6793ms)
+✔ default error text is Hebrew and not auto-translated (0.2526ms)
+✔ loadingHTML uses default text (0.3472ms)
+✔ loadingHTML uses custom text (0.2539ms)
+✔ loadingHTML includes role="status" for assistive tech (0.2278ms)
+✔ loadingHTML includes aria-live="polite" (0.175ms)
+✔ errorHTML uses default text (0.1442ms)
+✔ errorHTML uses custom text (0.0874ms)
+✔ errorHTML includes role="alert" (0.1325ms)
+✔ escapes HTML special chars in custom text to prevent XSS (0.2274ms)
+✔ empty array returns empty (2.0857ms)
+▶ sortPhotosByDate (M14)
+  ✔ orders by capturedAt ascending (0.4699ms)
+  ✔ same instant → filename tiebreak (0.1188ms)
+  ✔ undated photos sort AFTER dated ones (0.1127ms)
+  ✔ all-undated falls back to filename order (preserves old behavior) (0.1091ms)
+  ✔ non-mutating (0.1354ms)
+✔ sortPhotosByDate (M14) (1.2859ms)
+✔ already-sorted returns equivalent order (0.1344ms)
+✔ reverse-sorted gets sorted (0.1096ms)
+✔ numeric suffixes sort lexicographically (NOT numerically) (0.1103ms)
+✔ case-sensitive: uppercase comes before lowercase (0.1367ms)
+✔ does not mutate input array (0.1035ms)
+✔ returns a new array, not the original (0.1178ms)
+✔ homePath (0.6548ms)
+✔ countryPath maps code → slug (0.1513ms)
+✔ countryRandomPath (0.0839ms)
+✔ albumPath (global album id under the country slug) (0.0842ms)
+✔ albumPath accepts string id (0.0845ms)
+✔ slidePath (0.0869ms)
+✔ all-countries random + feature pages (0.0909ms)
+✔ dayPath: bare + specific date (0.0661ms)
+✔ feature-page paths never collide with any country slug (0.1725ms)
+✔ formatHebrewDate: "23 ביולי 2011" (ב-prefixed month) (1.2042ms)
+✔ formatHebrewDate: handles each month prefix (0.967ms)
+✔ formatHebrewDate: no leading zero on day (0.1631ms)
+✔ formatHebrewDate: null/garbage → empty string (0.1567ms)
+✔ hebrewWeekday: known dates (0.2198ms)
+✔ hebrewWeekday: midweek (0.1514ms)
+✔ hebrewWeekday: null → empty (0.1156ms)
+✔ formatClock: "14:32" (0.149ms)
+✔ formatClock: pads single-digit hour/minute (0.227ms)
+✔ formatClock: null → empty (0.1808ms)
+✔ empty → empty (1.0264ms)
+✔ groups consecutive photos sharing a day (0.4506ms)
+✔ preserves input order within and across groups (0.2901ms)
+✔ undated photos form a date:null group (1.2428ms)
+✔ a day that recurs non-contiguously starts a new group (input should be pre-sorted) (0.3301ms)
+✔ total photos preserved across groups (0.3386ms)
+✔ builds an img with the same-origin /img/ thumb URL for the given intent (1.7747ms)
+✔ passes dpr through to the URL (0.2618ms)
+✔ passes viewport through for slide intent (0.1204ms)
+✔ never emits a raw Google URL (same-origin only) (0.1522ms)
+✔ includes loading="lazy" by default (R5) (0.1235ms)
+✔ eager loading when loading:"eager" passed (first paint above the fold) (0.0993ms)
+✔ no fetchpriority attribute by default (0.0838ms)
+✔ fetchpriority="high" emitted when priority:"high" passed (on-screen images) (0.113ms)
+✔ onerror tags the element for the CSS placeholder (no thumbnailLink hop needed now) (0.1163ms)
+✔ applies a custom className (0.1473ms)
+✔ default className is "photo" (0.0914ms)
+✔ alt defaults to empty (decorative) and is escaped when provided (0.1045ms)
+✔ decoding="async" is set (0.0823ms)
+✔ rejects a malformed photo id (cannot break out of the attribute) (0.2122ms)
+✔ extractPhotoMeta — full record with EXIF (0.6987ms)
+✔ extractPhotoMeta — missing EXIF leaves capturedAt null (0.1159ms)
+✔ extractPhotoMeta — imageMediaMetadata present but no time (0.0812ms)
+✔ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.1346ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.2407ms)
+✖ allPhotos: every photo, tagged with its album (4.0766ms)
+✖ allPhotos: a cross-country album is counted once (no dupes) (0.173ms)
+✖ countryPhotos(np): albums 1 + 2 → p1,p2,p3 (0.1038ms)
+✖ countryPhotos(th): cross-country album 1 included → p1,p2,p4,p5 (0.6284ms)
+✖ countryPhotos: unknown country → empty (0.9429ms)
+✖ each entry carries the album for context (title/country) (9.9481ms)
+✖ empty manifest → empty (0.3184ms)
+✖ preserves the multiset (same elements) (1.9171ms)
+✔ does not mutate the input (0.2097ms)
+✔ returns a new array (0.1617ms)
+✔ deterministic for a given seed (0.2662ms)
+✖ different seeds usually differ (sanity) (0.3724ms)
+✔ actually reorders (not identity) for a typical seed (0.1065ms)
+✖ empty + single (0.2158ms)
+✖ works with the default rng (Math.random) — still a permutation (0.2421ms)
+▶ parseHash
+  ✔ "" → "/" (1.0564ms)
+  ✔ "#" → "/" (0.2031ms)
+  ✔ "#/" → "/" (0.126ms)
+  ✔ "#/country/np" → "/country/np" (0.1444ms)
+  ✔ "#/album/5" → "/album/5" (0.1148ms)
+  ✔ "#/album/5/slide/12" → "/album/5/slide/12" (0.1136ms)
+  ✔ "/country/np" → "/country/np" (0.141ms)
+  ✔ "#country/np" → "/country/np" (0.1146ms)
+  ✔ "#/random" → "/random" (0.1546ms)
+✔ parseHash (3.8059ms)
+▶ createRouter — static routes
+  ✔ matches home route (1.2224ms)
+  ✔ matches map route (0.1601ms)
+  ✔ unknown path returns null (0.1459ms)
+✔ createRouter — static routes (1.7939ms)
+▶ createRouter — param routes
+  ✔ single param (0.2578ms)
+  ✔ two params (0.2087ms)
+  ✔ static segment after param (0.1733ms)
+  ✔ decodes URI components in params (1.5948ms)
+  ✔ extra segments do not match shorter pattern (0.1338ms)
+  ✔ first matching route wins (0.0968ms)
+✔ createRouter — param routes (2.6918ms)
+▶ clampIndex
+  ✔ in-range index unchanged (1.0167ms)
+  ✔ negative clamps to 0 (0.1693ms)
+  ✔ over-length clamps to last (0.1117ms)
+  ✔ non-integer string parses (0.1109ms)
+  ✔ garbage clamps to 0 (0.1296ms)
+  ✔ empty album → 0 (0.1051ms)
+✔ clampIndex (2.8714ms)
+▶ nextIndex (wraps by default)
+  ✔ advances by one (0.2738ms)
+  ✔ wraps last → first (0.1927ms)
+  ✔ no-wrap stays at last (0.1197ms)
+✔ nextIndex (wraps by default) (0.8452ms)
+▶ prevIndex (wraps by default)
+  ✔ goes back by one (0.419ms)
+  ✔ wraps first → last (0.1054ms)
+  ✔ no-wrap stays at first (1.3677ms)
+✔ prevIndex (wraps by default) (2.0553ms)
+▶ keyToAction (RTL: ArrowLeft = next)
+  ✔ ArrowLeft → next (0.2398ms)
+  ✔ ArrowRight → prev (0.3777ms)
+  ✔ Escape → exit (0.1191ms)
+  ✔ spacebar → next (0.1019ms)
+  ✔ unrelated key → null (0.1054ms)
+✔ keyToAction (RTL: ArrowLeft = next) (1.1766ms)
+▶ swipeToAction (RTL: rightward = next)
+  ✔ big rightward swipe → next (0.1962ms)
+  ✔ big leftward swipe → prev (0.1052ms)
+  ✔ tiny movement below threshold → null (0.0915ms)
+  ✔ custom threshold respected (0.0882ms)
+✔ swipeToAction (RTL: rightward = next) (0.6811ms)
+▶ preloadIndices (±2 neighbours, default radius 2)
+  ✔ middle of a large album → the 2 before + 2 after, current excluded (1.1205ms)
+  ✔ near the start wraps around to the end (0.1256ms)
+  ✔ near the end wraps to the start (0.0945ms)
+  ✔ never includes the current index (0.0485ms)
+  ✔ small album (3 photos) → the other 2, no dupes, no current (0.0764ms)
+  ✔ two-photo album → just the other one (0.0457ms)
+  ✔ single-photo album → nothing to preload (0.0324ms)
+  ✔ empty album → empty (0.0292ms)
+  ✔ custom radius 1 → just ±1 (0.0407ms)
+✔ preloadIndices (±2 neighbours, default radius 2) (1.7848ms)
+✔ SPEEDS are ascending second-multiples in ms (1.6756ms)
+✔ nextSpeed cycles to the next speed (0.2409ms)
+✔ nextSpeed wraps from last back to first (0.1635ms)
+✔ nextSpeed with an unknown value returns the first speed (1.0342ms)
+✔ speedLabel shows seconds with a Hebrew suffix (0.1797ms)
+✔ the default 4s interval (M7) is one of the options (0.0777ms)
+✔ same-origin HTML navigation → network-first (1.4766ms)
+✔ same-origin JS / CSS → network-first (so code updates are never stale) (0.2707ms)
+✔ the manifest is always bypassed (must be fresh, never cache-served) (1.0577ms)
+✔ cross-origin photo (lh3) → bypass (0.2347ms)
+✔ same-origin proxied photo (/img/...) → bypass (not in shell cache) (0.2749ms)
+✔ cross-origin font (gstatic) → bypass (0.2317ms)
+✔ localhost dev origin also resolves shell as network-first (0.2317ms)
+✔ query strings on the manifest still bypass (0.1663ms)
+✔ query strings target the documented breakpoints (0.6192ms)
+✔ isPhone true when matchMedia matches PHONE_QUERY (0.1772ms)
+✔ isPhone false when only desktop matches (0.0954ms)
+✔ isTablet true only at tablet breakpoint (0.0948ms)
+✔ isDesktop true only at desktop breakpoint (1.0105ms)
+✔ happy path: renders album name as title (13.6479ms)
+✔ happy path: renders one img per photo (0.315ms)
+✔ happy path: first 12 are eager, rest lazy (R5 first-paint budget) (0.2175ms)
+✔ happy path: photos are in lexicographic filename order (0.2016ms)
+✔ happy path: each photo links to its slide route (0.6944ms)
+✔ happy path: includes a back link to the country (0.1445ms)
+✔ empty album shows a "no photos" message (0.1022ms)
+✔ loading state when manifest is null (0.1218ms)
+✔ fetch-failed state renders errorHTML (0.1474ms)
+✔ unknown album shows a not-found message + back link home (0.1665ms)
+✔ happy path: renders country name as title (13.1341ms)
+✔ happy path: one card per album with album name + photo count (0.2386ms)
+✔ happy path: photo counts are shown (0.1433ms)
+✔ happy path: each album card uses its first photo via the same-origin /img/ proxy (0.1971ms)
+✔ happy path: includes a back link to home (0.152ms)
+✔ loading state when manifest is null (0.1315ms)
+✔ fetch-failed state renders errorHTML (0.1149ms)
+✔ unknown country shows a not-found message + back link (0.0781ms)
+✔ escapes album names to prevent XSS (0.169ms)
+✔ happy path: renders header + grid with one card per country (14.2145ms)
+✔ happy path: each card has a same-origin /img/ card image (0.2894ms)
+✔ happy path: card image never emits a raw Google URL (0.192ms)
+✔ happy path: image uses loading="lazy" (R5 budget) (0.1324ms)
+✔ happy path: image onerror shows the placeholder (no thumbnailLink hop) (0.1722ms)
+✔ happy path: DPR is passed through to image URL (0.1236ms)
+✔ fetch-failed state: renders errorHTML (0.1514ms)
+✔ loading state: renders loadingHTML when manifest is null + no error (0.1131ms)
+✔ empty-manifest state: renders empty message when countries=[] (0.107ms)
+✔ empty-manifest state: also when countries is missing (0.1578ms)
+✔ country with no thumb falls back to placeholder div (0.1509ms)
+✔ escapes country names to prevent XSS (0.1136ms)
+✖ renders the photo via slide intent (1.081ms)
+✖ carries data-random scope + data-exit; no data-next/prev hrefs (0.8972ms)
+✖ prev/next zones are buttons with data-nav (JS-driven, not links) (0.1945ms)
+✖ info panel shows the source album, country, date (0.1349ms)
+✖ bar links to the source album (0.1605ms)
+✖ download link → original (0.1179ms)
+✖ autoplay + speed reflected (0.1071ms)
+✖ loading state when manifest null (0.0997ms)
+✖ error state (0.1513ms)
+✖ empty pool → message + back link (0.2387ms)
+✔ renders the photo at the given index via slide intent (same-origin /img/) (1.8968ms)
+✔ desktop viewport requests the larger slide width (0.2272ms)
+✔ shows a 1-based position counter (idx 2 of 5 → "3 / 5") (0.2045ms)
+✔ next link wraps last → first (0.136ms)
+✔ prev link wraps first → last (0.1493ms)
+✔ middle index links to both neighbours (0.7131ms)
+✔ exit/close link returns to the album grid (0.1498ms)
+✔ out-of-range index is clamped (idx 99 → shows last photo p004) (0.1443ms)
+✔ negative index clamps to first (0.1762ms)
+✔ loading state when manifest null (0.2075ms)
+✔ fetch-failed state renders errorHTML (0.1627ms)
+✔ unknown album → not-found + home link (0.077ms)
+✔ empty album → message + back link, no crash (0.0565ms)
+✔ carries data-slideshow hooks for keyboard/swipe wiring (0.1483ms)
+✔ renders a play button (data-autoplay-toggle) when autoplay is off (0.1731ms)
+✔ shows pause affordance when autoplay is on (0.165ms)
+✔ autoplay defaults to off when not specified (0.0821ms)
+✔ M9: speed button shows the current speed label + data-speed (0.0922ms)
+✔ M9: fullscreen toggle button present (0.0661ms)
+✔ M9: download link points at the same-origin original + has download attr (0.1044ms)
+✔ M9: info panel shows Hebrew date, weekday, place, position (0.2167ms)
+✔ M9: info panel tolerates a photo with no capturedAt (omits date rows) (0.0938ms)
+ℹ tests 371
+ℹ suites 23
+ℹ pass 350
+ℹ fail 21
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 452.862
+
+✖ failing tests:
+
+test at src\lib\photo-pool.test.mjs:17:1
+✖ allPhotos: every photo, tagged with its album (4.0766ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 5
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-pool.test.mjs:19:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 5,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-pool.test.mjs:25:1
+✖ allPhotos: a cross-country album is counted once (no dupes) (0.173ms)
+  TypeError: Cannot read properties of null (reading 'id')
+      at file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-pool.test.mjs:27:45
+      at Array.filter (<anonymous>)
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-pool.test.mjs:27:23)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)
+
+test at src\lib\photo-pool.test.mjs:31:1
+✖ countryPhotos(np): albums 1 + 2 → p1,p2,p3 (0.1038ms)
+  TypeError: Cannot read properties of null (reading 'id')
+      at file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-pool.test.mjs:33:43
+      at Array.map (<anonymous>)
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-pool.test.mjs:33:24)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at src\lib\photo-pool.test.mjs:36:1
+✖ countryPhotos(th): cross-country album 1 included → p1,p2,p4,p5 (0.6284ms)
+  TypeError: Cannot read properties of null (reading 'id')
+      at file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-pool.test.mjs:38:43
+      at Array.map (<anonymous>)
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-pool.test.mjs:38:24)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at src\lib\photo-pool.test.mjs:41:1
+✖ countryPhotos: unknown country → empty (0.9429ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   {
+  +     album: null,
+  +     photo: null
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-pool.test.mjs:42:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { photo: null, album: null } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-pool.test.mjs:45:1
+✖ each entry carries the album for context (title/country) (9.9481ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(out.every((x) => x.album && Array.isArray(x.album.countries)))
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-pool.test.mjs:47:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-pool.test.mjs:50:1
+✖ empty manifest → empty (0.3184ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   {
+  +     album: null,
+  +     photo: null
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-pool.test.mjs:51:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { photo: null, album: null } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\random.test.mjs:16:1
+✖ preserves the multiset (same elements) (1.9171ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   1,
+  -   2,
+  -   3,
+  -   4,
+  -   5,
+  -   6,
+  -   7,
+  -   8
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/random.test.mjs:19:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [
+      1, 2, 3, 4,
+      5, 6, 7, 8
+    ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\random.test.mjs:40:1
+✖ different seeds usually differ (sanity) (0.3724ms)
+  AssertionError [ERR_ASSERTION]: Expected "actual" not to be strictly deep-equal to:
+  
+  [
+    '__STUB__'
+  ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/random.test.mjs:43:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ '__STUB__' ],
+    operator: 'notDeepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\random.test.mjs:51:1
+✖ empty + single (0.2158ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   '__STUB__'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/random.test.mjs:52:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\random.test.mjs:56:1
+✖ works with the default rng (Math.random) — still a permutation (0.2421ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   '__STUB__'
+  -   1,
+  -   2,
+  -   3,
+  -   4,
+  -   5
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/random.test.mjs:59:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '__STUB__' ],
+    expected: [ 1, 2, 3, 4, 5 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\views\random-slideshow.test.mjs:11:1
+✖ renders the photo via slide intent (1.081ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /src="\/img\/p1\/\d+"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/random-slideshow.test.mjs:13:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /src="\/img\/p1\/\d+"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\random-slideshow.test.mjs:16:1
+✖ carries data-random scope + data-exit; no data-next/prev hrefs (0.8972ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /data-random="all"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/random-slideshow.test.mjs:18:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /data-random="all"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\random-slideshow.test.mjs:22:1
+✖ prev/next zones are buttons with data-nav (JS-driven, not links) (0.1945ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /<button[^>]*data-nav="next"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/random-slideshow.test.mjs:24:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /<button[^>]*data-nav="next"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\random-slideshow.test.mjs:28:1
+✖ info panel shows the source album, country, date (0.1349ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /טרק פון היל/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/random-slideshow.test.mjs:30:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /טרק פון היל/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\random-slideshow.test.mjs:35:1
+✖ bar links to the source album (0.1605ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /class="slideshow-title" href="\/nepal\/3"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/random-slideshow.test.mjs:37:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /class="slideshow-title" href="\/nepal\/3"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\random-slideshow.test.mjs:40:1
+✖ download link → original (0.1179ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /class="slideshow-dl" href="\/img\/p1\/orig"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/random-slideshow.test.mjs:42:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /class="slideshow-dl" href="\/img\/p1\/orig"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\random-slideshow.test.mjs:45:1
+✖ autoplay + speed reflected (0.1071ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /data-autoplay-on="true"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/random-slideshow.test.mjs:47:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /data-autoplay-on="true"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\random-slideshow.test.mjs:52:1
+✖ loading state when manifest null (0.0997ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /role="status"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/random-slideshow.test.mjs:53:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /role="status"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\random-slideshow.test.mjs:56:1
+✖ error state (0.1513ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /role="alert"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/random-slideshow.test.mjs:57:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /role="alert"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\random-slideshow.test.mjs:60:1
+✖ empty pool → message + back link (0.2387ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /אין תמונות/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/random-slideshow.test.mjs:62:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /אין תמונות/,
+    operator: 'match',
+    diff: 'simple'
+  }

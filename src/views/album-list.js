@@ -7,7 +7,7 @@
 import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { albumsForCountry } from '../lib/album-query.js';
 import { photoImgHTML } from '../lib/photo-img.js';
-import { homePath, albumPath } from '../lib/paths.js';
+import { homePath, albumPath, countryRandomPath } from '../lib/paths.js';
 import { albumDateLabel } from '../lib/album-dates.js';
 
 function escapeHTML(s) {
@@ -73,6 +73,9 @@ export function renderAlbumList({ manifest, error, code, dpr = 1 }) {
 
   return `
     ${backHeader(country.he, subtitle)}
+    <nav class="home-actions">
+      <a class="action-link" href="${countryRandomPath(code)}">▷ מצגת אקראית · ${escapeHTML(country.he)}</a>
+    </nav>
     <ul class="album-grid-list" aria-label="אלבומים">
       ${albums.map((a) => albumCard(a, code, dpr)).join('')}
     </ul>

@@ -11,12 +11,15 @@ import { albumById } from './lib/album-query.js';
 import { sortPhotosByDate } from './lib/ordering.js';
 import { imageUrl } from './lib/image-url.js';
 import { codeFromSlug, slugFromCode } from './lib/countries.js';
-import { albumPath } from './lib/paths.js';
+import { albumPath, countryPath } from './lib/paths.js';
 import { transformManifest } from './lib/album-transform.js';
+import { shuffle } from './lib/random.js';
+import { allPhotos, countryPhotos } from './lib/photo-pool.js';
 import { renderCountryList } from './views/country-list.js';
 import { renderAlbumList } from './views/album-list.js';
 import { renderAlbumGrid } from './views/album-grid.js';
 import { renderSlideshow } from './views/slideshow.js';
+import { renderRandomShow } from './views/random-slideshow.js';
 
 // Clean-path routes (M12). Order matters: literal first segments are listed
 // before the /:country catch-all, and the more-specific /:country/random &
@@ -125,6 +128,14 @@ function currentPath() {
 let autoplayOn = false;
 let autoplayTimer = null;
 let autoplaySpeed = 4000; // ms between auto-advances; cycled by the speed button
+
+// Random slideshow (M17). The shuffled playlist + position live at module
+// scope; it's rebuilt on FRESH entry (or scope change) and preserved across
+// the re-renders that advancing / toggling controls trigger, so a session
+// keeps one order until you leave (cleared in render()).
+let randomPlaylist = null; // [{ photo, album }]
+let randomPos = 0;
+let randomScope = null;    // 'all' | country code
 // Hold preloaded Image() refs for the current slide so they aren't GC'd
 // before they finish loading; replaced (not appended) each render.
 let preloadRefs = [];
@@ -165,8 +176,47 @@ function preloadNeighbours(params) {
   }
 }
 
+// --- Random slideshow (M17) ---
+function renderRandom(scope, exitHref) {
+  if (manifest && (randomPlaylist === null || randomScope !== scope)) {
+    const pool = scope === 'all' ? allPhotos(manifest) : countryPhotos(manifest, scope);
+    randomPlaylist = shuffle(pool);
+    randomPos = 0;
+    randomScope = scope;
+  }
+  const item = randomPlaylist && randomPlaylist.length ? randomPlaylist[randomPos] : null;
+  app.innerHTML = renderRandomShow({
+    manifest, error: manifestError, item, scope, exitHref,
+    autoplay: autoplayOn, speed: autoplaySpeed, dpr: dpr(), viewport: viewportClass(),
+  });
+  window.scrollTo(0, 0);
+  wireSlideshow();
+  // Warm the next random photo so autoplay/next is instant.
+  if (randomPlaylist && randomPlaylist.length > 1) {
+    const nxt = randomPlaylist[(randomPos + 1) % randomPlaylist.length];
+    const img = new Image();
+    img.decoding = 'async';
+    img.src = imageUrl(nxt.photo.id, 'slide', { dpr: dpr(), viewport: viewportClass() });
+    preloadRefs = [img];
+  }
+}
+
+function advanceRandom(dir) {
+  if (!randomPlaylist || !randomPlaylist.length) return;
+  randomPos = (randomPos + dir + randomPlaylist.length) % randomPlaylist.length;
+  render(); // URL stays on the random route → renderRandom keeps the playlist
+}
+
+// next/prev for either slideshow flavour: random advances the in-memory
+// playlist; album navigates by URL.
+function slideAdvance(shell, dir) {
+  if (shell.dataset.random !== undefined) advanceRandom(dir);
+  else go(dir > 0 ? shell.dataset.next : shell.dataset.prev);
+}
+
 // Attach swipe + autoplay-toggle handlers to the freshly-rendered slideshow.
-// Click-zone + close navigation is plain <a href>; keyboard is global below.
+// Album click-zones are plain <a href>; random zones are <button data-nav>
+// wired here. Keyboard is global below.
 function wireSlideshow() {
   const shell = app.querySelector('[data-slideshow]');
   if (!shell) return;
@@ -175,6 +225,11 @@ function wireSlideshow() {
     prev: shell.dataset.prev,
     exit: shell.dataset.exit,
   };
+
+  // Random-mode prev/next zone buttons.
+  for (const btn of shell.querySelectorAll('[data-nav]')) {
+    btn.addEventListener('click', () => slideAdvance(shell, btn.dataset.nav === 'next' ? 1 : -1));
+  }
 
   // Touch swipe on the stage.
   const stage = shell.querySelector('.slideshow-stage');
@@ -188,7 +243,8 @@ function wireSlideshow() {
       const dx = e.changedTouches[0].clientX - startX;
       startX = null;
       const action = swipeToAction(dx);
-      if (action) go(hrefs[action]);
+      if (action === 'next') slideAdvance(shell, 1);
+      else if (action === 'prev') slideAdvance(shell, -1);
     }, { passive: true });
   }
 
@@ -233,7 +289,7 @@ function wireSlideshow() {
   // sets a fresh timer; navigating away clears it (see render()).
   stopAutoplayTimer();
   if (autoplayOn) {
-    autoplayTimer = setTimeout(() => go(shell.dataset.next), autoplaySpeed);
+    autoplayTimer = setTimeout(() => slideAdvance(shell, 1), autoplaySpeed);
   }
 }
 
@@ -296,9 +352,8 @@ window.addEventListener('keydown', (e) => {
   const action = keyToAction(e.key);
   if (!action) return;
   e.preventDefault();
-  go(action === 'next' ? shell.dataset.next
-    : action === 'prev' ? shell.dataset.prev
-    : shell.dataset.exit);
+  if (action === 'exit') go(shell.dataset.exit);
+  else slideAdvance(shell, action === 'next' ? 1 : -1);
 });
 
 function renderNotFound(path) {
@@ -327,11 +382,15 @@ function render() {
   // if we're landing on another slide and autoplay is still on. Leaving the
   // slideshow entirely turns autoplay back off so it doesn't silently resume.
   stopAutoplayTimer();
-  if (!match || match.name !== 'slide') {
+  const inSlideshow = match && ['slide', 'random', 'country-random'].includes(match.name);
+  if (!inSlideshow) {
     autoplayOn = false;
     // Leaving the slideshow: drop out of fullscreen so the album/home view
-    // isn't stuck filling the screen.
+    // isn't stuck filling the screen, and forget the random playlist so the
+    // next random visit reshuffles ("random each time").
     if (document.fullscreenElement) document.exitFullscreen?.();
+    randomPlaylist = null;
+    randomScope = null;
   }
   if (!match) {
     renderNotFound(path);
@@ -350,6 +409,14 @@ function render() {
     case 'slide':
       renderSlide(match.params);
       break;
+    case 'random':
+      renderRandom('all', '/');
+      break;
+    case 'country-random': {
+      const code = codeFromSlug(match.params.country);
+      renderRandom(code, countryPath(code));
+      break;
+    }
     default:
       // Placeholder for routes whose views ship in later milestones
       // (random / map / game / timeline / day).

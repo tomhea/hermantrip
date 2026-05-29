@@ -11,7 +11,7 @@
 import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { imageUrl } from '../lib/image-url.js';
 import { pickCountryThumb } from '../lib/country-thumb.js';
-import { countryPath } from '../lib/paths.js';
+import { countryPath, randomPath } from '../lib/paths.js';
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -93,12 +93,15 @@ export function renderCountryList({ manifest, error, dpr = 1 }) {
 
   return `
     ${renderHeader()}
+    <nav class="home-actions">
+      <a class="action-link" href="${randomPath()}">▷ מצגת אקראית מכל המדינות</a>
+    </nav>
     <ul class="country-grid" aria-label="מדינות">
       ${manifest.countries.map((c) => renderCountryCard(c, manifest, dpr)).join('')}
     </ul>
     <p class="home-coming-soon">
       בחרו מדינה כדי לדפדף באלבומים שלה.
-      סלאידשואו, מפה, משחק ניחושים וציר זמן יגיעו במילסטונים הבאים.
+      מפה, משחק ניחושים וציר זמן יגיעו במילסטונים הבאים.
     </p>
   `;
 }
