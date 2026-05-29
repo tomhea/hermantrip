@@ -1,0 +1,1049 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (0.7308ms)
+✔ empty input returns empty array (2.1872ms)
+✔ no collisions: one entry per folder, folderIds wraps the source (0.4096ms)
+✔ same id: photos concatenated, both folderIds tracked (0.1796ms)
+✔ same id: first folder name wins (lex order preserves "Bhagsu 1") (1.1981ms)
+✔ mixed: some collide, some do not (0.3479ms)
+✔ does not mutate input photos arrays (0.191ms)
+▶ extractAlbumNumber — common patterns
+  ✔ "01" → 1 (1.2008ms)
+  ✔ "1" → 1 (0.4299ms)
+  ✔ "01 קטמנדו" → 1 (0.3617ms)
+  ✔ "1 - דהלי" → 1 (0.2779ms)
+  ✔ "1. דהלי" → 1 (0.3531ms)
+  ✔ "1-עלייה לאוורסט" → 1 (0.2674ms)
+  ✔ "37 - יאנגשואו" → 37 (0.2567ms)
+  ✔ "037 - sometext" → 37 (0.26ms)
+  ✔ "88 פוקט" → 88 (0.3328ms)
+  ✔ "88" → 88 (0.2937ms)
+  ✔ "14a" → 14 (0.2642ms)
+  ✔ "14a. הודו - באגסו 2" → 14 (0.1251ms)
+✔ extractAlbumNumber — common patterns (6.9404ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✔ ".temp" → null (0.2652ms)
+  ✔ ".temp_1" → null (1.5886ms)
+  ✔ ".temp_2" → null (0.1936ms)
+  ✔ ".temp_3" → null (0.101ms)
+  ✔ ".hidden" → null (0.0865ms)
+  ✔ "export" → null (0.0732ms)
+  ✔ "Export" → null (0.0879ms)
+  ✔ "EXPORT" → null (0.0789ms)
+  ✔ "exports" → null (0.0746ms)
+✔ extractAlbumNumber — ignored folders return null (3.0717ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✔ "תיאור בלי מספר" → null (0.2157ms)
+  ✔ "random folder" → null (0.0824ms)
+  ✔ "a01" → null (0.0962ms)
+  ✔ "_01" → null (0.0733ms)
+  ✔ "" → null (0.0651ms)
+✔ extractAlbumNumber — names without leading digits return null (0.7961ms)
+✔ extractAlbumNumber strips leading zeros (0.2003ms)
+✖ strips "NN. {country} - " prefix, returns the place (3.6363ms)
+✖ album 1 "ההתחלה - בנגקוק וקטמנדו" → place after the dash (0.6773ms)
+✖ no " - " separator → cleaned remainder (number prefix stripped) (1.5516ms)
+✖ handles the "NNa." merged-folder prefix (0.2873ms)
+✖ takes text after the LAST dash when multiple (0.2344ms)
+✖ trims surrounding whitespace (0.2035ms)
+✖ empty / non-string → empty string (0.2002ms)
+✖ name with only a number → empty (0.1415ms)
+✔ albumsForCountry returns albums where code is in countries[], sorted by id (1.6703ms)
+✔ albumsForCountry includes cross-country albums (0.2389ms)
+✔ albumsForCountry for thailand returns [1, 19] sorted (0.2283ms)
+✔ albumsForCountry unknown country returns empty array (0.1455ms)
+✔ albumsForCountry does not mutate manifest.albums order (0.1781ms)
+✔ albumById returns the matching album (0.1719ms)
+✔ albumById accepts string id (router params are strings) (0.1087ms)
+✔ albumById unknown id returns null (0.1088ms)
+✔ albumById non-numeric string returns null (0.1862ms)
+✔ COUNTRY_ORDER lists the seven countries in trip order (1.6637ms)
+✔ COUNTRIES exposes Hebrew + English names for every code (0.2994ms)
+▶ assignAlbumToCountries — single-country
+  ✔ album 5 → only [np], primary np (0.3698ms)
+  ✔ album 12 → only [in], primary in (0.1175ms)
+  ✔ album 25 → only [vn], primary vn (0.1456ms)
+  ✔ album 34 → only [cn], primary cn (0.1254ms)
+  ✔ album 45 → only [au], primary au (0.12ms)
+  ✔ album 65 → only [nz], primary nz (0.1143ms)
+  ✔ album 80 → only [th], primary th (0.1132ms)
+  ✔ album 19 → only [th], primary th (0.2001ms)
+✔ assignAlbumToCountries — single-country (1.9437ms)
+✔ album 1 is Nepal + Thailand, primary Nepal (0.1919ms)
+✔ album 37 is China + Australia + Thailand, primary China (0.1311ms)
+▶ assignAlbumToCountries — range boundaries
+  ✔ album 7 → [np] (1.5431ms)
+  ✔ album 8 → [in] (0.148ms)
+  ✔ album 18 → [in] (0.0576ms)
+  ✔ album 20 → [vn] (0.0631ms)
+  ✔ album 29 → [vn] (0.0447ms)
+  ✔ album 30 → [cn] (0.354ms)
+  ✔ album 38 → [au] (0.0795ms)
+  ✔ album 53 → [au] (0.0436ms)
+  ✔ album 54 → [nz] (0.0353ms)
+  ✔ album 76 → [nz] (0.046ms)
+  ✔ album 77 → [th] (0.0381ms)
+  ✔ album 88 → [th] (0.0339ms)
+✔ assignAlbumToCountries — range boundaries (2.8129ms)
+✔ album with no country range throws loudly (0.624ms)
+✔ non-positive album throws (0.1196ms)
+✔ returns first photo of lowest-id primary album (1.0207ms)
+✔ Thailand uses album 19 (its lowest primary), not album 1 (Nepal primary) (0.1768ms)
+✔ country with no primary albums returns null (0.115ms)
+✔ unknown country returns null (0.2352ms)
+✔ country whose primary album has no photos falls through to next primary album (0.2233ms)
+✔ country with all-empty primary albums returns null (0.1318ms)
+✔ does not mutate manifest (0.1648ms)
+✔ thumb intent: /img/{id}/140 at DPR 1 (2.1999ms)
+✔ thumb intent: /280 at DPR 2 (0.2538ms)
+✔ thumb intent caps at 280 even at DPR 3 (0.185ms)
+✔ card intent: /360 at DPR 1 (preview hero) (0.1518ms)
+✔ card intent: /720 at DPR 2 (0.2577ms)
+✔ card intent caps at 720 even at DPR 3 (0.2551ms)
+✔ pin intent: /120 default (0.1909ms)
+✔ pin intent caps at 240 at high DPR (0.1561ms)
+✔ slide on phone: /520 at DPR 1 (0.2768ms)
+✔ slide on phone DPR 2: /1040 (0.4501ms)
+✔ slide on phone caps at 1080 at DPR 3 (0.2948ms)
+✔ slide on tablet: /760 baseline (0.1977ms)
+✔ slide on desktop: /920 baseline (0.1187ms)
+✔ slide on desktop DPR 2: /1840 (0.1796ms)
+✔ slide on desktop caps at 2000 at DPR 3 (0.1909ms)
+✔ original intent: /2400 regardless of DPR (0.2086ms)
+✔ download intent: /img/{id}/orig (full original, server adds attachment header) (0.1031ms)
+✔ emits NO raw Google URL (same-origin only) (0.329ms)
+✔ unknown intent throws (0.7315ms)
+✔ missing fileId throws (1.3609ms)
+✔ fileId with special URL chars is rejected (0.2852ms)
+▶ parseImgPath
+  ✔ width path → { id, size } (1.8364ms)
+  ✔ orig path → { id, size: "orig" } (0.2437ms)
+  ✔ id with - and _ accepted (0.1694ms)
+  ✔ non-/img path → null (0.2395ms)
+  ✔ bad size (not digits/orig) → null (0.1995ms)
+  ✔ path traversal / extra segments → null (0.2059ms)
+  ✔ id with illegal chars → null (no upstream injection) (0.2243ms)
+✔ parseImgPath (4.7591ms)
+▶ lh3UrlFor
+  ✔ numeric size → =w{size} (0.3072ms)
+  ✔ orig → =s0 (full original) (0.2986ms)
+✔ lh3UrlFor (0.9495ms)
+▶ client URLs round-trip through the server parser
+  ✔ server parses client URL /img/FILE1/280 (0.5152ms)
+  ✔ server parses client URL /img/FILE2/720 (0.1637ms)
+  ✔ server parses client URL /img/FILE3/1040 (0.1233ms)
+  ✔ server parses client URL /img/FILE4/orig (0.0905ms)
+✔ client URLs round-trip through the server parser (1.0658ms)
+✔ default loading text is Hebrew "טוען..." (1.0848ms)
+✔ default error text is Hebrew and not auto-translated (0.3241ms)
+✔ loadingHTML uses default text (0.429ms)
+✔ loadingHTML uses custom text (0.3384ms)
+✔ loadingHTML includes role="status" for assistive tech (0.1746ms)
+✔ loadingHTML includes aria-live="polite" (0.1276ms)
+✔ errorHTML uses default text (0.3241ms)
+✔ errorHTML uses custom text (0.2343ms)
+✔ errorHTML includes role="alert" (0.415ms)
+✔ escapes HTML special chars in custom text to prevent XSS (0.577ms)
+✔ empty array returns empty (1.5108ms)
+✔ already-sorted returns equivalent order (0.3072ms)
+✔ reverse-sorted gets sorted (0.1484ms)
+✔ numeric suffixes sort lexicographically (NOT numerically) (1.1531ms)
+✔ case-sensitive: uppercase comes before lowercase (0.2776ms)
+✔ does not mutate input array (0.2263ms)
+✔ returns a new array, not the original (0.1879ms)
+✖ formatHebrewDate: "23 ביולי 2011" (ב-prefixed month) (2.0663ms)
+✖ formatHebrewDate: handles each month prefix (1.1961ms)
+✖ formatHebrewDate: no leading zero on day (0.2792ms)
+✖ formatHebrewDate: null/garbage → empty string (0.1983ms)
+✖ hebrewWeekday: known dates (0.2335ms)
+✖ hebrewWeekday: midweek (0.1979ms)
+✖ hebrewWeekday: null → empty (0.1771ms)
+✖ formatClock: "14:32" (0.2441ms)
+✖ formatClock: pads single-digit hour/minute (0.2633ms)
+✖ formatClock: null → empty (0.3394ms)
+✔ builds an img with the same-origin /img/ thumb URL for the given intent (2.4347ms)
+✔ passes dpr through to the URL (0.3386ms)
+✔ passes viewport through for slide intent (0.1683ms)
+✔ never emits a raw Google URL (same-origin only) (0.2158ms)
+✔ includes loading="lazy" by default (R5) (0.1679ms)
+✔ eager loading when loading:"eager" passed (first paint above the fold) (0.2136ms)
+✔ no fetchpriority attribute by default (0.1599ms)
+✔ fetchpriority="high" emitted when priority:"high" passed (on-screen images) (0.1819ms)
+✔ onerror tags the element for the CSS placeholder (no thumbnailLink hop needed now) (0.1859ms)
+✔ applies a custom className (0.2817ms)
+✔ default className is "photo" (0.1904ms)
+✔ alt defaults to empty (decorative) and is escaped when provided (0.1598ms)
+✔ decoding="async" is set (0.1287ms)
+✔ rejects a malformed photo id (cannot break out of the attribute) (0.3248ms)
+✔ extractPhotoMeta — full record with EXIF (1.0666ms)
+✔ extractPhotoMeta — missing EXIF leaves capturedAt null (0.1733ms)
+✔ extractPhotoMeta — imageMediaMetadata present but no time (0.1244ms)
+✔ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.2122ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.2081ms)
+▶ parseHash
+  ✔ "" → "/" (0.9487ms)
+  ✔ "#" → "/" (0.1286ms)
+  ✔ "#/" → "/" (0.0975ms)
+  ✔ "#/country/np" → "/country/np" (0.1037ms)
+  ✔ "#/album/5" → "/album/5" (0.1104ms)
+  ✔ "#/album/5/slide/12" → "/album/5/slide/12" (0.083ms)
+  ✔ "/country/np" → "/country/np" (0.1101ms)
+  ✔ "#country/np" → "/country/np" (0.09ms)
+  ✔ "#/random" → "/random" (0.1188ms)
+✔ parseHash (3.3406ms)
+▶ createRouter — static routes
+  ✔ matches home route (1.1901ms)
+  ✔ matches map route (0.1439ms)
+  ✔ unknown path returns null (0.0976ms)
+✔ createRouter — static routes (1.6461ms)
+▶ createRouter — param routes
+  ✔ single param (0.2354ms)
+  ✔ two params (0.181ms)
+  ✔ static segment after param (0.1596ms)
+  ✔ decodes URI components in params (0.2202ms)
+  ✔ extra segments do not match shorter pattern (0.0997ms)
+  ✔ first matching route wins (0.0805ms)
+✔ createRouter — param routes (2.0349ms)
+▶ clampIndex
+  ✔ in-range index unchanged (1.2361ms)
+  ✔ negative clamps to 0 (0.1979ms)
+  ✔ over-length clamps to last (0.1728ms)
+  ✔ non-integer string parses (0.1522ms)
+  ✔ garbage clamps to 0 (0.1316ms)
+  ✔ empty album → 0 (0.103ms)
+✔ clampIndex (3.6303ms)
+▶ nextIndex (wraps by default)
+  ✔ advances by one (0.2368ms)
+  ✔ wraps last → first (0.2309ms)
+  ✔ no-wrap stays at last (0.2454ms)
+✔ nextIndex (wraps by default) (1.039ms)
+▶ prevIndex (wraps by default)
+  ✔ goes back by one (0.5451ms)
+  ✔ wraps first → last (0.134ms)
+  ✔ no-wrap stays at first (1.2866ms)
+✔ prevIndex (wraps by default) (2.2319ms)
+▶ keyToAction (RTL: ArrowLeft = next)
+  ✔ ArrowLeft → next (0.431ms)
+  ✔ ArrowRight → prev (0.1298ms)
+  ✔ Escape → exit (0.0711ms)
+  ✔ spacebar → next (0.0463ms)
+  ✔ unrelated key → null (0.0413ms)
+✔ keyToAction (RTL: ArrowLeft = next) (0.9135ms)
+▶ swipeToAction (RTL: rightward = next)
+  ✔ big rightward swipe → next (0.1145ms)
+  ✔ big leftward swipe → prev (0.0455ms)
+  ✔ tiny movement below threshold → null (0.0399ms)
+  ✔ custom threshold respected (0.0442ms)
+✔ swipeToAction (RTL: rightward = next) (0.358ms)
+▶ preloadIndices (±2 neighbours, default radius 2)
+  ✔ middle of a large album → the 2 before + 2 after, current excluded (1.1383ms)
+  ✔ near the start wraps around to the end (0.1522ms)
+  ✔ near the end wraps to the start (0.113ms)
+  ✔ never includes the current index (0.104ms)
+  ✔ small album (3 photos) → the other 2, no dupes, no current (0.1147ms)
+  ✔ two-photo album → just the other one (0.0826ms)
+  ✔ single-photo album → nothing to preload (0.0476ms)
+  ✔ empty album → empty (0.0409ms)
+  ✔ custom radius 1 → just ±1 (0.0652ms)
+✔ preloadIndices (±2 neighbours, default radius 2) (2.0795ms)
+✖ SPEEDS are ascending second-multiples in ms (6.8445ms)
+✖ nextSpeed cycles to the next speed (0.7791ms)
+✖ nextSpeed wraps from last back to first (0.3334ms)
+✖ nextSpeed with an unknown value returns the first speed (0.2322ms)
+✖ speedLabel shows seconds with a Hebrew suffix (0.2899ms)
+✖ the default 4s interval (M7) is one of the options (0.4167ms)
+✔ same-origin HTML navigation → network-first (1.1202ms)
+✔ same-origin JS / CSS → network-first (so code updates are never stale) (0.2201ms)
+✔ the manifest is always bypassed (must be fresh, never cache-served) (1.111ms)
+✔ cross-origin photo (lh3) → bypass (0.181ms)
+✔ same-origin proxied photo (/img/...) → bypass (not in shell cache) (0.1909ms)
+✔ cross-origin font (gstatic) → bypass (0.1427ms)
+✔ localhost dev origin also resolves shell as network-first (0.1662ms)
+✔ query strings on the manifest still bypass (0.1178ms)
+✔ query strings target the documented breakpoints (1.2122ms)
+✔ isPhone true when matchMedia matches PHONE_QUERY (0.2141ms)
+✔ isPhone false when only desktop matches (0.1178ms)
+✔ isTablet true only at tablet breakpoint (0.1318ms)
+✔ isDesktop true only at desktop breakpoint (1.1032ms)
+✔ happy path: renders album name as title (17.7776ms)
+✔ happy path: renders one img per photo (0.3869ms)
+✔ happy path: first 12 are eager, rest lazy (R5 first-paint budget) (0.2666ms)
+✔ happy path: photos are in lexicographic filename order (0.2737ms)
+✔ happy path: each photo links to its slide route (0.2181ms)
+✔ happy path: includes a back link to the country (0.2ms)
+✔ empty album shows a "no photos" message (0.1354ms)
+✔ loading state when manifest is null (0.1515ms)
+✔ fetch-failed state renders errorHTML (0.2143ms)
+✔ unknown album shows a not-found message + back link home (0.9021ms)
+✔ happy path: renders country name as title (18.1217ms)
+✔ happy path: one card per album with album name + photo count (0.2353ms)
+✔ happy path: photo counts are shown (0.1556ms)
+✔ happy path: each album card uses its first photo via the same-origin /img/ proxy (0.2607ms)
+✔ happy path: includes a back link to home (0.2275ms)
+✔ loading state when manifest is null (0.2073ms)
+✔ fetch-failed state renders errorHTML (0.136ms)
+✔ unknown country shows a not-found message + back link (0.0906ms)
+✔ escapes album names to prevent XSS (0.1873ms)
+✔ happy path: renders header + grid with one card per country (18.4364ms)
+✔ happy path: each card has a same-origin /img/ card image (0.3612ms)
+✔ happy path: card image never emits a raw Google URL (0.2951ms)
+✔ happy path: image uses loading="lazy" (R5 budget) (0.1601ms)
+✔ happy path: image onerror shows the placeholder (no thumbnailLink hop) (0.1891ms)
+✔ happy path: DPR is passed through to image URL (0.1421ms)
+✔ fetch-failed state: renders errorHTML (0.3126ms)
+✔ loading state: renders loadingHTML when manifest is null + no error (0.2239ms)
+✔ empty-manifest state: renders empty message when countries=[] (0.2152ms)
+✔ empty-manifest state: also when countries is missing (0.326ms)
+✔ country with no thumb falls back to placeholder div (0.2089ms)
+✔ escapes country names to prevent XSS (0.222ms)
+✔ renders the photo at the given index via slide intent (same-origin /img/) (1.4821ms)
+✔ desktop viewport requests the larger slide width (0.3342ms)
+✔ shows a 1-based position counter (idx 2 of 5 → "3 / 5") (0.2601ms)
+✔ next link wraps last → first (0.1523ms)
+✔ prev link wraps first → last (0.1526ms)
+✔ middle index links to both neighbours (0.1308ms)
+✔ exit/close link returns to the album grid (0.1213ms)
+✔ out-of-range index is clamped (idx 99 → shows last photo p004) (0.1313ms)
+✔ negative index clamps to first (0.1516ms)
+✔ loading state when manifest null (0.1851ms)
+✔ fetch-failed state renders errorHTML (0.1782ms)
+✔ unknown album → not-found + home link (0.7395ms)
+✔ empty album → message + back link, no crash (0.1058ms)
+✔ carries data-slideshow hooks for keyboard/swipe wiring (0.1448ms)
+✔ renders a play button (data-autoplay-toggle) when autoplay is off (0.1661ms)
+✔ shows pause affordance when autoplay is on (0.1266ms)
+✔ autoplay defaults to off when not specified (0.0698ms)
+✖ M9: speed button shows the current speed label + data-speed (0.7729ms)
+✖ M9: fullscreen toggle button present (0.2255ms)
+✖ M9: download link points at the same-origin original + has download attr (0.2429ms)
+✖ M9: info panel shows Hebrew date, weekday, place, position (0.2412ms)
+✖ M9: info panel tolerates a photo with no capturedAt (omits date rows) (0.2106ms)
+ℹ tests 284
+ℹ suites 17
+ℹ pass 255
+ℹ fail 29
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 454.4417
+
+✖ failing tests:
+
+test at src\lib\album-place.test.mjs:5:1
+✖ strips "NN. {country} - " prefix, returns the place (3.6363ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - 'נגארקוט ובקטפור'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-place.test.mjs:6:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'נגארקוט ובקטפור',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-place.test.mjs:10:1
+✖ album 1 "ההתחלה - בנגקוק וקטמנדו" → place after the dash (0.6773ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - 'בנגקוק וקטמנדו'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-place.test.mjs:11:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'בנגקוק וקטמנדו',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-place.test.mjs:14:1
+✖ no " - " separator → cleaned remainder (number prefix stripped) (1.5516ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - 'בנגקוק1'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-place.test.mjs:15:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'בנגקוק1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-place.test.mjs:19:1
+✖ handles the "NNa." merged-folder prefix (0.2873ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - 'באגסו 2'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-place.test.mjs:20:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'באגסו 2',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-place.test.mjs:23:1
+✖ takes text after the LAST dash when multiple (0.2344ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== 'מרכז'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-place.test.mjs:24:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'מרכז',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-place.test.mjs:27:1
+✖ trims surrounding whitespace (0.2035ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - 'בחזרה לקטמנדו'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-place.test.mjs:28:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'בחזרה לקטמנדו',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-place.test.mjs:31:1
+✖ empty / non-string → empty string (0.2002ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== ''
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-place.test.mjs:32:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-place.test.mjs:37:1
+✖ name with only a number → empty (0.1415ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== ''
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-place.test.mjs:38:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-date.test.mjs:5:1
+✖ formatHebrewDate: "23 ביולי 2011" (ב-prefixed month) (2.0663ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '23 ביולי 2011'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-date.test.mjs:6:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '23 ביולי 2011',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-date.test.mjs:9:1
+✖ formatHebrewDate: handles each month prefix (1.1961ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '3 בינואר 2012'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-date.test.mjs:10:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '3 בינואר 2012',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-date.test.mjs:16:1
+✖ formatHebrewDate: no leading zero on day (0.2792ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '7 באוגוסט 2011'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-date.test.mjs:17:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '7 באוגוסט 2011',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-date.test.mjs:20:1
+✖ formatHebrewDate: null/garbage → empty string (0.1983ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== ''
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-date.test.mjs:21:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-date.test.mjs:26:1
+✖ hebrewWeekday: known dates (0.2335ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - 'יום שבת'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-date.test.mjs:28:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'יום שבת',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-date.test.mjs:32:1
+✖ hebrewWeekday: midweek (0.1979ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - 'יום שני'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-date.test.mjs:34:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'יום שני',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-date.test.mjs:38:1
+✖ hebrewWeekday: null → empty (0.1771ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== ''
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-date.test.mjs:39:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-date.test.mjs:43:1
+✖ formatClock: "14:32" (0.2441ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '14:32'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-date.test.mjs:44:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '14:32',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-date.test.mjs:47:1
+✖ formatClock: pads single-digit hour/minute (0.2633ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '04:05'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-date.test.mjs:48:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '04:05',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-date.test.mjs:51:1
+✖ formatClock: null → empty (0.3394ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== ''
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-date.test.mjs:52:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-speed.test.mjs:5:1
+✖ SPEEDS are ascending second-multiples in ms (6.8445ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(Array.isArray(SPEEDS) && SPEEDS.length >= 3)
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-speed.test.mjs:6:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-speed.test.mjs:11:1
+✖ nextSpeed cycles to the next speed (0.7791ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== undefined
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-speed.test.mjs:12:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-speed.test.mjs:15:1
+✖ nextSpeed wraps from last back to first (0.3334ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== undefined
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-speed.test.mjs:16:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-speed.test.mjs:19:1
+✖ nextSpeed with an unknown value returns the first speed (0.2322ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== undefined
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-speed.test.mjs:20:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-speed.test.mjs:23:1
+✖ speedLabel shows seconds with a Hebrew suffix (0.2899ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== "5ש'"
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-speed.test.mjs:24:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: "5ש'",
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-speed.test.mjs:29:1
+✖ the default 4s interval (M7) is one of the options (0.4167ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(SPEEDS.includes(4000))
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-speed.test.mjs:30:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:116:1
+✖ M9: speed button shows the current speed label + data-speed (0.7729ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /data-speed-toggle/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1"\n' +
+    '         data-autoplay-on="false">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="/img/p002/520" alt="01. נפאל - קטמנדו — 3"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n' +
+    '        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:118:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1"\n         data-autoplay-on="false">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="/img/p002/520" alt="01. נפאל - קטמנדו — 3"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n      </div>\n    </div>\n  `,
+    expected: /data-speed-toggle/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:123:1
+✖ M9: fullscreen toggle button present (0.2255ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /data-fullscreen-toggle/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1"\n' +
+    '         data-autoplay-on="false">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="/img/p002/520" alt="01. נפאל - קטמנדו — 3"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n' +
+    '        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:125:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1"\n         data-autoplay-on="false">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="/img/p002/520" alt="01. נפאל - קטמנדו — 3"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n      </div>\n    </div>\n  `,
+    expected: /data-fullscreen-toggle/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:128:1
+✖ M9: download link points at the same-origin original + has download attr (0.2429ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /class="slideshow-dl"[^>]*href="\/img\/p002\/orig"/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1"\n' +
+    '         data-autoplay-on="false">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="/img/p002/520" alt="01. נפאל - קטמנדו — 3"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n' +
+    '        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:130:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1"\n         data-autoplay-on="false">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="/img/p002/520" alt="01. נפאל - קטמנדו — 3"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n      </div>\n    </div>\n  `,
+    expected: /class="slideshow-dl"[^>]*href="\/img\/p002\/orig"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:134:1
+✖ M9: info panel shows Hebrew date, weekday, place, position (0.2412ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /<details class="slideshow-info"/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="#/album/1/slide/0" data-prev="#/album/1/slide/0" data-exit="#/album/1"\n' +
+    '         data-autoplay-on="false">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="/img/pA/520" alt="01. נפאל - קטמנדו — 1"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/0" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/0" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <span class="slideshow-counter" dir="ltr">1 / 1</span>\n' +
+    '        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:143:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="#/album/1/slide/0" data-prev="#/album/1/slide/0" data-exit="#/album/1"\n         data-autoplay-on="false">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="/img/pA/520" alt="01. נפאל - קטמנדו — 1"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/0" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/0" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <span class="slideshow-counter" dir="ltr">1 / 1</span>\n        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n      </div>\n    </div>\n  `,
+    expected: /<details class="slideshow-info"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:151:1
+✖ M9: info panel tolerates a photo with no capturedAt (omits date rows) (0.2106ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /<details class="slideshow-info"/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="#/album/1/slide/0" data-prev="#/album/1/slide/0" data-exit="#/album/1"\n' +
+    '         data-autoplay-on="false">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="/img/pA/520" alt="01. נפאל - קטמנדו — 1"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/0" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/0" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <span class="slideshow-counter" dir="ltr">1 / 1</span>\n' +
+    '        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:159:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="#/album/1/slide/0" data-prev="#/album/1/slide/0" data-exit="#/album/1"\n         data-autoplay-on="false">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="/img/pA/520" alt="01. נפאל - קטמנדו — 1"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/0" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/0" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <span class="slideshow-counter" dir="ltr">1 / 1</span>\n        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n      </div>\n    </div>\n  `,
+    expected: /<details class="slideshow-info"/,
+    operator: 'match',
+    diff: 'simple'
+  }
