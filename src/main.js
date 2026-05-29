@@ -4,9 +4,11 @@
 // freely. Pure logic stays in src/lib/.
 
 import { parseHash, createRouter } from './lib/router.js';
+import { keyToAction, swipeToAction } from './lib/slideshow-nav.js';
 import { renderCountryList } from './views/country-list.js';
 import { renderAlbumList } from './views/album-list.js';
 import { renderAlbumGrid } from './views/album-grid.js';
+import { renderSlideshow } from './views/slideshow.js';
 
 const ROUTES = [
   { pattern: '/', name: 'home' },
@@ -61,6 +63,65 @@ function renderAlbum(params) {
   window.scrollTo(0, 0);
 }
 
+function viewportClass() {
+  if (window.matchMedia('(min-width: 1200px)').matches) return 'desktop';
+  if (window.matchMedia('(min-width: 769px)').matches) return 'tablet';
+  return 'phone';
+}
+
+function go(href) {
+  if (href) window.location.hash = href.replace(/^#/, '');
+}
+
+function renderSlide(params) {
+  app.innerHTML = renderSlideshow({
+    manifest, error: manifestError, id: params.id, idx: params.idx,
+    dpr: dpr(), viewport: viewportClass(),
+  });
+  window.scrollTo(0, 0);
+  wireSlideshow();
+}
+
+// Attach keyboard + swipe handlers to the freshly-rendered slideshow.
+// Click-zone navigation is plain <a href>, so only keyboard + touch need JS.
+function wireSlideshow() {
+  const shell = app.querySelector('[data-slideshow]');
+  if (!shell) return;
+  const hrefs = {
+    next: shell.dataset.next,
+    prev: shell.dataset.prev,
+    exit: shell.dataset.exit,
+  };
+
+  // Touch swipe on the stage.
+  const stage = shell.querySelector('.slideshow-stage');
+  if (stage) {
+    let startX = null;
+    stage.addEventListener('touchstart', (e) => {
+      startX = e.changedTouches[0].clientX;
+    }, { passive: true });
+    stage.addEventListener('touchend', (e) => {
+      if (startX === null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      startX = null;
+      const action = swipeToAction(dx);
+      if (action) go(hrefs[action]);
+    }, { passive: true });
+  }
+}
+
+// One global keyboard listener; acts only while a slideshow is mounted.
+window.addEventListener('keydown', (e) => {
+  const shell = app.querySelector('[data-slideshow]');
+  if (!shell) return;
+  const action = keyToAction(e.key);
+  if (!action) return;
+  e.preventDefault();
+  go(action === 'next' ? shell.dataset.next
+    : action === 'prev' ? shell.dataset.prev
+    : shell.dataset.exit);
+});
+
 function renderNotFound(path) {
   app.innerHTML = `
     <div class="notfound">
@@ -87,6 +148,9 @@ function render() {
       break;
     case 'album':
       renderAlbum(match.params);
+      break;
+    case 'slide':
+      renderSlide(match.params);
       break;
     default:
       // Placeholder for routes whose views ship in later milestones.
