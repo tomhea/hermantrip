@@ -1,0 +1,602 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (0.5652ms)
+✔ empty input returns empty array (1.1013ms)
+✔ no collisions: one entry per folder, folderIds wraps the source (0.2576ms)
+✔ same id: photos concatenated, both folderIds tracked (0.0991ms)
+✔ same id: first folder name wins (lex order preserves "Bhagsu 1") (0.7491ms)
+✔ mixed: some collide, some do not (0.2088ms)
+✔ does not mutate input photos arrays (0.1311ms)
+▶ extractAlbumNumber — common patterns
+  ✔ "01" → 1 (1.1722ms)
+  ✔ "1" → 1 (0.2588ms)
+  ✔ "01 קטמנדו" → 1 (0.1952ms)
+  ✔ "1 - דהלי" → 1 (0.1416ms)
+  ✔ "1. דהלי" → 1 (0.1806ms)
+  ✔ "1-עלייה לאוורסט" → 1 (0.2208ms)
+  ✔ "37 - יאנגשואו" → 37 (0.133ms)
+  ✔ "037 - sometext" → 37 (0.1289ms)
+  ✔ "88 פוקט" → 88 (0.2351ms)
+  ✔ "88" → 88 (0.2083ms)
+  ✔ "14a" → 14 (0.1937ms)
+  ✔ "14a. הודו - באגסו 2" → 14 (0.0988ms)
+✔ extractAlbumNumber — common patterns (5.1208ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✔ ".temp" → null (0.2021ms)
+  ✔ ".temp_1" → null (0.0993ms)
+  ✔ ".temp_2" → null (0.2056ms)
+  ✔ ".temp_3" → null (0.0695ms)
+  ✔ ".hidden" → null (0.0439ms)
+  ✔ "export" → null (0.0406ms)
+  ✔ "Export" → null (0.0377ms)
+  ✔ "EXPORT" → null (0.0382ms)
+  ✔ "exports" → null (0.0357ms)
+✔ extractAlbumNumber — ignored folders return null (2.0458ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✔ "תיאור בלי מספר" → null (0.1562ms)
+  ✔ "random folder" → null (0.0535ms)
+  ✔ "a01" → null (0.0476ms)
+  ✔ "_01" → null (0.0384ms)
+  ✔ "" → null (0.0383ms)
+✔ extractAlbumNumber — names without leading digits return null (0.4772ms)
+✔ extractAlbumNumber strips leading zeros (0.1671ms)
+✔ albumsForCountry returns albums where code is in countries[], sorted by id (1.8271ms)
+✔ albumsForCountry includes cross-country albums (0.3566ms)
+✔ albumsForCountry for thailand returns [1, 19] sorted (0.2456ms)
+✔ albumsForCountry unknown country returns empty array (0.1854ms)
+✔ albumsForCountry does not mutate manifest.albums order (0.213ms)
+✔ albumById returns the matching album (0.2164ms)
+✔ albumById accepts string id (router params are strings) (0.1491ms)
+✔ albumById unknown id returns null (0.1299ms)
+✔ albumById non-numeric string returns null (0.1753ms)
+✔ COUNTRY_ORDER lists the seven countries in trip order (1.5111ms)
+✔ COUNTRIES exposes Hebrew + English names for every code (0.3339ms)
+▶ assignAlbumToCountries — single-country
+  ✔ album 5 → only [np], primary np (0.4429ms)
+  ✔ album 12 → only [in], primary in (0.1405ms)
+  ✔ album 25 → only [vn], primary vn (0.1953ms)
+  ✔ album 34 → only [cn], primary cn (0.1756ms)
+  ✔ album 45 → only [au], primary au (0.0824ms)
+  ✔ album 65 → only [nz], primary nz (0.079ms)
+  ✔ album 80 → only [th], primary th (0.1129ms)
+  ✔ album 19 → only [th], primary th (0.1789ms)
+✔ assignAlbumToCountries — single-country (2.084ms)
+✔ album 1 is Nepal + Thailand, primary Nepal (0.1723ms)
+✔ album 37 is China + Australia + Thailand, primary China (0.0699ms)
+▶ assignAlbumToCountries — range boundaries
+  ✔ album 7 → [np] (0.872ms)
+  ✔ album 8 → [in] (0.1134ms)
+  ✔ album 18 → [in] (0.0691ms)
+  ✔ album 20 → [vn] (0.2151ms)
+  ✔ album 29 → [vn] (0.044ms)
+  ✔ album 30 → [cn] (0.0255ms)
+  ✔ album 38 → [au] (0.0214ms)
+  ✔ album 53 → [au] (0.0229ms)
+  ✔ album 54 → [nz] (0.0208ms)
+  ✔ album 76 → [nz] (0.0285ms)
+  ✔ album 77 → [th] (0.0204ms)
+  ✔ album 88 → [th] (0.021ms)
+✔ assignAlbumToCountries — range boundaries (1.7554ms)
+✔ album with no country range throws loudly (0.4228ms)
+✔ non-positive album throws (0.0789ms)
+✔ returns first photo of lowest-id primary album (0.8873ms)
+✔ Thailand uses album 19 (its lowest primary), not album 1 (Nepal primary) (0.1752ms)
+✔ country with no primary albums returns null (0.1439ms)
+✔ unknown country returns null (0.1805ms)
+✔ country whose primary album has no photos falls through to next primary album (0.1533ms)
+✔ country with all-empty primary albums returns null (0.084ms)
+✔ does not mutate manifest (0.1218ms)
+✔ thumb intent: =w140 at DPR 1 (small grid tile) (2.0818ms)
+✔ thumb intent: =w280 at DPR 2 (0.273ms)
+✔ thumb intent caps at 280 even at DPR 3 (0.1521ms)
+✔ pin intent: =w120 default (0.1237ms)
+✔ pin intent: caps at 240 at high DPR (0.2364ms)
+✔ slide intent on phone: =w520 at DPR 1 (0.1587ms)
+✔ slide intent on phone DPR 2: =w1040 (sharp on a 390px screen, ~160 KB) (0.2007ms)
+✔ slide intent on phone caps at 1080 at DPR 3 (0.1449ms)
+✔ slide intent on tablet: =w760 baseline (0.1378ms)
+✔ slide intent on desktop: =w920 baseline (0.1602ms)
+✔ slide intent on desktop DPR 2 caps at 2000 (0.0991ms)
+✔ slide intent caps at 2000 at DPR 3 desktop (0.0688ms)
+✔ original intent: =w2400 regardless of DPR (0.0943ms)
+✔ unknown intent throws (0.4067ms)
+✔ missing fileId throws (0.2438ms)
+✔ fileId with special URL chars is rejected (Drive IDs are alphanumeric+_-) (0.1771ms)
+✔ default loading text is Hebrew "טוען..." (1.5077ms)
+✔ default error text is Hebrew and not auto-translated (0.5723ms)
+✔ loadingHTML uses default text (0.4174ms)
+✔ loadingHTML uses custom text (0.2512ms)
+✔ loadingHTML includes role="status" for assistive tech (0.24ms)
+✔ loadingHTML includes aria-live="polite" (0.181ms)
+✔ errorHTML uses default text (0.2458ms)
+✔ errorHTML uses custom text (0.1922ms)
+✔ errorHTML includes role="alert" (0.252ms)
+✔ escapes HTML special chars in custom text to prevent XSS (0.3666ms)
+✔ empty array returns empty (1.9765ms)
+✔ already-sorted returns equivalent order (0.3404ms)
+✔ reverse-sorted gets sorted (0.1155ms)
+✔ numeric suffixes sort lexicographically (NOT numerically) (0.9594ms)
+✔ case-sensitive: uppercase comes before lowercase (0.2317ms)
+✔ does not mutate input array (0.2435ms)
+✔ returns a new array, not the original (0.2371ms)
+✔ builds an img with the lh3 thumb URL for the given intent (2.5449ms)
+✔ passes dpr through to the URL (0.5218ms)
+✔ passes viewport through for slide intent (0.2086ms)
+✔ includes loading="lazy" by default (R5) (0.1764ms)
+✔ eager loading when loading:"eager" passed (first paint above the fold) (0.2183ms)
+✔ no fetchpriority attribute by default (0.2585ms)
+✔ fetchpriority="high" emitted when priority:"high" passed (on-screen images) (0.1629ms)
+✔ onerror chain falls back to thumbnailLink then broken class (R4) (0.283ms)
+✔ onerror with no thumbnailLink goes straight to broken class (0.2167ms)
+✔ applies a custom className (0.1764ms)
+✔ default className is "photo" (0.119ms)
+✔ alt defaults to empty (decorative) and is escaped when provided (0.1436ms)
+✔ decoding="async" is set (0.0845ms)
+✔ escapes a malicious thumbnailLink to prevent attribute breakout (0.0723ms)
+✔ extractPhotoMeta — full record with EXIF (1.2791ms)
+✔ extractPhotoMeta — missing EXIF leaves capturedAt null (0.2289ms)
+✔ extractPhotoMeta — imageMediaMetadata present but no time (0.1488ms)
+✔ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.2151ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.2025ms)
+▶ parseHash
+  ✔ "" → "/" (0.9695ms)
+  ✔ "#" → "/" (0.1796ms)
+  ✔ "#/" → "/" (0.1302ms)
+  ✔ "#/country/np" → "/country/np" (0.105ms)
+  ✔ "#/album/5" → "/album/5" (0.0811ms)
+  ✔ "#/album/5/slide/12" → "/album/5/slide/12" (0.066ms)
+  ✔ "/country/np" → "/country/np" (0.0984ms)
+  ✔ "#country/np" → "/country/np" (0.0845ms)
+  ✔ "#/random" → "/random" (0.1197ms)
+✔ parseHash (3.051ms)
+▶ createRouter — static routes
+  ✔ matches home route (0.9099ms)
+  ✔ matches map route (0.1061ms)
+  ✔ unknown path returns null (0.0923ms)
+✔ createRouter — static routes (1.2919ms)
+▶ createRouter — param routes
+  ✔ single param (0.1988ms)
+  ✔ two params (0.3858ms)
+  ✔ static segment after param (0.3086ms)
+  ✔ decodes URI components in params (1.457ms)
+  ✔ extra segments do not match shorter pattern (0.1894ms)
+  ✔ first matching route wins (0.1666ms)
+✔ createRouter — param routes (3.0006ms)
+▶ clampIndex
+  ✔ in-range index unchanged (0.5524ms)
+  ✔ negative clamps to 0 (0.1048ms)
+  ✔ over-length clamps to last (0.0858ms)
+  ✔ non-integer string parses (0.0929ms)
+  ✔ garbage clamps to 0 (0.0858ms)
+  ✔ empty album → 0 (0.0866ms)
+✔ clampIndex (1.9031ms)
+▶ nextIndex (wraps by default)
+  ✔ advances by one (0.1693ms)
+  ✔ wraps last → first (0.1069ms)
+  ✔ no-wrap stays at last (0.1056ms)
+✔ nextIndex (wraps by default) (0.5733ms)
+▶ prevIndex (wraps by default)
+  ✔ goes back by one (0.2343ms)
+  ✔ wraps first → last (0.2687ms)
+  ✔ no-wrap stays at first (0.1437ms)
+✔ prevIndex (wraps by default) (2.2931ms)
+▶ keyToAction (RTL: ArrowLeft = next)
+  ✔ ArrowLeft → next (0.5222ms)
+  ✔ ArrowRight → prev (0.1029ms)
+  ✔ Escape → exit (0.0779ms)
+  ✔ spacebar → next (0.0631ms)
+  ✔ unrelated key → null (0.0644ms)
+✔ keyToAction (RTL: ArrowLeft = next) (1.0296ms)
+▶ swipeToAction (RTL: rightward = next)
+  ✔ big rightward swipe → next (0.142ms)
+  ✔ big leftward swipe → prev (0.0638ms)
+  ✔ tiny movement below threshold → null (0.0379ms)
+  ✔ custom threshold respected (0.034ms)
+✔ swipeToAction (RTL: rightward = next) (0.3954ms)
+▶ preloadIndices (±2 neighbours, default radius 2)
+  ✖ middle of a large album → the 2 before + 2 after, current excluded (1.6426ms)
+  ✖ near the start wraps around to the end (0.4ms)
+  ✖ near the end wraps to the start (0.2717ms)
+  ✔ never includes the current index (0.0887ms)
+  ✖ small album (3 photos) → the other 2, no dupes, no current (0.3447ms)
+  ✖ two-photo album → just the other one (0.4625ms)
+  ✖ single-photo album → nothing to preload (0.2219ms)
+  ✖ empty album → empty (0.2658ms)
+  ✖ custom radius 1 → just ±1 (0.2377ms)
+✖ preloadIndices (±2 neighbours, default radius 2) (4.2934ms)
+✔ same-origin HTML navigation → network-first (1.3272ms)
+✔ same-origin JS / CSS → network-first (so code updates are never stale) (0.3653ms)
+✔ the manifest is always bypassed (must be fresh, never cache-served) (0.2683ms)
+✔ cross-origin photo (lh3) → bypass (0.2942ms)
+✔ cross-origin font (gstatic) → bypass (0.1723ms)
+✔ localhost dev origin also resolves shell as network-first (0.1852ms)
+✔ query strings on the manifest still bypass (0.1361ms)
+✔ query strings target the documented breakpoints (0.6361ms)
+✔ isPhone true when matchMedia matches PHONE_QUERY (0.1612ms)
+✔ isPhone false when only desktop matches (0.0951ms)
+✔ isTablet true only at tablet breakpoint (0.1072ms)
+✔ isDesktop true only at desktop breakpoint (0.7214ms)
+✔ happy path: renders album name as title (13.3055ms)
+✔ happy path: renders one img per photo (0.3809ms)
+✔ happy path: first 12 are eager, rest lazy (R5 first-paint budget) (0.2595ms)
+✔ happy path: photos are in lexicographic filename order (0.2309ms)
+✔ happy path: each photo links to its slide route (0.1845ms)
+✔ happy path: includes a back link to the country (0.1381ms)
+✔ empty album shows a "no photos" message (0.1104ms)
+✔ loading state when manifest is null (0.137ms)
+✔ fetch-failed state renders errorHTML (0.2265ms)
+✔ unknown album shows a not-found message + back link home (0.1889ms)
+✔ happy path: renders country name as title (14.6363ms)
+✔ happy path: one card per album with album name + photo count (0.1949ms)
+✔ happy path: photo counts are shown (0.1363ms)
+✔ happy path: each album thumb uses first photo via lh3 (0.1265ms)
+✔ happy path: includes a back link to home (0.1363ms)
+✔ loading state when manifest is null (0.1291ms)
+✔ fetch-failed state renders errorHTML (0.1012ms)
+✔ unknown country shows a not-found message + back link (0.0741ms)
+✔ escapes album names to prevent XSS (0.2311ms)
+✔ happy path: renders header + grid with one card per country (13.6522ms)
+✔ happy path: each card has a thumb image with lh3 URL (0.2509ms)
+✔ happy path: image uses loading="lazy" (R5 budget) (0.142ms)
+✔ happy path: image has onerror fallback to thumbnailLink (R4) (0.1596ms)
+✔ happy path: image with no thumbnailLink still has broken-placeholder onerror (0.1226ms)
+✔ happy path: DPR is passed through to image URL (0.1289ms)
+✔ fetch-failed state: renders errorHTML (0.1413ms)
+✔ loading state: renders loadingHTML when manifest is null + no error (0.0972ms)
+✔ empty-manifest state: renders empty message when countries=[] (0.1191ms)
+✔ empty-manifest state: also when countries is missing (0.1738ms)
+✔ country with no thumb falls back to placeholder div (0.1505ms)
+✔ escapes country names to prevent XSS (0.151ms)
+✔ renders the photo at the given index via slide intent (1.0138ms)
+✔ desktop viewport requests the larger slide width (0.1548ms)
+✔ shows a 1-based position counter (idx 2 of 5 → "3 / 5") (0.1388ms)
+✔ next link wraps last → first (0.0948ms)
+✔ prev link wraps first → last (0.1127ms)
+✔ middle index links to both neighbours (0.0943ms)
+✔ exit/close link returns to the album grid (0.1169ms)
+✔ out-of-range index is clamped (idx 99 → shows last photo p004) (0.1107ms)
+✔ negative index clamps to first (0.0978ms)
+✔ loading state when manifest null (0.1664ms)
+✔ fetch-failed state renders errorHTML (0.1501ms)
+✔ unknown album → not-found + home link (0.0939ms)
+✔ empty album → message + back link, no crash (0.0596ms)
+✔ carries data-slideshow hooks for keyboard/swipe wiring (0.0665ms)
+✖ renders a play button (data-autoplay-toggle) when autoplay is off (1.4515ms)
+✖ shows pause affordance when autoplay is on (0.2243ms)
+✖ autoplay defaults to off when not specified (0.2179ms)
+ℹ tests 236
+ℹ suites 14
+ℹ pass 225
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 302.8551
+
+✖ failing tests:
+
+test at src\lib\slideshow-nav.test.mjs:87:3
+✖ middle of a large album → the 2 before + 2 after, current excluded (1.6426ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   -1
+  -   3,
+  -   4,
+  -   6,
+  -   7
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:89:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ -1 ],
+    expected: [ 3, 4, 6, 7 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:91:3
+✖ near the start wraps around to the end (0.4ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   -1
+  -   1,
+  -   2,
+  -   18,
+  -   19
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:93:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ -1 ],
+    expected: [ 1, 2, 18, 19 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:95:3
+✖ near the end wraps to the start (0.2717ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   -1
+  -   0,
+  -   1,
+  -   17,
+  -   18
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:97:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ -1 ],
+    expected: [ 0, 1, 17, 18 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:102:3
+✖ small album (3 photos) → the other 2, no dupes, no current (0.3447ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   -1
+  -   1,
+  -   2
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:104:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ -1 ],
+    expected: [ 1, 2 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:106:3
+✖ two-photo album → just the other one (0.4625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   -1
+  -   1
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:107:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ -1 ],
+    expected: [ 1 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:109:3
+✖ single-photo album → nothing to preload (0.2219ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   -1
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:110:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ -1 ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:112:3
+✖ empty album → empty (0.2658ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   -1
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:113:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ -1 ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:115:3
+✖ custom radius 1 → just ±1 (0.2377ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   -1
+  -   4,
+  -   6
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:116:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ -1 ],
+    expected: [ 4, 6 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:97:1
+✖ renders a play button (data-autoplay-toggle) when autoplay is off (1.4515ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /data-autoplay-toggle/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p002=w520" alt="01. נפאל - קטמנדו — 3"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n' +
+    '        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:99:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p002=w520" alt="01. נפאל - קטמנדו — 3"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n      </div>\n    </div>\n  `,
+    expected: /data-autoplay-toggle/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:104:1
+✖ shows pause affordance when autoplay is on (0.2243ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /data-autoplay-toggle/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p002=w520" alt="01. נפאל - קטמנדו — 3"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n' +
+    '        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:106:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p002=w520" alt="01. נפאל - קטמנדו — 3"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n      </div>\n    </div>\n  `,
+    expected: /data-autoplay-toggle/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:111:1
+✖ autoplay defaults to off when not specified (0.2179ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /data-autoplay-on="false"/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p002=w520" alt="01. נפאל - קטמנדו — 3"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n' +
+    '        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:113:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p002=w520" alt="01. נפאל - קטמנדו — 3"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n      </div>\n    </div>\n  `,
+    expected: /data-autoplay-on="false"/,
+    operator: 'match',
+    diff: 'simple'
+  }
