@@ -7,7 +7,7 @@
 
 import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { albumById } from '../lib/album-query.js';
-import { sortPhotosByFilename } from '../lib/ordering.js';
+import { sortPhotosByDate } from '../lib/ordering.js';
 import { imageUrl } from '../lib/image-url.js';
 import { clampIndex, nextIndex, prevIndex } from '../lib/slideshow-nav.js';
 import { speedLabel } from '../lib/slideshow-speed.js';
@@ -73,7 +73,7 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
   // the album's primary country.
   const navCode = code || album.primary;
   const exitHref = albumPath(navCode, album.id);
-  const photos = sortPhotosByFilename(album.photos);
+  const photos = sortPhotosByDate(album.photos);
   if (photos.length === 0) {
     return `
       <div class="slideshow-shell">

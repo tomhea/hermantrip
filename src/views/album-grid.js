@@ -9,7 +9,9 @@
 
 import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { albumById } from '../lib/album-query.js';
-import { sortPhotosByFilename } from '../lib/ordering.js';
+import { sortPhotosByDate } from '../lib/ordering.js';
+import { groupPhotosByDay } from '../lib/photo-group.js';
+import { formatHebrewDate } from '../lib/photo-date.js';
 import { photoImgHTML } from '../lib/photo-img.js';
 import { homePath, countryPath, slidePath } from '../lib/paths.js';
 
@@ -52,31 +54,43 @@ export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
   // the album's primary country if no context was passed.
   const backCode = code || album.primary;
   const backHref = countryPath(backCode);
-  const photos = sortPhotosByFilename(album.photos);
+  // Chronological order so day groups are contiguous AND the slide index
+  // (position in this list) matches what the slideshow uses.
+  const photos = sortPhotosByDate(album.photos);
   const subtitle = `${photos.length.toLocaleString('he-IL')} תמונות`;
 
   if (photos.length === 0) {
     return `${header(album.title ?? album.name, backHref, 'חזרה', subtitle)}<p class="muted">אין תמונות באלבום זה.</p>`;
   }
 
-  const tiles = photos.map((photo, i) => {
-    const eager = i < EAGER_COUNT;
-    const img = photoImgHTML(photo, {
-      intent: 'thumb',
-      dpr,
-      className: 'photo album-photo',
-      loading: eager ? 'eager' : 'lazy',
-      // The first screenful jumps the network queue so on-screen thumbs
-      // appear fast (ask #2); off-screen tiles stay lazy + normal priority.
-      priority: eager ? 'high' : null,
-    });
-    return `<li class="photo-tile"><a href="${slidePath(backCode, album.id, i)}">${img}</a></li>`;
-  });
+  // Group by day; render a section per day with a Hebrew date header. A
+  // running global index keeps slide links + eager-loading correct across
+  // sections.
+  let i = 0;
+  const sections = groupPhotosByDay(photos).map((group) => {
+    const heading = group.date ? formatHebrewDate(`${group.date}T00:00:00`) : 'ללא תאריך';
+    const tiles = group.photos.map((photo) => {
+      const eager = i < EAGER_COUNT;
+      const img = photoImgHTML(photo, {
+        intent: 'thumb',
+        dpr,
+        className: 'photo album-photo',
+        loading: eager ? 'eager' : 'lazy',
+        priority: eager ? 'high' : null,
+      });
+      const tile = `<li class="photo-tile"><a href="${slidePath(backCode, album.id, i)}">${img}</a></li>`;
+      i += 1;
+      return tile;
+    }).join('');
+    return `
+      <section class="day-group">
+        <h2 class="day-header">${escapeHTML(heading)}</h2>
+        <ul class="photo-grid" aria-label="${escapeHTML(heading)}">${tiles}</ul>
+      </section>`;
+  }).join('');
 
   return `
     ${header(album.title ?? album.name, backHref, 'חזרה', subtitle)}
-    <ul class="photo-grid" aria-label="תמונות באלבום">
-      ${tiles.join('')}
-    </ul>
+    ${sections}
   `;
 }

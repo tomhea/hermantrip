@@ -8,7 +8,7 @@ import { keyToAction, swipeToAction, preloadIndices } from './lib/slideshow-nav.
 import { nextSpeed } from './lib/slideshow-speed.js';
 import { controlsVisible, CONTROLS_HIDE_MS } from './lib/controls-timer.js';
 import { albumById } from './lib/album-query.js';
-import { sortPhotosByFilename } from './lib/ordering.js';
+import { sortPhotosByDate } from './lib/ordering.js';
 import { imageUrl } from './lib/image-url.js';
 import { codeFromSlug, slugFromCode } from './lib/countries.js';
 import { albumPath } from './lib/paths.js';
@@ -154,7 +154,7 @@ function preloadNeighbours(params) {
   if (!manifest) return;
   const album = albumById(manifest, params.id);
   if (!album || album.photos.length === 0) return;
-  const photos = sortPhotosByFilename(album.photos);
+  const photos = sortPhotosByDate(album.photos);
   const cur = Math.max(0, Math.min(photos.length - 1, Number.parseInt(params.idx, 10) || 0));
   const vp = viewportClass();
   for (const pi of preloadIndices(cur, photos.length)) {

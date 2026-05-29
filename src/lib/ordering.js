@@ -12,3 +12,33 @@ export function sortPhotosByFilename(photos) {
     return 0;
   });
 }
+
+// Chronological order by EXIF capture time (M14) — the album grid groups
+// by day and the slideshow advances in this same order, so day groups are
+// contiguous and grid↔slide indices stay aligned. Photos with a capturedAt
+// sort before undated ones; ties (and undated photos) fall back to filename
+// order (preserving the old behavior for albums without EXIF). Stable +
+// non-mutating.
+export function sortPhotosByDate(photos) {
+  return photos
+    .map((p, i) => [p, i])
+    .sort(([a, ai], [b, bi]) => {
+      const ca = a.capturedAt;
+      const cb = b.capturedAt;
+      if (ca && cb) {
+        if (ca < cb) return -1;
+        if (ca > cb) return 1;
+      } else if (ca && !cb) {
+        return -1; // dated before undated
+      } else if (!ca && cb) {
+        return 1;
+      }
+      // tie / both undated → filename, then original index for stability
+      const an = a.name ?? '';
+      const bn = b.name ?? '';
+      if (an < bn) return -1;
+      if (an > bn) return 1;
+      return ai - bi;
+    })
+    .map(([p]) => p);
+}

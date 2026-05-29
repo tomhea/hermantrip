@@ -307,6 +307,18 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   font-size: var(--type-small);
 }
 
+/* Album day groups (M14): a date header above each day's photo grid. */
+.day-group { margin-bottom: var(--space-5); }
+.day-header {
+  font-size: var(--type-h2);
+  font-weight: 500;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-2);
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--divider);
+  font-variant-numeric: tabular-nums;
+}
+
 /* Album grid (photo tiles) */
 .photo-grid {
   list-style: none;
