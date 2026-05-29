@@ -49,12 +49,9 @@ export function renderSlideshow({ manifest, error, id, idx, dpr = 1, viewport = 
   const nextHref = `#/album/${album.id}/slide/${nextIndex(i, photos.length)}`;
   const prevHref = `#/album/${album.id}/slide/${prevIndex(i, photos.length)}`;
   const src = imageUrl(photo.id, 'slide', { dpr, viewport });
-
-  // R4 onerror fallback chain (lh3 → thumbnailLink → broken placeholder).
-  const fallback = photo.thumbnailLink ? escapeHTML(photo.thumbnailLink) : '';
-  const onerror = fallback
-    ? `if(!this.dataset.fb){this.dataset.fb='1';this.src='${fallback}'}else{this.classList.add('photo-broken')}`
-    : "this.classList.add('photo-broken')";
+  // Same-origin /img/ proxy can't be ORB-blocked; onerror just shows the
+  // placeholder on a genuine miss.
+  const onerror = "this.classList.add('photo-broken')";
 
   const counter = `${i + 1} / ${photos.length}`;
 

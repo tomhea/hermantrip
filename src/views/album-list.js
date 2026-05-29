@@ -28,7 +28,7 @@ function albumCard(album, dpr) {
   const first = album.photos[0];
   const count = album.photos.length;
   const thumb = first
-    ? photoImgHTML(first, { intent: 'thumb', dpr, className: 'album-thumb' })
+    ? photoImgHTML(first, { intent: 'card', dpr, className: 'album-thumb' })
     : '<div class="album-thumb photo-broken" aria-hidden="true"></div>';
   return `
     <li class="album-card">

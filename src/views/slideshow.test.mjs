@@ -17,14 +17,14 @@ const manifest = {
   ],
 };
 
-test('renders the photo at the given index via slide intent', () => {
+test('renders the photo at the given index via slide intent (same-origin /img/)', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '2', viewport: 'phone' });
-  assert.match(html, /lh3\.googleusercontent\.com\/d\/p002=w520/);
+  assert.match(html, /src="\/img\/p002\/520"/);
 });
 
 test('desktop viewport requests the larger slide width', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '0', viewport: 'desktop' });
-  assert.match(html, /=w920/);
+  assert.match(html, /src="\/img\/p000\/920"/);
 });
 
 test('shows a 1-based position counter (idx 2 of 5 → "3 / 5")', () => {
@@ -55,12 +55,12 @@ test('exit/close link returns to the album grid', () => {
 
 test('out-of-range index is clamped (idx 99 → shows last photo p004)', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '99' });
-  assert.match(html, /d\/p004=w/);
+  assert.match(html, /src="\/img\/p004\/\d+"/);
 });
 
 test('negative index clamps to first', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '-3' });
-  assert.match(html, /d\/p000=w/);
+  assert.match(html, /src="\/img\/p000\/\d+"/);
 });
 
 test('loading state when manifest null', () => {

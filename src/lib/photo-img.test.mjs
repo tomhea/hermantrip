@@ -8,20 +8,25 @@ const photo = {
   thumbnailLink: 'https://lh3.googleusercontent.com/drive-storage/abc=s220',
 };
 
-test('builds an img with the lh3 thumb URL for the given intent', () => {
+test('builds an img with the same-origin /img/ thumb URL for the given intent', () => {
   const html = photoImgHTML(photo, { intent: 'thumb' });
   assert.match(html, /<img\b/);
-  assert.match(html, /src="https:\/\/lh3\.googleusercontent\.com\/d\/FILE123=w140"/);
+  assert.match(html, /src="\/img\/FILE123\/140"/);
 });
 
 test('passes dpr through to the URL', () => {
   const html = photoImgHTML(photo, { intent: 'thumb', dpr: 2 });
-  assert.match(html, /=w280/);
+  assert.match(html, /src="\/img\/FILE123\/280"/);
 });
 
 test('passes viewport through for slide intent', () => {
   const html = photoImgHTML(photo, { intent: 'slide', viewport: 'desktop' });
-  assert.match(html, /=w920/);
+  assert.match(html, /src="\/img\/FILE123\/920"/);
+});
+
+test('never emits a raw Google URL (same-origin only)', () => {
+  const html = photoImgHTML(photo, { intent: 'card', dpr: 2 });
+  assert.equal(/googleusercontent|drive\.google/.test(html), false);
 });
 
 test('includes loading="lazy" by default (R5)', () => {
@@ -40,16 +45,13 @@ test('fetchpriority="high" emitted when priority:"high" passed (on-screen images
   assert.match(photoImgHTML(photo, { intent: 'thumb', priority: 'high' }), /fetchpriority="high"/);
 });
 
-test('onerror chain falls back to thumbnailLink then broken class (R4)', () => {
+test('onerror tags the element for the CSS placeholder (no thumbnailLink hop needed now)', () => {
+  // Same-origin proxied images can't be ORB-blocked, so the old
+  // lh3-thumbnailLink fallback is gone; onerror just flags a genuine miss.
   const html = photoImgHTML(photo, { intent: 'thumb' });
-  assert.match(html, /onerror="[^"]*this\.dataset\.fb/);
-  assert.match(html, /this\.src='https:\/\/lh3\.googleusercontent\.com\/drive-storage\/abc=s220'/);
-  assert.match(html, /photo-broken/);
-});
-
-test('onerror with no thumbnailLink goes straight to broken class', () => {
-  const html = photoImgHTML({ id: 'X1', name: 'a.jpg' }, { intent: 'thumb' });
   assert.match(html, /onerror="this\.classList\.add\('photo-broken'\)"/);
+  assert.equal(html.includes('dataset.fb'), false);
+  assert.equal(html.includes('drive-storage'), false);
 });
 
 test('applies a custom className', () => {
@@ -71,8 +73,7 @@ test('decoding="async" is set', () => {
   assert.match(photoImgHTML(photo, { intent: 'thumb' }), /decoding="async"/);
 });
 
-test('escapes a malicious thumbnailLink to prevent attribute breakout', () => {
-  const evil = { id: 'X1', name: 'a.jpg', thumbnailLink: 'x" onload="alert(1)' };
-  const html = photoImgHTML(evil, { intent: 'thumb' });
-  assert.equal(html.includes('onload="alert(1)"'), false);
+test('rejects a malformed photo id (cannot break out of the attribute)', () => {
+  // imageUrl validates the id; a bad id throws rather than emitting unsafe HTML.
+  assert.throws(() => photoImgHTML({ id: 'x" onload="alert(1)', name: 'a.jpg' }, { intent: 'thumb' }));
 });

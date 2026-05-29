@@ -25,6 +25,11 @@ test('cross-origin photo (lh3) → bypass', () => {
   );
 });
 
+test('same-origin proxied photo (/img/...) → bypass (not in shell cache)', () => {
+  assert.equal(requestStrategy(`${ORIGIN}/img/FILE123/280`, ORIGIN), 'bypass');
+  assert.equal(requestStrategy(`${ORIGIN}/img/FILE123/orig`, ORIGIN), 'bypass');
+});
+
 test('cross-origin font (gstatic) → bypass', () => {
   assert.equal(
     requestStrategy('https://fonts.gstatic.com/s/rubik/x.woff2', ORIGIN),

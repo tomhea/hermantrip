@@ -59,16 +59,11 @@ function renderCountryCard(country, manifest, dpr) {
     .filter((a) => a.countries.includes(country.code))
     .reduce((s, a) => s + a.photos.length, 0);
   const dotColor = COUNTRY_DOT[country.code] ?? 'var(--accent)';
-  // R4: every img has an onerror fallback to the manifest's thumbnailLink
-  // (which uses a different lh3 path that's not subject to the same ORB
-  // blocking we observed on some /d/{id} URLs). If THAT also fails, hide
-  // the broken-image glyph and show the pale placeholder.
-  const fallback = thumb && thumb.thumbnailLink ? escapeHTML(thumb.thumbnailLink) : '';
-  const onerror = fallback
-    ? `if(!this.dataset.fb){this.dataset.fb='1';this.src='${fallback}'}else{this.classList.add('country-thumb-broken')}`
-    : "this.classList.add('country-thumb-broken')";
+  // Same-origin /img/ proxy can't be ORB-blocked, so the old
+  // onerror→thumbnailLink hop is gone; onerror just shows the placeholder
+  // on a genuine miss.
   const thumbHTML = thumb
-    ? `<img class="country-thumb" src="${imageUrl(thumb.id, 'thumb', { dpr })}" loading="lazy" alt="" decoding="async" onerror="${onerror}">`
+    ? `<img class="country-thumb" src="${imageUrl(thumb.id, 'card', { dpr })}" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">`
     : '<div class="country-thumb country-thumb-empty" aria-hidden="true"></div>';
   return `
     <li class="country-card">

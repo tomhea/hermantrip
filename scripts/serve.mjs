@@ -58,8 +58,58 @@ async function tryServe(reqPath) {
   }
 }
 
+// --- /img/ proxy (dev mirror of the production Caddy reverse-proxy) ---
+// Browsers can't hotlink lh3 (ORB / Google throttle); a server can. So the
+// app requests same-origin /img/{id}/{width}; we fetch it from lh3
+// server-side and stream it back. In production Caddy does this with edge
+// caching via Cloudflare; here we keep a small in-memory cache so the dev
+// loop doesn't re-fetch (and re-trigger Google's per-IP throttle).
+const IMG_RE = /^\/img\/([A-Za-z0-9_-]+)\/(\d+|orig)$/;
+const imgCache = new Map(); // key `${id}/${size}` -> { buf, type }
+const IMG_CACHE_MAX = 400;
+
+function lh3UrlFor(id, size) {
+  return size === 'orig'
+    ? `https://lh3.googleusercontent.com/d/${id}=s0`
+    : `https://lh3.googleusercontent.com/d/${id}=w${size}`;
+}
+
+async function serveImg(id, size, res) {
+  const key = `${id}/${size}`;
+  let hit = imgCache.get(key);
+  if (!hit) {
+    const r = await fetch(lh3UrlFor(id, size));
+    if (!r.ok) { res.writeHead(502).end(`upstream ${r.status}`); return; }
+    const buf = Buffer.from(await r.arrayBuffer());
+    hit = { buf, type: r.headers.get('content-type') || 'image/jpeg' };
+    if (imgCache.size >= IMG_CACHE_MAX) imgCache.delete(imgCache.keys().next().value);
+    imgCache.set(key, hit);
+  }
+  const headers = {
+    'Content-Type': hit.type,
+    'Cache-Control': 'public, max-age=31536000, immutable',
+  };
+  if (size === 'orig') headers['Content-Disposition'] = `attachment; filename="${id}.jpg"`;
+  res.writeHead(200, headers);
+  res.end(hit.buf);
+}
+
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
+
+  const imgMatch = url.pathname.match(IMG_RE);
+  if (imgMatch) {
+    try {
+      await serveImg(imgMatch[1], imgMatch[2], res);
+      console.log(`img ${url.pathname}`);
+    } catch (err) {
+      res.writeHead(502, { 'Content-Type': 'text/plain' });
+      res.end(`502 image proxy error\n`);
+      console.log(`502 ${url.pathname} ${err}`);
+    }
+    return;
+  }
+
   const out = await tryServe(url.pathname);
   if (out) {
     res.writeHead(200, {

@@ -1,12 +1,11 @@
-// Pure builder for a photo <img> string with the R4 onerror fallback chain.
+// Pure builder for a photo <img> string. Shared by every view that renders
+// photos. All image URLs come from imageUrl() (R4), which now emits
+// same-origin /img/ paths — so the ORB-era onerror→thumbnailLink fallback
+// chain is gone: same-origin proxied images can't be ORB-blocked. On the
+// rare genuine failure (missing file), onerror tags the element so CSS can
+// show an intentional placeholder instead of the broken-image glyph.
 //
-// Shared by every view that renders Drive photos (album-list, album-grid,
-// and country-list from M4 onward). Keeps the onerror chain — lh3 URL →
-// manifest thumbnailLink → CSS broken-placeholder class — in ONE place so
-// the fallback behavior can't drift between views.
-//
-// Pure: returns a string, touches no DOM. R4 requires all Drive URLs go
-// through imageUrl(); this is the only place the onerror string is built.
+// Pure: returns a string, touches no DOM.
 
 import { imageUrl } from './image-url.js';
 
@@ -30,13 +29,5 @@ export function photoImgHTML(photo, opts = {}) {
   const src = imageUrl(photo.id, intent, { dpr, viewport });
   const priorityAttr = priority ? ` fetchpriority="${escapeHTML(priority)}"` : '';
 
-  // R4 fallback chain: on first error swap to the manifest's thumbnailLink
-  // (a different lh3 path); on the second error tag the element so CSS can
-  // render an intentional placeholder instead of the broken-image glyph.
-  const fallback = photo.thumbnailLink ? escapeHTML(photo.thumbnailLink) : '';
-  const onerror = fallback
-    ? `if(!this.dataset.fb){this.dataset.fb='1';this.src='${fallback}'}else{this.classList.add('photo-broken')}`
-    : "this.classList.add('photo-broken')";
-
-  return `<img class="${escapeHTML(className)}" src="${src}" loading="${escapeHTML(loading)}"${priorityAttr} decoding="async" alt="${escapeHTML(alt)}" onerror="${onerror}">`;
+  return `<img class="${escapeHTML(className)}" src="${src}" loading="${escapeHTML(loading)}"${priorityAttr} decoding="async" alt="${escapeHTML(alt)}" onerror="this.classList.add('photo-broken')">`;
 }

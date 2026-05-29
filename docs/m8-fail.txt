@@ -1,0 +1,1133 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (0.7907ms)
+✔ empty input returns empty array (1.6255ms)
+✔ no collisions: one entry per folder, folderIds wraps the source (0.429ms)
+✔ same id: photos concatenated, both folderIds tracked (0.154ms)
+✔ same id: first folder name wins (lex order preserves "Bhagsu 1") (0.9342ms)
+✔ mixed: some collide, some do not (0.3514ms)
+✔ does not mutate input photos arrays (0.2158ms)
+▶ extractAlbumNumber — common patterns
+  ✔ "01" → 1 (1.1318ms)
+  ✔ "1" → 1 (0.269ms)
+  ✔ "01 קטמנדו" → 1 (0.1528ms)
+  ✔ "1 - דהלי" → 1 (0.1108ms)
+  ✔ "1. דהלי" → 1 (0.128ms)
+  ✔ "1-עלייה לאוורסט" → 1 (0.1246ms)
+  ✔ "37 - יאנגשואו" → 37 (0.1455ms)
+  ✔ "037 - sometext" → 37 (0.1065ms)
+  ✔ "88 פוקט" → 88 (0.1434ms)
+  ✔ "88" → 88 (0.1688ms)
+  ✔ "14a" → 14 (0.1087ms)
+  ✔ "14a. הודו - באגסו 2" → 14 (0.1103ms)
+✔ extractAlbumNumber — common patterns (4.4225ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✔ ".temp" → null (0.2795ms)
+  ✔ ".temp_1" → null (1.2206ms)
+  ✔ ".temp_2" → null (0.1262ms)
+  ✔ ".temp_3" → null (0.0488ms)
+  ✔ ".hidden" → null (0.0492ms)
+  ✔ "export" → null (0.0371ms)
+  ✔ "Export" → null (0.0346ms)
+  ✔ "EXPORT" → null (0.0338ms)
+  ✔ "exports" → null (0.0741ms)
+✔ extractAlbumNumber — ignored folders return null (2.2687ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✔ "תיאור בלי מספר" → null (0.152ms)
+  ✔ "random folder" → null (0.081ms)
+  ✔ "a01" → null (0.0885ms)
+  ✔ "_01" → null (0.0348ms)
+  ✔ "" → null (0.0421ms)
+✔ extractAlbumNumber — names without leading digits return null (0.5603ms)
+✔ extractAlbumNumber strips leading zeros (0.1228ms)
+✔ albumsForCountry returns albums where code is in countries[], sorted by id (3.1108ms)
+✔ albumsForCountry includes cross-country albums (0.4731ms)
+✔ albumsForCountry for thailand returns [1, 19] sorted (0.2697ms)
+✔ albumsForCountry unknown country returns empty array (0.1625ms)
+✔ albumsForCountry does not mutate manifest.albums order (0.2272ms)
+✔ albumById returns the matching album (0.2436ms)
+✔ albumById accepts string id (router params are strings) (0.2167ms)
+✔ albumById unknown id returns null (0.2871ms)
+✔ albumById non-numeric string returns null (0.2926ms)
+✔ COUNTRY_ORDER lists the seven countries in trip order (1.814ms)
+✔ COUNTRIES exposes Hebrew + English names for every code (0.3719ms)
+▶ assignAlbumToCountries — single-country
+  ✔ album 5 → only [np], primary np (0.3826ms)
+  ✔ album 12 → only [in], primary in (0.1206ms)
+  ✔ album 25 → only [vn], primary vn (0.1351ms)
+  ✔ album 34 → only [cn], primary cn (0.1411ms)
+  ✔ album 45 → only [au], primary au (0.0975ms)
+  ✔ album 65 → only [nz], primary nz (0.1076ms)
+  ✔ album 80 → only [th], primary th (0.1407ms)
+  ✔ album 19 → only [th], primary th (0.2321ms)
+✔ assignAlbumToCountries — single-country (1.9626ms)
+✔ album 1 is Nepal + Thailand, primary Nepal (0.1486ms)
+✔ album 37 is China + Australia + Thailand, primary China (0.1443ms)
+▶ assignAlbumToCountries — range boundaries
+  ✔ album 7 → [np] (1.6471ms)
+  ✔ album 8 → [in] (0.2931ms)
+  ✔ album 18 → [in] (0.1902ms)
+  ✔ album 20 → [vn] (0.2628ms)
+  ✔ album 29 → [vn] (0.1157ms)
+  ✔ album 30 → [cn] (0.082ms)
+  ✔ album 38 → [au] (0.0807ms)
+  ✔ album 53 → [au] (0.0843ms)
+  ✔ album 54 → [nz] (0.0758ms)
+  ✔ album 76 → [nz] (0.0995ms)
+  ✔ album 77 → [th] (0.1194ms)
+  ✔ album 88 → [th] (0.0716ms)
+✔ assignAlbumToCountries — range boundaries (3.8284ms)
+✔ album with no country range throws loudly (1.0387ms)
+✔ non-positive album throws (0.2214ms)
+✔ returns first photo of lowest-id primary album (2.1791ms)
+✔ Thailand uses album 19 (its lowest primary), not album 1 (Nepal primary) (0.2089ms)
+✔ country with no primary albums returns null (0.1182ms)
+✔ unknown country returns null (0.2213ms)
+✔ country whose primary album has no photos falls through to next primary album (0.2963ms)
+✔ country with all-empty primary albums returns null (0.1422ms)
+✔ does not mutate manifest (0.187ms)
+✖ thumb intent: /img/{id}/140 at DPR 1 (2.5267ms)
+✖ thumb intent: /280 at DPR 2 (0.4232ms)
+✖ thumb intent caps at 280 even at DPR 3 (0.2258ms)
+✖ card intent: /360 at DPR 1 (preview hero) (0.1419ms)
+✖ card intent: /720 at DPR 2 (0.1641ms)
+✖ card intent caps at 720 even at DPR 3 (0.1062ms)
+✖ pin intent: /120 default (0.2008ms)
+✖ pin intent caps at 240 at high DPR (0.193ms)
+✖ slide on phone: /520 at DPR 1 (0.2187ms)
+✖ slide on phone DPR 2: /1040 (0.3267ms)
+✖ slide on phone caps at 1080 at DPR 3 (0.2551ms)
+✖ slide on tablet: /760 baseline (0.215ms)
+✖ slide on desktop: /920 baseline (0.3313ms)
+✖ slide on desktop DPR 2: /1840 (0.1749ms)
+✖ slide on desktop caps at 2000 at DPR 3 (0.1309ms)
+✖ original intent: /2400 regardless of DPR (0.1473ms)
+✖ download intent: /img/{id}/orig (full original, server adds attachment header) (0.083ms)
+✖ emits NO raw Google URL (same-origin only) (0.3036ms)
+✔ unknown intent throws (1.6302ms)
+✔ missing fileId throws (0.1943ms)
+✔ fileId with special URL chars is rejected (0.1775ms)
+✔ default loading text is Hebrew "טוען..." (1.1081ms)
+✔ default error text is Hebrew and not auto-translated (0.3487ms)
+✔ loadingHTML uses default text (0.6397ms)
+✔ loadingHTML uses custom text (0.424ms)
+✔ loadingHTML includes role="status" for assistive tech (0.3186ms)
+✔ loadingHTML includes aria-live="polite" (0.2922ms)
+✔ errorHTML uses default text (0.3986ms)
+✔ errorHTML uses custom text (0.2816ms)
+✔ errorHTML includes role="alert" (0.4576ms)
+✔ escapes HTML special chars in custom text to prevent XSS (0.6111ms)
+✔ empty array returns empty (2.2569ms)
+✔ already-sorted returns equivalent order (0.369ms)
+✔ reverse-sorted gets sorted (0.1607ms)
+✔ numeric suffixes sort lexicographically (NOT numerically) (1.2718ms)
+✔ case-sensitive: uppercase comes before lowercase (0.3197ms)
+✔ does not mutate input array (0.2092ms)
+✔ returns a new array, not the original (0.168ms)
+✖ builds an img with the same-origin /img/ thumb URL for the given intent (4.1213ms)
+✖ passes dpr through to the URL (0.4937ms)
+✖ passes viewport through for slide intent (0.2607ms)
+✖ never emits a raw Google URL (same-origin only) (0.1297ms)
+✔ includes loading="lazy" by default (R5) (0.2286ms)
+✔ eager loading when loading:"eager" passed (first paint above the fold) (0.1952ms)
+✔ no fetchpriority attribute by default (0.1746ms)
+✔ fetchpriority="high" emitted when priority:"high" passed (on-screen images) (0.1162ms)
+✖ onerror tags the element for the CSS placeholder (no thumbnailLink hop needed now) (0.2508ms)
+✔ applies a custom className (0.3297ms)
+✔ default className is "photo" (0.1894ms)
+✔ alt defaults to empty (decorative) and is escaped when provided (0.2144ms)
+✔ decoding="async" is set (0.1014ms)
+✔ rejects a malformed photo id (cannot break out of the attribute) (0.3548ms)
+✔ extractPhotoMeta — full record with EXIF (1.1212ms)
+✔ extractPhotoMeta — missing EXIF leaves capturedAt null (0.1849ms)
+✔ extractPhotoMeta — imageMediaMetadata present but no time (0.1312ms)
+✔ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.2412ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.2094ms)
+▶ parseHash
+  ✔ "" → "/" (0.9957ms)
+  ✔ "#" → "/" (0.1482ms)
+  ✔ "#/" → "/" (0.107ms)
+  ✔ "#/country/np" → "/country/np" (0.1045ms)
+  ✔ "#/album/5" → "/album/5" (0.088ms)
+  ✔ "#/album/5/slide/12" → "/album/5/slide/12" (0.0913ms)
+  ✔ "/country/np" → "/country/np" (0.1573ms)
+  ✔ "#country/np" → "/country/np" (0.1632ms)
+  ✔ "#/random" → "/random" (0.1338ms)
+✔ parseHash (3.7759ms)
+▶ createRouter — static routes
+  ✔ matches home route (1.223ms)
+  ✔ matches map route (0.152ms)
+  ✔ unknown path returns null (0.1298ms)
+✔ createRouter — static routes (1.7169ms)
+▶ createRouter — param routes
+  ✔ single param (0.3624ms)
+  ✔ two params (0.2992ms)
+  ✔ static segment after param (0.2784ms)
+  ✔ decodes URI components in params (1.3565ms)
+  ✔ extra segments do not match shorter pattern (0.1105ms)
+  ✔ first matching route wins (0.083ms)
+✔ createRouter — param routes (2.7395ms)
+▶ clampIndex
+  ✔ in-range index unchanged (0.9726ms)
+  ✔ negative clamps to 0 (0.1717ms)
+  ✔ over-length clamps to last (0.1417ms)
+  ✔ non-integer string parses (0.1443ms)
+  ✔ garbage clamps to 0 (0.1958ms)
+  ✔ empty album → 0 (0.1123ms)
+✔ clampIndex (3.584ms)
+▶ nextIndex (wraps by default)
+  ✔ advances by one (0.2335ms)
+  ✔ wraps last → first (0.1633ms)
+  ✔ no-wrap stays at last (0.1933ms)
+✔ nextIndex (wraps by default) (0.8537ms)
+▶ prevIndex (wraps by default)
+  ✔ goes back by one (0.3472ms)
+  ✔ wraps first → last (0.2175ms)
+  ✔ no-wrap stays at first (0.0877ms)
+✔ prevIndex (wraps by default) (1.8228ms)
+▶ keyToAction (RTL: ArrowLeft = next)
+  ✔ ArrowLeft → next (0.3338ms)
+  ✔ ArrowRight → prev (0.1101ms)
+  ✔ Escape → exit (0.1688ms)
+  ✔ spacebar → next (0.0856ms)
+  ✔ unrelated key → null (0.0691ms)
+✔ keyToAction (RTL: ArrowLeft = next) (1.002ms)
+▶ swipeToAction (RTL: rightward = next)
+  ✔ big rightward swipe → next (0.1657ms)
+  ✔ big leftward swipe → prev (0.0755ms)
+  ✔ tiny movement below threshold → null (0.0668ms)
+  ✔ custom threshold respected (0.0713ms)
+✔ swipeToAction (RTL: rightward = next) (0.5586ms)
+▶ preloadIndices (±2 neighbours, default radius 2)
+  ✔ middle of a large album → the 2 before + 2 after, current excluded (1.9031ms)
+  ✔ near the start wraps around to the end (0.274ms)
+  ✔ near the end wraps to the start (0.2437ms)
+  ✔ never includes the current index (0.1995ms)
+  ✔ small album (3 photos) → the other 2, no dupes, no current (0.2314ms)
+  ✔ two-photo album → just the other one (0.179ms)
+  ✔ single-photo album → nothing to preload (0.1549ms)
+  ✔ empty album → empty (0.1294ms)
+  ✔ custom radius 1 → just ±1 (0.2552ms)
+✔ preloadIndices (±2 neighbours, default radius 2) (4.0922ms)
+✔ same-origin HTML navigation → network-first (1.5448ms)
+✔ same-origin JS / CSS → network-first (so code updates are never stale) (0.3345ms)
+✔ the manifest is always bypassed (must be fresh, never cache-served) (1.3296ms)
+✔ cross-origin photo (lh3) → bypass (0.2061ms)
+✖ same-origin proxied photo (/img/...) → bypass (not in shell cache) (1.4003ms)
+✔ cross-origin font (gstatic) → bypass (0.2242ms)
+✔ localhost dev origin also resolves shell as network-first (0.1965ms)
+✔ query strings on the manifest still bypass (0.1507ms)
+✔ query strings target the documented breakpoints (1.0004ms)
+✔ isPhone true when matchMedia matches PHONE_QUERY (0.3232ms)
+✔ isPhone false when only desktop matches (0.2054ms)
+✔ isTablet true only at tablet breakpoint (0.2137ms)
+✔ isDesktop true only at desktop breakpoint (1.5957ms)
+✔ happy path: renders album name as title (17.6131ms)
+✔ happy path: renders one img per photo (0.3581ms)
+✔ happy path: first 12 are eager, rest lazy (R5 first-paint budget) (0.2232ms)
+✔ happy path: photos are in lexicographic filename order (0.2436ms)
+✔ happy path: each photo links to its slide route (0.1599ms)
+✔ happy path: includes a back link to the country (0.1598ms)
+✔ empty album shows a "no photos" message (0.1175ms)
+✔ loading state when manifest is null (0.1619ms)
+✔ fetch-failed state renders errorHTML (0.2113ms)
+✔ unknown album shows a not-found message + back link home (0.3138ms)
+✔ happy path: renders country name as title (16.1238ms)
+✔ happy path: one card per album with album name + photo count (0.18ms)
+✔ happy path: photo counts are shown (0.1135ms)
+✖ happy path: each album card uses its first photo via the same-origin /img/ proxy (0.9875ms)
+✔ happy path: includes a back link to home (0.2414ms)
+✔ loading state when manifest is null (0.2232ms)
+✔ fetch-failed state renders errorHTML (0.1401ms)
+✔ unknown country shows a not-found message + back link (0.0961ms)
+✔ escapes album names to prevent XSS (0.1973ms)
+✔ happy path: renders header + grid with one card per country (16.1823ms)
+✖ happy path: each card has a same-origin /img/ card image (1.2048ms)
+✖ happy path: card image never emits a raw Google URL (0.6065ms)
+✔ happy path: image uses loading="lazy" (R5 budget) (0.1537ms)
+✔ happy path: image onerror shows the placeholder (no thumbnailLink hop) (0.2146ms)
+✖ happy path: DPR is passed through to image URL (0.4097ms)
+✔ fetch-failed state: renders errorHTML (0.2147ms)
+✔ loading state: renders loadingHTML when manifest is null + no error (0.1459ms)
+✔ empty-manifest state: renders empty message when countries=[] (0.1588ms)
+✔ empty-manifest state: also when countries is missing (0.1964ms)
+✔ country with no thumb falls back to placeholder div (0.1876ms)
+✔ escapes country names to prevent XSS (0.1592ms)
+✖ renders the photo at the given index via slide intent (same-origin /img/) (1.9867ms)
+✖ desktop viewport requests the larger slide width (0.3779ms)
+✔ shows a 1-based position counter (idx 2 of 5 → "3 / 5") (0.2136ms)
+✔ next link wraps last → first (0.1227ms)
+✔ prev link wraps first → last (0.1066ms)
+✔ middle index links to both neighbours (0.2031ms)
+✔ exit/close link returns to the album grid (0.121ms)
+✖ out-of-range index is clamped (idx 99 → shows last photo p004) (0.3629ms)
+✖ negative index clamps to first (0.4116ms)
+✔ loading state when manifest null (0.2482ms)
+✔ fetch-failed state renders errorHTML (0.1557ms)
+✔ unknown album → not-found + home link (0.0979ms)
+✔ empty album → message + back link, no crash (0.1518ms)
+✔ carries data-slideshow hooks for keyboard/swipe wiring (0.141ms)
+✔ renders a play button (data-autoplay-toggle) when autoplay is off (0.1651ms)
+✔ shows pause affordance when autoplay is on (0.1835ms)
+✔ autoplay defaults to off when not specified (0.0913ms)
+ℹ tests 242
+ℹ suites 14
+ℹ pass 210
+ℹ fail 32
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 396.5542
+
+✖ failing tests:
+
+test at src\lib\image-url.test.mjs:9:1
+✖ thumb intent: /img/{id}/140 at DPR 1 (2.5267ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://lh3.googleusercontent.com/d/abc=w140'
+  - '/img/abc/140'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:10:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://lh3.googleusercontent.com/d/abc=w140',
+    expected: '/img/abc/140',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\image-url.test.mjs:13:1
+✖ thumb intent: /280 at DPR 2 (0.4232ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://lh3.googleusercontent.com/d/abc=w280'
+  - '/img/abc/280'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:14:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://lh3.googleusercontent.com/d/abc=w280',
+    expected: '/img/abc/280',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\image-url.test.mjs:17:1
+✖ thumb intent caps at 280 even at DPR 3 (0.2258ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://lh3.googleusercontent.com/d/abc=w280'
+  - '/img/abc/280'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:18:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://lh3.googleusercontent.com/d/abc=w280',
+    expected: '/img/abc/280',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\image-url.test.mjs:21:1
+✖ card intent: /360 at DPR 1 (preview hero) (0.1419ms)
+  Error: imageUrl: unknown intent "card"
+      at imageUrl (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.js:42:11)
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:22:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at src\lib\image-url.test.mjs:25:1
+✖ card intent: /720 at DPR 2 (0.1641ms)
+  Error: imageUrl: unknown intent "card"
+      at imageUrl (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.js:42:11)
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:26:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at src\lib\image-url.test.mjs:29:1
+✖ card intent caps at 720 even at DPR 3 (0.1062ms)
+  Error: imageUrl: unknown intent "card"
+      at imageUrl (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.js:42:11)
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:30:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at src\lib\image-url.test.mjs:33:1
+✖ pin intent: /120 default (0.2008ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://lh3.googleusercontent.com/d/xyz=w120'
+  - '/img/xyz/120'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:34:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://lh3.googleusercontent.com/d/xyz=w120',
+    expected: '/img/xyz/120',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\image-url.test.mjs:37:1
+✖ pin intent caps at 240 at high DPR (0.193ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://lh3.googleusercontent.com/d/xyz=w240'
+  - '/img/xyz/240'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:38:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://lh3.googleusercontent.com/d/xyz=w240',
+    expected: '/img/xyz/240',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\image-url.test.mjs:41:1
+✖ slide on phone: /520 at DPR 1 (0.2187ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://lh3.googleusercontent.com/d/id=w520'
+  - '/img/id/520'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:42:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://lh3.googleusercontent.com/d/id=w520',
+    expected: '/img/id/520',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\image-url.test.mjs:45:1
+✖ slide on phone DPR 2: /1040 (0.3267ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://lh3.googleusercontent.com/d/id=w1040'
+  - '/img/id/1040'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:46:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://lh3.googleusercontent.com/d/id=w1040',
+    expected: '/img/id/1040',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\image-url.test.mjs:49:1
+✖ slide on phone caps at 1080 at DPR 3 (0.2551ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://lh3.googleusercontent.com/d/id=w1080'
+  - '/img/id/1080'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:50:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://lh3.googleusercontent.com/d/id=w1080',
+    expected: '/img/id/1080',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\image-url.test.mjs:53:1
+✖ slide on tablet: /760 baseline (0.215ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://lh3.googleusercontent.com/d/id=w760'
+  - '/img/id/760'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:54:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://lh3.googleusercontent.com/d/id=w760',
+    expected: '/img/id/760',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\image-url.test.mjs:57:1
+✖ slide on desktop: /920 baseline (0.3313ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://lh3.googleusercontent.com/d/id=w920'
+  - '/img/id/920'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:58:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://lh3.googleusercontent.com/d/id=w920',
+    expected: '/img/id/920',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\image-url.test.mjs:61:1
+✖ slide on desktop DPR 2: /1840 (0.1749ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://lh3.googleusercontent.com/d/id=w1840'
+  - '/img/id/1840'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:62:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://lh3.googleusercontent.com/d/id=w1840',
+    expected: '/img/id/1840',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\image-url.test.mjs:65:1
+✖ slide on desktop caps at 2000 at DPR 3 (0.1309ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://lh3.googleusercontent.com/d/id=w2000'
+  - '/img/id/2000'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:66:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://lh3.googleusercontent.com/d/id=w2000',
+    expected: '/img/id/2000',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\image-url.test.mjs:69:1
+✖ original intent: /2400 regardless of DPR (0.1473ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://lh3.googleusercontent.com/d/id=w2400'
+  - '/img/id/2400'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:70:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://lh3.googleusercontent.com/d/id=w2400',
+    expected: '/img/id/2400',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\image-url.test.mjs:74:1
+✖ download intent: /img/{id}/orig (full original, server adds attachment header) (0.083ms)
+  Error: imageUrl: unknown intent "download"
+      at imageUrl (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.js:42:11)
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:75:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at src\lib\image-url.test.mjs:78:1
+✖ emits NO raw Google URL (same-origin only) (0.3036ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.test.mjs:80:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:11:1
+✖ builds an img with the same-origin /img/ thumb URL for the given intent (4.1213ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /src="\/img\/FILE123\/140"/. Input:
+  
+  `<img class="photo" src="https://lh3.googleusercontent.com/d/FILE123=w140" loading="lazy" decoding="async" alt="" onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='https://lh3.googleusercontent.com/drive-storage/abc=s220'}else{this.classList.add('photo-broken')}">`
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:14:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `<img class="photo" src="https://lh3.googleusercontent.com/d/FILE123=w140" loading="lazy" decoding="async" alt="" onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='https://lh3.googleusercontent.com/drive-storage/abc=s220'}else{this.classList.add('photo-broken')}">`,
+    expected: /src="\/img\/FILE123\/140"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:17:1
+✖ passes dpr through to the URL (0.4937ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /src="\/img\/FILE123\/280"/. Input:
+  
+  `<img class="photo" src="https://lh3.googleusercontent.com/d/FILE123=w280" loading="lazy" decoding="async" alt="" onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='https://lh3.googleusercontent.com/drive-storage/abc=s220'}else{this.classList.add('photo-broken')}">`
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:19:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `<img class="photo" src="https://lh3.googleusercontent.com/d/FILE123=w280" loading="lazy" decoding="async" alt="" onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='https://lh3.googleusercontent.com/drive-storage/abc=s220'}else{this.classList.add('photo-broken')}">`,
+    expected: /src="\/img\/FILE123\/280"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:22:1
+✖ passes viewport through for slide intent (0.2607ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /src="\/img\/FILE123\/920"/. Input:
+  
+  `<img class="photo" src="https://lh3.googleusercontent.com/d/FILE123=w920" loading="lazy" decoding="async" alt="" onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='https://lh3.googleusercontent.com/drive-storage/abc=s220'}else{this.classList.add('photo-broken')}">`
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:24:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `<img class="photo" src="https://lh3.googleusercontent.com/d/FILE123=w920" loading="lazy" decoding="async" alt="" onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='https://lh3.googleusercontent.com/drive-storage/abc=s220'}else{this.classList.add('photo-broken')}">`,
+    expected: /src="\/img\/FILE123\/920"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:27:1
+✖ never emits a raw Google URL (same-origin only) (0.1297ms)
+  Error: imageUrl: unknown intent "card"
+      at imageUrl (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/image-url.js:42:11)
+      at photoImgHTML (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.js:30:15)
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:28:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at src\lib\photo-img.test.mjs:48:1
+✖ onerror tags the element for the CSS placeholder (no thumbnailLink hop needed now) (0.2508ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /onerror="this\.classList\.add\('photo-broken'\)"/. Input:
+  
+  `<img class="photo" src="https://lh3.googleusercontent.com/d/FILE123=w140" loading="lazy" decoding="async" alt="" onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='https://lh3.googleusercontent.com/drive-storage/abc=s220'}else{this.classList.add('photo-broken')}">`
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:52:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `<img class="photo" src="https://lh3.googleusercontent.com/d/FILE123=w140" loading="lazy" decoding="async" alt="" onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='https://lh3.googleusercontent.com/drive-storage/abc=s220'}else{this.classList.add('photo-broken')}">`,
+    expected: /onerror="this\.classList\.add\('photo-broken'\)"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\sw-strategy.test.mjs:28:1
+✖ same-origin proxied photo (/img/...) → bypass (not in shell cache) (1.4003ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'network-first'
+  - 'bypass'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/sw-strategy.test.mjs:29:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'network-first',
+    expected: 'bypass',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\views\album-list.test.mjs:35:1
+✖ happy path: each album card uses its first photo via the same-origin /img/ proxy (0.9875ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /src="\/img\/p1\/\d+"/. Input:
+  
+  '\n' +
+    '    \n' +
+    '    <header class="view-header">\n' +
+    '      <a class="back-link" href="#/" aria-label="חזרה לדף הבית">→ דף הבית</a>\n' +
+    '      <h1 class="h1">נפאל</h1>\n' +
+    '      <p class="muted small">2 אלבומים · 3 תמונות</p>\n' +
+    '    </header>\n' +
+    '  \n' +
+    '    <ul class="album-grid-list" aria-label="אלבומים">\n' +
+    '      \n' +
+    '    <li class="album-card">\n' +
+    '      <a href="#/album/1">\n' +
+    `        <img class="album-thumb" src="https://lh3.googleusercontent.com/d/p1=w140" loading="lazy" decoding="async" alt="" onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='https://lh3.googleusercontent.com/drive-storage/a=s220'}else{this.classList.add('photo-broken')}">\n` +
+    '        <div class="album-card-meta">\n' +
+    '          <span class="album-name">01. נפאל - קטמנדו</span>\n' +
+    '          <span class="album-count">1 תמונות</span>\n' +
+    '        </div>\n' +
+    '      </a>\n' +
+    '    </li>\n' +
+    '  \n' +
+    '    <li class="album-card">\n' +
+    '      <a href="#/album/2">\n' +
+    `        <img class="album-thumb" src="https://lh3.googleusercontent.com/d/p2a=w140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')">\n` +
+    '        <div class="album-card-meta">\n' +
+    '          <span class="album-name">02. נפאל - פוקרה</span>\n' +
+    '          <span class="album-count">2 תמונות</span>\n' +
+    '        </div>\n' +
+    '      </a>\n' +
+    '    </li>\n' +
+    '  \n' +
+    '    </ul>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-list.test.mjs:37:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    \n    <header class="view-header">\n      <a class="back-link" href="#/" aria-label="חזרה לדף הבית">→ דף הבית</a>\n      <h1 class="h1">נפאל</h1>\n      <p class="muted small">2 אלבומים · 3 תמונות</p>\n    </header>\n  \n    <ul class="album-grid-list" aria-label="אלבומים">\n      \n    <li class="album-card">\n      <a href="#/album/1">\n        <img class="album-thumb" src="https://lh3.googleusercontent.com/d/p1=w140" loading="lazy" decoding="async" alt="" onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='https://lh3.googleusercontent.com/drive-storage/a=s220'}else{this.classList.add('photo-broken')}">\n        <div class="album-card-meta">\n          <span class="album-name">01. נפאל - קטמנדו</span>\n          <span class="album-count">1 תמונות</span>\n        </div>\n      </a>\n    </li>\n  \n    <li class="album-card">\n      <a href="#/album/2">\n        <img class="album-thumb" src="https://lh3.googleusercontent.com/d/p2a=w140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')">\n        <div class="album-card-meta">\n          <span class="album-name">02. נפאל - פוקרה</span>\n          <span class="album-count">2 תמונות</span>\n        </div>\n      </a>\n    </li>\n  \n    </ul>\n  `,
+    expected: /src="\/img\/p1\/\d+"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\country-list.test.mjs:28:1
+✖ happy path: each card has a same-origin /img/ card image (1.2048ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /<img class="country-thumb"[^>]*src="\/img\/photo-np\/360"/. Input:
+  
+  '\n' +
+    '    \n' +
+    '    <header class="home-header">\n' +
+    '      <div class="home-header-text">\n' +
+    '        <h1 class="display">הרמן בדרכים</h1>\n' +
+    '        <p class="tagline">אלבום משפחתי מטיול בן שנה</p>\n' +
+    '      </div>\n' +
+    '      <svg class="home-globe" viewBox="0 0 80 80" aria-hidden="true">\n' +
+    '  <circle cx="40" cy="40" r="32" fill="var(--earth-pale)" stroke="var(--text)" stroke-width="1.2"/>\n' +
+    '  <path d="M 16 32 Q 24 26, 32 32 Q 38 36, 44 32 Q 50 30, 56 34 L 55 40 Q 48 44, 40 42 Q 30 42, 20 40 Z"\n' +
+    '        fill="var(--earth-sage)" opacity="0.85"/>\n' +
+    '  <path d="M 24 52 Q 32 50, 42 54 Q 50 56, 56 52 L 54 60 Q 44 62, 34 60 Q 28 58, 24 56 Z"\n' +
+    '        fill="var(--earth-sage)" opacity="0.85"/>\n' +
+    '  <ellipse cx="40" cy="40" rx="32" ry="9" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>\n' +
+    '  <ellipse cx="40" cy="40" rx="11" ry="32" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>\n' +
+    '  <circle cx="46" cy="36" r="1.6" fill="var(--accent)"/>\n' +
+    '</svg>\n' +
+    '    </header>\n' +
+    '  \n' +
+    '    <ul class="country-grid" aria-label="מדינות">\n' +
+    '      \n' +
+    '    <li class="country-card">\n' +
+    '      <a href="#/country/np">\n' +
+    `        <img class="country-thumb" src="https://lh3.googleusercontent.com/d/photo-np=w140" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">\n` +
+    '        <div class="country-card-meta">\n' +
+    '          <span class="country-dot" style="background:var(--earth-slate)" aria-hidden="true"></span>\n' +
+    '          <span class="country-name">נפאל</span>\n' +
+    '          <span class="country-count">1 תמונות</span>\n' +
+    '        </div>\n' +
+    '      </a>\n' +
+    '    </li>\n' +
+    '  \n' +
+    '    <li class="country-card">\n' +
+    '      <a href="#/country/th">\n' +
+    `        <img class="country-thumb" src="https://lh3.googleusercontent.com/d/photo-th=w140" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">\n` +
+    '        <div class="country-card-meta">\n' +
+    '          <span class="country-dot" style="background:var(--earth-ochre)" aria-hidden="true"></span>\n' +
+    '          <span class="country-name">תאילנד</span>\n' +
+    '          <span class="country-count">2 תמונות</span>\n' +
+    '        </div>\n' +
+    '      </a>\n' +
+    '    </li>\n' +
+    '  \n' +
+    '    </ul>\n' +
+    '    <p class="home-coming-soon">\n' +
+    '      בחרו מדינה כדי לדפדף באלבומים שלה.\n' +
+    '      סלאידשואו, מפה, משחק ניחושים וציר זמן יגיעו במילסטונים הבאים.\n' +
+    '    </p>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/country-list.test.mjs:30:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    \n    <header class="home-header">\n      <div class="home-header-text">\n        <h1 class="display">הרמן בדרכים</h1>\n        <p class="tagline">אלבום משפחתי מטיול בן שנה</p>\n      </div>\n      <svg class="home-globe" viewBox="0 0 80 80" aria-hidden="true">\n  <circle cx="40" cy="40" r="32" fill="var(--earth-pale)" stroke="var(--text)" stroke-width="1.2"/>\n  <path d="M 16 32 Q 24 26, 32 32 Q 38 36, 44 32 Q 50 30, 56 34 L 55 40 Q 48 44, 40 42 Q 30 42, 20 40 Z"\n        fill="var(--earth-sage)" opacity="0.85"/>\n  <path d="M 24 52 Q 32 50, 42 54 Q 50 56, 56 52 L 54 60 Q 44 62, 34 60 Q 28 58, 24 56 Z"\n        fill="var(--earth-sage)" opacity="0.85"/>\n  <ellipse cx="40" cy="40" rx="32" ry="9" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>\n  <ellipse cx="40" cy="40" rx="11" ry="32" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>\n  <circle cx="46" cy="36" r="1.6" fill="var(--accent)"/>\n</svg>\n    </header>\n  \n    <ul class="country-grid" aria-label="מדינות">\n      \n    <li class="country-card">\n      <a href="#/country/np">\n        <img class="country-thumb" src="https://lh3.googleusercontent.com/d/photo-np=w140" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">\n        <div class="country-card-meta">\n          <span class="country-dot" style="background:var(--earth-slate)" aria-hidden="true"></span>\n          <span class="country-name">נפאל</span>\n          <span class="country-count">1 תמונות</span>\n        </div>\n      </a>\n    </li>\n  \n    <li class="country-card">\n      <a href="#/country/th">\n        <img class="country-thumb" src="https://lh3.googleusercontent.com/d/photo-th=w140" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">\n        <div class="country-card-meta">\n          <span class="country-dot" style="background:var(--earth-ochre)" aria-hidden="true"></span>\n          <span class="country-name">תאילנד</span>\n          <span class="country-count">2 תמונות</span>\n        </div>\n      </a>\n    </li>\n  \n    </ul>\n    <p class="home-coming-soon">\n      בחרו מדינה כדי לדפדף באלבומים שלה.\n      סלאידשואו, מפה, משחק ניחושים וציר זמן יגיעו במילסטונים הבאים.\n    </p>\n  `,
+    expected: /<img class="country-thumb"[^>]*src="\/img\/photo-np\/360"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\country-list.test.mjs:34:1
+✖ happy path: card image never emits a raw Google URL (0.6065ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/country-list.test.mjs:36:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\views\country-list.test.mjs:55:1
+✖ happy path: DPR is passed through to image URL (0.4097ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /src="\/img\/photo-np\/720"/. Input:
+  
+  '\n' +
+    '    \n' +
+    '    <header class="home-header">\n' +
+    '      <div class="home-header-text">\n' +
+    '        <h1 class="display">הרמן בדרכים</h1>\n' +
+    '        <p class="tagline">אלבום משפחתי מטיול בן שנה</p>\n' +
+    '      </div>\n' +
+    '      <svg class="home-globe" viewBox="0 0 80 80" aria-hidden="true">\n' +
+    '  <circle cx="40" cy="40" r="32" fill="var(--earth-pale)" stroke="var(--text)" stroke-width="1.2"/>\n' +
+    '  <path d="M 16 32 Q 24 26, 32 32 Q 38 36, 44 32 Q 50 30, 56 34 L 55 40 Q 48 44, 40 42 Q 30 42, 20 40 Z"\n' +
+    '        fill="var(--earth-sage)" opacity="0.85"/>\n' +
+    '  <path d="M 24 52 Q 32 50, 42 54 Q 50 56, 56 52 L 54 60 Q 44 62, 34 60 Q 28 58, 24 56 Z"\n' +
+    '        fill="var(--earth-sage)" opacity="0.85"/>\n' +
+    '  <ellipse cx="40" cy="40" rx="32" ry="9" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>\n' +
+    '  <ellipse cx="40" cy="40" rx="11" ry="32" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>\n' +
+    '  <circle cx="46" cy="36" r="1.6" fill="var(--accent)"/>\n' +
+    '</svg>\n' +
+    '    </header>\n' +
+    '  \n' +
+    '    <ul class="country-grid" aria-label="מדינות">\n' +
+    '      \n' +
+    '    <li class="country-card">\n' +
+    '      <a href="#/country/np">\n' +
+    `        <img class="country-thumb" src="https://lh3.googleusercontent.com/d/photo-np=w280" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">\n` +
+    '        <div class="country-card-meta">\n' +
+    '          <span class="country-dot" style="background:var(--earth-slate)" aria-hidden="true"></span>\n' +
+    '          <span class="country-name">נפאל</span>\n' +
+    '          <span class="country-count">1 תמונות</span>\n' +
+    '        </div>\n' +
+    '      </a>\n' +
+    '    </li>\n' +
+    '  \n' +
+    '    <li class="country-card">\n' +
+    '      <a href="#/country/th">\n' +
+    `        <img class="country-thumb" src="https://lh3.googleusercontent.com/d/photo-th=w280" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">\n` +
+    '        <div class="country-card-meta">\n' +
+    '          <span class="country-dot" style="background:var(--earth-ochre)" aria-hidden="true"></span>\n' +
+    '          <span class="country-name">תאילנד</span>\n' +
+    '          <span class="country-count">2 תמונות</span>\n' +
+    '        </div>\n' +
+    '      </a>\n' +
+    '    </li>\n' +
+    '  \n' +
+    '    </ul>\n' +
+    '    <p class="home-coming-soon">\n' +
+    '      בחרו מדינה כדי לדפדף באלבומים שלה.\n' +
+    '      סלאידשואו, מפה, משחק ניחושים וציר זמן יגיעו במילסטונים הבאים.\n' +
+    '    </p>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/country-list.test.mjs:57:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    \n    <header class="home-header">\n      <div class="home-header-text">\n        <h1 class="display">הרמן בדרכים</h1>\n        <p class="tagline">אלבום משפחתי מטיול בן שנה</p>\n      </div>\n      <svg class="home-globe" viewBox="0 0 80 80" aria-hidden="true">\n  <circle cx="40" cy="40" r="32" fill="var(--earth-pale)" stroke="var(--text)" stroke-width="1.2"/>\n  <path d="M 16 32 Q 24 26, 32 32 Q 38 36, 44 32 Q 50 30, 56 34 L 55 40 Q 48 44, 40 42 Q 30 42, 20 40 Z"\n        fill="var(--earth-sage)" opacity="0.85"/>\n  <path d="M 24 52 Q 32 50, 42 54 Q 50 56, 56 52 L 54 60 Q 44 62, 34 60 Q 28 58, 24 56 Z"\n        fill="var(--earth-sage)" opacity="0.85"/>\n  <ellipse cx="40" cy="40" rx="32" ry="9" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>\n  <ellipse cx="40" cy="40" rx="11" ry="32" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>\n  <circle cx="46" cy="36" r="1.6" fill="var(--accent)"/>\n</svg>\n    </header>\n  \n    <ul class="country-grid" aria-label="מדינות">\n      \n    <li class="country-card">\n      <a href="#/country/np">\n        <img class="country-thumb" src="https://lh3.googleusercontent.com/d/photo-np=w280" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">\n        <div class="country-card-meta">\n          <span class="country-dot" style="background:var(--earth-slate)" aria-hidden="true"></span>\n          <span class="country-name">נפאל</span>\n          <span class="country-count">1 תמונות</span>\n        </div>\n      </a>\n    </li>\n  \n    <li class="country-card">\n      <a href="#/country/th">\n        <img class="country-thumb" src="https://lh3.googleusercontent.com/d/photo-th=w280" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">\n        <div class="country-card-meta">\n          <span class="country-dot" style="background:var(--earth-ochre)" aria-hidden="true"></span>\n          <span class="country-name">תאילנד</span>\n          <span class="country-count">2 תמונות</span>\n        </div>\n      </a>\n    </li>\n  \n    </ul>\n    <p class="home-coming-soon">\n      בחרו מדינה כדי לדפדף באלבומים שלה.\n      סלאידשואו, מפה, משחק ניחושים וציר זמן יגיעו במילסטונים הבאים.\n    </p>\n  `,
+    expected: /src="\/img\/photo-np\/720"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:20:1
+✖ renders the photo at the given index via slide intent (same-origin /img/) (1.9867ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /src="\/img\/p002\/520"/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1"\n' +
+    '         data-autoplay-on="false">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p002=w520" alt="01. נפאל - קטמנדו — 3"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n' +
+    '        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:22:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="#/album/1/slide/3" data-prev="#/album/1/slide/1" data-exit="#/album/1"\n         data-autoplay-on="false">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p002=w520" alt="01. נפאל - קטמנדו — 3"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/3" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/1" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n      </div>\n    </div>\n  `,
+    expected: /src="\/img\/p002\/520"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:25:1
+✖ desktop viewport requests the larger slide width (0.3779ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /src="\/img\/p000\/920"/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="#/album/1/slide/1" data-prev="#/album/1/slide/4" data-exit="#/album/1"\n' +
+    '         data-autoplay-on="false">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p000=w920" alt="01. נפאל - קטמנדו — 1"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/1" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/4" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <span class="slideshow-counter" dir="ltr">1 / 5</span>\n' +
+    '        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:27:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="#/album/1/slide/1" data-prev="#/album/1/slide/4" data-exit="#/album/1"\n         data-autoplay-on="false">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p000=w920" alt="01. נפאל - קטמנדו — 1"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/1" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/4" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <span class="slideshow-counter" dir="ltr">1 / 5</span>\n        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n      </div>\n    </div>\n  `,
+    expected: /src="\/img\/p000\/920"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:56:1
+✖ out-of-range index is clamped (idx 99 → shows last photo p004) (0.3629ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /src="\/img\/p004\/\d+"/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="#/album/1/slide/0" data-prev="#/album/1/slide/3" data-exit="#/album/1"\n' +
+    '         data-autoplay-on="false">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p004=w520" alt="01. נפאל - קטמנדו — 5"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/0" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/3" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <span class="slideshow-counter" dir="ltr">5 / 5</span>\n' +
+    '        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:58:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="#/album/1/slide/0" data-prev="#/album/1/slide/3" data-exit="#/album/1"\n         data-autoplay-on="false">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p004=w520" alt="01. נפאל - קטמנדו — 5"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/0" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/3" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <span class="slideshow-counter" dir="ltr">5 / 5</span>\n        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n      </div>\n    </div>\n  `,
+    expected: /src="\/img\/p004\/\d+"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:61:1
+✖ negative index clamps to first (0.4116ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /src="\/img\/p000\/\d+"/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="#/album/1/slide/1" data-prev="#/album/1/slide/4" data-exit="#/album/1"\n' +
+    '         data-autoplay-on="false">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p000=w520" alt="01. נפאל - קטמנדו — 1"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/1" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/4" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <span class="slideshow-counter" dir="ltr">1 / 5</span>\n' +
+    '        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:63:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="#/album/1/slide/1" data-prev="#/album/1/slide/4" data-exit="#/album/1"\n         data-autoplay-on="false">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="https://lh3.googleusercontent.com/d/p000=w520" alt="01. נפאל - קטמנדו — 1"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="#/album/1/slide/1" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="#/album/1/slide/4" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="#/album/1" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <span class="slideshow-counter" dir="ltr">1 / 5</span>\n        <span class="slideshow-title">01. נפאל - קטמנדו</span>\n      </div>\n    </div>\n  `,
+    expected: /src="\/img\/p000\/\d+"/,
+    operator: 'match',
+    diff: 'simple'
+  }
