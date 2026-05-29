@@ -6,6 +6,7 @@
 import { parseHash, createRouter } from './lib/router.js';
 import { keyToAction, swipeToAction, preloadIndices } from './lib/slideshow-nav.js';
 import { nextSpeed } from './lib/slideshow-speed.js';
+import { shouldHide, CONTROLS_HIDE_MS } from './lib/controls-timer.js';
 import { albumById } from './lib/album-query.js';
 import { sortPhotosByFilename } from './lib/ordering.js';
 import { imageUrl } from './lib/image-url.js';
@@ -167,17 +168,23 @@ function wireSlideshow() {
     });
   }
 
-  // Fullscreen toggle on the slideshow shell.
+  // Fullscreen toggle. We fullscreen the PERSISTENT documentElement, not
+  // the shell — because each slide advance replaces #app's innerHTML, which
+  // would destroy a fullscreened shell and drop out of fullscreen. With
+  // <html> fullscreened, navigation/autoplay re-render freely inside it and
+  // fullscreen survives (fixes "slideshow doesn't work in fullscreen").
   const fsBtn = shell.querySelector('[data-fullscreen-toggle]');
   if (fsBtn) {
     fsBtn.addEventListener('click', () => {
       if (document.fullscreenElement) {
         document.exitFullscreen?.();
       } else {
-        shell.requestFullscreen?.().catch(() => { /* ignore — not fatal */ });
+        document.documentElement.requestFullscreen?.().catch(() => { /* not fatal */ });
       }
     });
   }
+
+  wireAutoHideControls(shell);
 
   // (Re)schedule the auto-advance while autoplay is on. Each slide render
   // sets a fresh timer; navigating away clears it (see render()).
@@ -185,6 +192,43 @@ function wireSlideshow() {
   if (autoplayOn) {
     autoplayTimer = setTimeout(() => go(shell.dataset.next), autoplaySpeed);
   }
+}
+
+// Overlay controls that auto-hide after CONTROLS_HIDE_MS of pointer idle and
+// reveal on mouse move / tap, staying put while the pointer is over the bar
+// (M10). Applied every render; the per-render timer is tracked at module
+// scope so it survives nothing — each render arms a fresh one.
+let controlsHideTimer = null;
+function wireAutoHideControls(shell) {
+  const bar = shell.querySelector('.slideshow-bar');
+  if (!bar) return;
+  let lastActivityAt = performance.now();
+  let hoveringBar = false;
+
+  const reveal = () => {
+    lastActivityAt = performance.now();
+    shell.classList.add('controls-visible');
+    schedule();
+  };
+  const schedule = () => {
+    if (controlsHideTimer !== null) clearTimeout(controlsHideTimer);
+    controlsHideTimer = setTimeout(tick, CONTROLS_HIDE_MS + 50);
+  };
+  const tick = () => {
+    if (shouldHide({ lastActivityAt, now: performance.now(), hoveringBar })) {
+      shell.classList.remove('controls-visible');
+    } else {
+      schedule(); // still hovering or recent activity — check again later
+    }
+  };
+
+  shell.addEventListener('mousemove', reveal);
+  shell.addEventListener('touchstart', reveal, { passive: true });
+  bar.addEventListener('mouseenter', () => { hoveringBar = true; reveal(); });
+  bar.addEventListener('mouseleave', () => { hoveringBar = false; reveal(); });
+
+  // Reveal on entry so the controls are discoverable, then let them fade.
+  reveal();
 }
 
 // One global keyboard listener; acts only while a slideshow is mounted.
@@ -218,6 +262,9 @@ function render() {
   stopAutoplayTimer();
   if (!match || match.name !== 'slide') {
     autoplayOn = false;
+    // Leaving the slideshow: drop out of fullscreen so the album/home view
+    // isn't stuck filling the screen.
+    if (document.fullscreenElement) document.exitFullscreen?.();
   }
   if (!match) {
     renderNotFound(path);
