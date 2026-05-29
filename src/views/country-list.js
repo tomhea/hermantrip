@@ -11,6 +11,7 @@
 import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { imageUrl } from '../lib/image-url.js';
 import { pickCountryThumb } from '../lib/country-thumb.js';
+import { countryPath } from '../lib/paths.js';
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -67,7 +68,7 @@ function renderCountryCard(country, manifest, dpr) {
     : '<div class="country-thumb country-thumb-empty" aria-hidden="true"></div>';
   return `
     <li class="country-card">
-      <a href="#/country/${escapeHTML(country.code)}">
+      <a href="${countryPath(country.code)}">
         ${thumbHTML}
         <div class="country-card-meta">
           <span class="country-dot" style="background:${dotColor}" aria-hidden="true"></span>

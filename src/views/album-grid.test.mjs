@@ -47,14 +47,14 @@ test('happy path: photos are in lexicographic filename order', () => {
 
 test('happy path: each photo links to its slide route', () => {
   const html = renderAlbumGrid({ manifest, id: '1' });
-  assert.match(html, /href="#\/album\/1\/slide\/0"/);
-  assert.match(html, /href="#\/album\/1\/slide\/19"/);
+  assert.match(html, /href="\/nepal\/1\/0"/);
+  assert.match(html, /href="\/nepal\/1\/19"/);
 });
 
 test('happy path: includes a back link to the country', () => {
   // album 1's primary country is np → back link to #/country/np
   const html = renderAlbumGrid({ manifest, id: '1' });
-  assert.match(html, /href="#\/country\/np"/);
+  assert.match(html, /href="\/nepal"/);
 });
 
 test('empty album shows a "no photos" message', () => {
@@ -75,5 +75,5 @@ test('fetch-failed state renders errorHTML', () => {
 test('unknown album shows a not-found message + back link home', () => {
   const html = renderAlbumGrid({ manifest, id: '999' });
   assert.match(html, /לא נמצא/);
-  assert.match(html, /href="#\/"/);
+  assert.match(html, /href="\/"/);
 });

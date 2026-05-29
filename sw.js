@@ -10,7 +10,7 @@
 
 import { requestStrategy } from './src/lib/sw-strategy.js';
 
-const SHELL_CACHE = 'hermantrip-shell-v11';
+const SHELL_CACHE = 'hermantrip-shell-v12';
 const SHELL_FILES = [
   '/',
   '/index.html',
@@ -30,6 +30,7 @@ const SHELL_FILES = [
   '/src/lib/photo-date.js',
   '/src/lib/album-place.js',
   '/src/lib/countries.js',
+  '/src/lib/paths.js',
   '/src/lib/sw-strategy.js',
   '/src/views/country-list.js',
   '/src/views/album-list.js',
@@ -59,17 +60,24 @@ self.addEventListener('fetch', (event) => {
   const strategy = requestStrategy(event.request.url, self.location.origin);
   if (strategy === 'bypass') return; // let the browser handle it directly
 
+  // Clean-path navigations (M12: /nepal/1/0 etc.) are virtual routes that
+  // the server answers with index.html. Offline, fall back to the cached
+  // '/' shell rather than the (uncached) deep path.
+  const isNavigation = event.request.mode === 'navigate';
+
   // network-first: try the network, update the cache, fall back to cache
   // when offline.
   event.respondWith(
     fetch(event.request)
       .then((res) => {
-        if (res && res.ok) {
+        if (res && res.ok && !isNavigation) {
           const copy = res.clone();
           caches.open(SHELL_CACHE).then((cache) => cache.put(event.request, copy));
         }
         return res;
       })
-      .catch(() => caches.match(event.request)),
+      .catch(() => (isNavigation
+        ? caches.match('/')
+        : caches.match(event.request))),
   );
 });

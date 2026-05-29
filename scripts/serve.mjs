@@ -112,11 +112,25 @@ const server = createServer(async (req, res) => {
     });
     res.end(out.body);
     console.log(`200 ${url.pathname}`);
-  } else {
-    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end(`404 ${url.pathname}\n`);
-    console.log(`404 ${url.pathname}`);
+    return;
   }
+
+  // SPA fallback (M12): clean paths like /nepal/1/0 are virtual routes, not
+  // files. If the path has no file extension, serve index.html so the
+  // client-side router handles it (mirrors the Caddy try_files in prod).
+  if (!extname(url.pathname)) {
+    const shell = await tryServe('/index.html');
+    if (shell) {
+      res.writeHead(200, { 'Content-Type': shell.type, 'Cache-Control': 'no-cache' });
+      res.end(shell.body);
+      console.log(`200 ${url.pathname} (→ index.html)`);
+      return;
+    }
+  }
+
+  res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+  res.end(`404 ${url.pathname}\n`);
+  console.log(`404 ${url.pathname}`);
 });
 
 server.listen(PORT, () => {

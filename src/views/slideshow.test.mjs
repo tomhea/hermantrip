@@ -34,23 +34,23 @@ test('shows a 1-based position counter (idx 2 of 5 → "3 / 5")', () => {
 
 test('next link wraps last → first', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '4' });
-  assert.match(html, /href="#\/album\/1\/slide\/0"/);
+  assert.match(html, /href="\/nepal\/1\/0"/);
 });
 
 test('prev link wraps first → last', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '0' });
-  assert.match(html, /href="#\/album\/1\/slide\/4"/);
+  assert.match(html, /href="\/nepal\/1\/4"/);
 });
 
 test('middle index links to both neighbours', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '2' });
-  assert.match(html, /href="#\/album\/1\/slide\/3"/); // next
-  assert.match(html, /href="#\/album\/1\/slide\/1"/); // prev
+  assert.match(html, /href="\/nepal\/1\/3"/); // next
+  assert.match(html, /href="\/nepal\/1\/1"/); // prev
 });
 
 test('exit/close link returns to the album grid', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '2' });
-  assert.match(html, /href="#\/album\/1"/);
+  assert.match(html, /href="\/nepal\/1"/);
 });
 
 test('out-of-range index is clamped (idx 99 → shows last photo p004)', () => {
@@ -76,22 +76,22 @@ test('fetch-failed state renders errorHTML', () => {
 test('unknown album → not-found + home link', () => {
   const html = renderSlideshow({ manifest, id: '999', idx: '0' });
   assert.match(html, /לא נמצא/);
-  assert.match(html, /href="#\/"/);
+  assert.match(html, /href="\/"/);
 });
 
 test('empty album → message + back link, no crash', () => {
   const html = renderSlideshow({ manifest, id: '2', idx: '0' });
   assert.match(html, /אין תמונות/);
-  assert.match(html, /href="#\/album\/2"/);
+  assert.match(html, /href="\/nepal\/2"/);
 });
 
 test('carries data-slideshow hooks for keyboard/swipe wiring', () => {
   // main.js looks for these to attach listeners
   const html = renderSlideshow({ manifest, id: '1', idx: '2' });
   assert.match(html, /data-slideshow/);
-  assert.match(html, /data-next="#\/album\/1\/slide\/3"/);
-  assert.match(html, /data-prev="#\/album\/1\/slide\/1"/);
-  assert.match(html, /data-exit="#\/album\/1"/);
+  assert.match(html, /data-next="\/nepal\/1\/3"/);
+  assert.match(html, /data-prev="\/nepal\/1\/1"/);
+  assert.match(html, /data-exit="\/nepal\/1"/);
 });
 
 test('renders a play button (data-autoplay-toggle) when autoplay is off', () => {

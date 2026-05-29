@@ -47,11 +47,12 @@ hermantrip.tomhe.app {
 		header -Server
 	}
 
-	# --- Static site ---
-	# The app uses hash routing, so the URL path is always "/" for views —
-	# no SPA rewrite needed. data/manifest.json + the JS/CSS get normal
-	# static serving; the service worker (network-first) keeps them fresh.
+	# --- Static site + SPA fallback (M12) ---
+	# Clean paths like /nepal/1/0 are client-side routes, not files. Serve the
+	# real file if it exists, else fall back to index.html so the JS router
+	# handles the path. (try_files keeps /src/*, /data/*, /sw.js as real files.)
 	handle {
+		try_files {path} /index.html
 		file_server
 		# App shell: let the SW's network-first strategy manage freshness;
 		# don't let a CDN pin stale JS. (Images above are the cacheable part.)
