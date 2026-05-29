@@ -8,6 +8,7 @@ import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { albumsForCountry } from '../lib/album-query.js';
 import { photoImgHTML } from '../lib/photo-img.js';
 import { homePath, albumPath } from '../lib/paths.js';
+import { albumDateLabel } from '../lib/album-dates.js';
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -28,6 +29,7 @@ function backHeader(title, subtitle) {
 function albumCard(album, code, dpr) {
   const first = album.photos[0];
   const count = album.photos.length;
+  const dateLabel = albumDateLabel(album.photos);
   const thumb = first
     ? photoImgHTML(first, { intent: 'card', dpr, className: 'album-thumb' })
     : '<div class="album-thumb photo-broken" aria-hidden="true"></div>';
@@ -38,6 +40,7 @@ function albumCard(album, code, dpr) {
         <div class="album-card-meta">
           <span class="album-name">${escapeHTML(album.title ?? album.name)}</span>
           <span class="album-count">${count.toLocaleString('he-IL')} תמונות</span>
+          ${dateLabel ? `<span class="album-dates">${escapeHTML(dateLabel)}</span>` : ''}
         </div>
       </a>
     </li>

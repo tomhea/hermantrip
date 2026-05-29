@@ -14,6 +14,7 @@ import { groupPhotosByDay } from '../lib/photo-group.js';
 import { formatHebrewDate } from '../lib/photo-date.js';
 import { photoImgHTML } from '../lib/photo-img.js';
 import { homePath, countryPath, slidePath } from '../lib/paths.js';
+import { albumDateLabel } from '../lib/album-dates.js';
 
 const EAGER_COUNT = 12;
 
@@ -57,7 +58,10 @@ export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
   // Chronological order so day groups are contiguous AND the slide index
   // (position in this list) matches what the slideshow uses.
   const photos = sortPhotosByDate(album.photos);
-  const subtitle = `${photos.length.toLocaleString('he-IL')} תמונות`;
+  const dateLabel = albumDateLabel(album.photos);
+  const subtitle = dateLabel
+    ? `${photos.length.toLocaleString('he-IL')} תמונות · ${dateLabel}`
+    : `${photos.length.toLocaleString('he-IL')} תמונות`;
 
   if (photos.length === 0) {
     return `${header(album.title ?? album.name, backHref, 'חזרה', subtitle)}<p class="muted">אין תמונות באלבום זה.</p>`;

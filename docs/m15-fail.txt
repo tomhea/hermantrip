@@ -1,0 +1,706 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (1.135ms)
+▶ albumDateRange
+  ✖ min/max of captured dates (4.964ms)
+  ✖ ignores photos without capturedAt (1.8882ms)
+  ✖ single dated photo → start === end (0.7626ms)
+  ✖ no dated photos → null (0.6252ms)
+  ✖ spans months/years (0.8461ms)
+✖ albumDateRange (11.4389ms)
+▶ formatDateRange
+  ✖ same day (0.821ms)
+  ✖ same month → "23–27 ביולי 2011" (0.3183ms)
+  ✖ same year, different month (0.2948ms)
+  ✖ across years → both full (0.2883ms)
+  ✖ garbage → empty (0.5465ms)
+✖ formatDateRange (2.943ms)
+▶ albumDateLabel
+  ✖ formats the album range (0.6265ms)
+  ✖ no dates → empty string (0.3193ms)
+✖ albumDateLabel (1.2414ms)
+✔ empty input returns empty array (2.9066ms)
+✔ no collisions: one entry per folder, folderIds wraps the source (0.5927ms)
+✔ same id: photos concatenated, both folderIds tracked (0.5432ms)
+✔ same id: first folder name wins (lex order preserves "Bhagsu 1") (2.301ms)
+✔ mixed: some collide, some do not (0.6165ms)
+✔ does not mutate input photos arrays (0.4233ms)
+▶ extractAlbumNumber — common patterns
+  ✔ "01" → 1 (1.2178ms)
+  ✔ "1" → 1 (0.173ms)
+  ✔ "01 קטמנדו" → 1 (0.1116ms)
+  ✔ "1 - דהלי" → 1 (0.075ms)
+  ✔ "1. דהלי" → 1 (0.1207ms)
+  ✔ "1-עלייה לאוורסט" → 1 (0.0875ms)
+  ✔ "37 - יאנגשואו" → 37 (0.1576ms)
+  ✔ "037 - sometext" → 37 (0.1875ms)
+  ✔ "88 פוקט" → 88 (0.2697ms)
+  ✔ "88" → 88 (0.2082ms)
+  ✔ "14a" → 14 (0.1518ms)
+  ✔ "14a. הודו - באגסו 2" → 14 (0.1581ms)
+✔ extractAlbumNumber — common patterns (5.0858ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✔ ".temp" → null (0.4055ms)
+  ✔ ".temp_1" → null (2.3729ms)
+  ✔ ".temp_2" → null (0.2087ms)
+  ✔ ".temp_3" → null (0.1145ms)
+  ✔ ".hidden" → null (0.072ms)
+  ✔ "export" → null (0.0689ms)
+  ✔ "Export" → null (0.0595ms)
+  ✔ "EXPORT" → null (0.1211ms)
+  ✔ "exports" → null (0.0474ms)
+✔ extractAlbumNumber — ignored folders return null (4.0474ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✔ "תיאור בלי מספר" → null (0.0959ms)
+  ✔ "random folder" → null (0.0294ms)
+  ✔ "a01" → null (0.0227ms)
+  ✔ "_01" → null (0.0192ms)
+  ✔ "" → null (0.0195ms)
+✔ extractAlbumNumber — names without leading digits return null (0.2675ms)
+✔ extractAlbumNumber strips leading zeros (0.0906ms)
+✔ strips "NN. {country} - " prefix, returns the place (2.71ms)
+✔ album 1 "ההתחלה - בנגקוק וקטמנדו" → place after the dash (0.3802ms)
+✔ no " - " separator → cleaned remainder (number prefix stripped) (0.21ms)
+✔ handles the "NNa." merged-folder prefix (0.7178ms)
+✔ takes text after the LAST dash when multiple (0.3739ms)
+✔ trims surrounding whitespace (0.2401ms)
+✔ empty / non-string → empty string (0.4038ms)
+✔ name with only a number → empty (0.2028ms)
+✔ albumsForCountry returns albums where code is in countries[], sorted by id (3.5226ms)
+✔ albumsForCountry includes cross-country albums (0.5551ms)
+✔ albumsForCountry for thailand returns [1, 19] sorted (0.6798ms)
+✔ albumsForCountry unknown country returns empty array (0.2826ms)
+✔ albumsForCountry does not mutate manifest.albums order (0.4176ms)
+✔ albumById returns the matching album (0.3739ms)
+✔ albumById accepts string id (router params are strings) (0.1704ms)
+✔ albumById unknown id returns null (0.278ms)
+✔ albumById non-numeric string returns null (0.3432ms)
+✔ default title strips number + country prefix (albumPlace) (1.9037ms)
+✔ merge 3+4 → one album id 3, title "טרק פון היל", photos combined (1.5727ms)
+✔ merged photos are in id order (3 then 4) (0.8384ms)
+✔ explicit renames: 14 → באגסו, 19 → בנגקוק (0.6033ms)
+✔ country primaryAlbums drop the absorbed id (4) (0.2415ms)
+✔ counts.albums reflects the merge; no photos lost (0.3621ms)
+✔ does not mutate the input manifest (0.3816ms)
+✔ idempotent-ish: every album ends with a non-empty title (0.4196ms)
+✔ CONTROLS_HIDE_MS is 5 seconds (0.761ms)
+✔ hides once idle ≥ hide window (2.9003ms)
+✔ stays visible while still within the window (0.4654ms)
+✔ never hides while the pointer is over the bar (0.2998ms)
+✔ respects a custom hideAfterMs (0.3881ms)
+✔ exactly at the boundary hides (>= window) (0.1679ms)
+▶ controlsVisible
+  ✔ NOT fullscreen → always visible, even after long idle (0.38ms)
+  ✔ NOT fullscreen → visible regardless of hovering (0.2376ms)
+  ✔ fullscreen + recent activity → visible (0.2483ms)
+  ✔ fullscreen + idle past window → hidden (0.4322ms)
+  ✔ fullscreen + hovering bar → visible even when idle (0.2776ms)
+✔ controlsVisible (2.2419ms)
+▶ slug ↔ code (M12)
+  ✔ every country has a unique non-empty slug (0.8865ms)
+  ✔ slugFromCode (0.4965ms)
+  ✔ codeFromSlug (0.2383ms)
+  ✔ codeFromSlug unknown → null (0.1552ms)
+  ✔ round-trips for every country (0.2263ms)
+✔ slug ↔ code (M12) (3.5487ms)
+✔ COUNTRY_ORDER lists the seven countries in trip order (0.8238ms)
+✔ COUNTRIES exposes Hebrew + English names for every code (0.2123ms)
+▶ assignAlbumToCountries — single-country
+  ✔ album 5 → only [np], primary np (1.0064ms)
+  ✔ album 12 → only [in], primary in (0.4282ms)
+  ✔ album 25 → only [vn], primary vn (0.4439ms)
+  ✔ album 34 → only [cn], primary cn (2.3084ms)
+  ✔ album 45 → only [au], primary au (0.4479ms)
+  ✔ album 65 → only [nz], primary nz (0.1095ms)
+  ✔ album 80 → only [th], primary th (0.0746ms)
+  ✔ album 19 → only [th], primary th (0.1689ms)
+✔ assignAlbumToCountries — single-country (5.8756ms)
+✔ album 1 is Nepal + Thailand, primary Nepal (0.1852ms)
+✔ album 37 is China + Australia + Thailand, primary China (0.1066ms)
+▶ assignAlbumToCountries — range boundaries
+  ✔ album 7 → [np] (0.2189ms)
+  ✔ album 8 → [in] (0.0721ms)
+  ✔ album 18 → [in] (0.0543ms)
+  ✔ album 20 → [vn] (0.0492ms)
+  ✔ album 29 → [vn] (0.0476ms)
+  ✔ album 30 → [cn] (0.0428ms)
+  ✔ album 38 → [au] (0.0546ms)
+  ✔ album 53 → [au] (0.0831ms)
+  ✔ album 54 → [nz] (0.0604ms)
+  ✔ album 76 → [nz] (0.1638ms)
+  ✔ album 77 → [th] (0.0868ms)
+  ✔ album 88 → [th] (0.2029ms)
+✔ assignAlbumToCountries — range boundaries (1.4674ms)
+✔ album with no country range throws loudly (1.1309ms)
+✔ non-positive album throws (0.2107ms)
+✔ returns first photo of lowest-id primary album (0.8389ms)
+✔ Thailand uses album 19 (its lowest primary), not album 1 (Nepal primary) (0.5008ms)
+✔ country with no primary albums returns null (0.1563ms)
+✔ unknown country returns null (0.23ms)
+✔ country whose primary album has no photos falls through to next primary album (0.381ms)
+✔ country with all-empty primary albums returns null (0.1331ms)
+✔ does not mutate manifest (0.1648ms)
+✔ thumb intent: /img/{id}/140 at DPR 1 (2.6407ms)
+✔ thumb intent: /280 at DPR 2 (0.6465ms)
+✔ thumb intent caps at 280 even at DPR 3 (0.2719ms)
+✔ card intent: /360 at DPR 1 (preview hero) (0.3261ms)
+✔ card intent: /720 at DPR 2 (0.1596ms)
+✔ card intent caps at 720 even at DPR 3 (0.1617ms)
+✔ pin intent: /120 default (0.1656ms)
+✔ pin intent caps at 240 at high DPR (0.2788ms)
+✔ slide on phone: /520 at DPR 1 (0.3566ms)
+✔ slide on phone DPR 2: /1040 (0.55ms)
+✔ slide on phone caps at 1080 at DPR 3 (0.5001ms)
+✔ slide on tablet: /760 baseline (0.1928ms)
+✔ slide on desktop: /920 baseline (0.1413ms)
+✔ slide on desktop DPR 2: /1840 (0.2572ms)
+✔ slide on desktop caps at 2000 at DPR 3 (0.1633ms)
+✔ original intent: /2400 regardless of DPR (0.2966ms)
+✔ download intent: /img/{id}/orig (full original, server adds attachment header) (0.1507ms)
+✔ emits NO raw Google URL (same-origin only) (0.904ms)
+✔ unknown intent throws (2.5604ms)
+✔ missing fileId throws (0.524ms)
+✔ fileId with special URL chars is rejected (0.2555ms)
+▶ parseImgPath
+  ✔ width path → { id, size } (2.4223ms)
+  ✔ orig path → { id, size: "orig" } (0.7101ms)
+  ✔ id with - and _ accepted (0.401ms)
+  ✔ non-/img path → null (0.3477ms)
+  ✔ bad size (not digits/orig) → null (0.1802ms)
+  ✔ path traversal / extra segments → null (0.1716ms)
+  ✔ id with illegal chars → null (no upstream injection) (0.2249ms)
+✔ parseImgPath (6.0987ms)
+▶ lh3UrlFor
+  ✔ numeric size → =w{size} (0.2792ms)
+  ✔ orig → =s0 (full original) (0.1759ms)
+✔ lh3UrlFor (0.7414ms)
+▶ client URLs round-trip through the server parser
+  ✔ server parses client URL /img/FILE1/280 (0.6099ms)
+  ✔ server parses client URL /img/FILE2/720 (0.2939ms)
+  ✔ server parses client URL /img/FILE3/1040 (0.2529ms)
+  ✔ server parses client URL /img/FILE4/orig (0.1706ms)
+✔ client URLs round-trip through the server parser (1.6425ms)
+✔ default loading text is Hebrew "טוען..." (1.8383ms)
+✔ default error text is Hebrew and not auto-translated (0.9483ms)
+✔ loadingHTML uses default text (0.6365ms)
+✔ loadingHTML uses custom text (0.2662ms)
+✔ loadingHTML includes role="status" for assistive tech (0.3135ms)
+✔ loadingHTML includes aria-live="polite" (0.1914ms)
+✔ errorHTML uses default text (0.3754ms)
+✔ errorHTML uses custom text (0.2943ms)
+✔ errorHTML includes role="alert" (0.3397ms)
+✔ escapes HTML special chars in custom text to prevent XSS (0.5643ms)
+✔ empty array returns empty (3.3853ms)
+▶ sortPhotosByDate (M14)
+  ✔ orders by capturedAt ascending (0.5443ms)
+  ✔ same instant → filename tiebreak (0.1517ms)
+  ✔ undated photos sort AFTER dated ones (0.1098ms)
+  ✔ all-undated falls back to filename order (preserves old behavior) (0.1317ms)
+  ✔ non-mutating (0.1628ms)
+✔ sortPhotosByDate (M14) (1.5062ms)
+✔ already-sorted returns equivalent order (0.1855ms)
+✔ reverse-sorted gets sorted (0.3888ms)
+✔ numeric suffixes sort lexicographically (NOT numerically) (0.3979ms)
+✔ case-sensitive: uppercase comes before lowercase (0.4932ms)
+✔ does not mutate input array (0.2978ms)
+✔ returns a new array, not the original (0.298ms)
+✔ homePath (1.6219ms)
+✔ countryPath maps code → slug (0.4434ms)
+✔ countryRandomPath (0.2183ms)
+✔ albumPath (global album id under the country slug) (0.2423ms)
+✔ albumPath accepts string id (0.2917ms)
+✔ slidePath (0.244ms)
+✔ all-countries random + feature pages (0.2702ms)
+✔ dayPath: bare + specific date (0.2893ms)
+✔ feature-page paths never collide with any country slug (0.4376ms)
+✔ formatHebrewDate: "23 ביולי 2011" (ב-prefixed month) (1.1467ms)
+✔ formatHebrewDate: handles each month prefix (1.6701ms)
+✔ formatHebrewDate: no leading zero on day (0.5038ms)
+✔ formatHebrewDate: null/garbage → empty string (0.1878ms)
+✔ hebrewWeekday: known dates (0.217ms)
+✔ hebrewWeekday: midweek (0.1479ms)
+✔ hebrewWeekday: null → empty (0.0934ms)
+✔ formatClock: "14:32" (0.1105ms)
+✔ formatClock: pads single-digit hour/minute (0.1377ms)
+✔ formatClock: null → empty (0.2004ms)
+✔ empty → empty (2.6114ms)
+✔ groups consecutive photos sharing a day (0.8033ms)
+✔ preserves input order within and across groups (0.2953ms)
+✔ undated photos form a date:null group (1.1786ms)
+✔ a day that recurs non-contiguously starts a new group (input should be pre-sorted) (0.1671ms)
+✔ total photos preserved across groups (0.177ms)
+✔ builds an img with the same-origin /img/ thumb URL for the given intent (3.8976ms)
+✔ passes dpr through to the URL (1.2012ms)
+✔ passes viewport through for slide intent (0.2836ms)
+✔ never emits a raw Google URL (same-origin only) (0.283ms)
+✔ includes loading="lazy" by default (R5) (0.1589ms)
+✔ eager loading when loading:"eager" passed (first paint above the fold) (0.1251ms)
+✔ no fetchpriority attribute by default (0.1036ms)
+✔ fetchpriority="high" emitted when priority:"high" passed (on-screen images) (0.1626ms)
+✔ onerror tags the element for the CSS placeholder (no thumbnailLink hop needed now) (0.1929ms)
+✔ applies a custom className (0.1726ms)
+✔ default className is "photo" (0.1098ms)
+✔ alt defaults to empty (decorative) and is escaped when provided (0.165ms)
+✔ decoding="async" is set (0.113ms)
+✔ rejects a malformed photo id (cannot break out of the attribute) (0.5428ms)
+✔ extractPhotoMeta — full record with EXIF (2.1082ms)
+✔ extractPhotoMeta — missing EXIF leaves capturedAt null (0.649ms)
+✔ extractPhotoMeta — imageMediaMetadata present but no time (0.2468ms)
+✔ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.3746ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.1755ms)
+▶ parseHash
+  ✔ "" → "/" (1.1326ms)
+  ✔ "#" → "/" (0.1185ms)
+  ✔ "#/" → "/" (0.0798ms)
+  ✔ "#/country/np" → "/country/np" (0.0775ms)
+  ✔ "#/album/5" → "/album/5" (0.0728ms)
+  ✔ "#/album/5/slide/12" → "/album/5/slide/12" (0.0597ms)
+  ✔ "/country/np" → "/country/np" (0.0797ms)
+  ✔ "#country/np" → "/country/np" (0.0535ms)
+  ✔ "#/random" → "/random" (0.0973ms)
+✔ parseHash (3.1521ms)
+▶ createRouter — static routes
+  ✔ matches home route (1.6131ms)
+  ✔ matches map route (0.2849ms)
+  ✔ unknown path returns null (0.1732ms)
+✔ createRouter — static routes (2.3828ms)
+▶ createRouter — param routes
+  ✔ single param (0.254ms)
+  ✔ two params (0.1733ms)
+  ✔ static segment after param (0.2337ms)
+  ✔ decodes URI components in params (0.272ms)
+  ✔ extra segments do not match shorter pattern (0.1029ms)
+  ✔ first matching route wins (0.0639ms)
+✔ createRouter — param routes (2.887ms)
+▶ clampIndex
+  ✔ in-range index unchanged (1.0044ms)
+  ✔ negative clamps to 0 (0.3751ms)
+  ✔ over-length clamps to last (0.1599ms)
+  ✔ non-integer string parses (0.1208ms)
+  ✔ garbage clamps to 0 (0.1083ms)
+  ✔ empty album → 0 (0.1299ms)
+✔ clampIndex (3.3331ms)
+▶ nextIndex (wraps by default)
+  ✔ advances by one (0.3032ms)
+  ✔ wraps last → first (0.1415ms)
+  ✔ no-wrap stays at last (0.2234ms)
+✔ nextIndex (wraps by default) (0.9537ms)
+▶ prevIndex (wraps by default)
+  ✔ goes back by one (0.6377ms)
+  ✔ wraps first → last (0.1766ms)
+  ✔ no-wrap stays at first (1.2643ms)
+✔ prevIndex (wraps by default) (2.3532ms)
+▶ keyToAction (RTL: ArrowLeft = next)
+  ✔ ArrowLeft → next (0.1926ms)
+  ✔ ArrowRight → prev (0.0575ms)
+  ✔ Escape → exit (0.0363ms)
+  ✔ spacebar → next (0.0275ms)
+  ✔ unrelated key → null (0.059ms)
+✔ keyToAction (RTL: ArrowLeft = next) (0.4767ms)
+▶ swipeToAction (RTL: rightward = next)
+  ✔ big rightward swipe → next (0.1091ms)
+  ✔ big leftward swipe → prev (0.0386ms)
+  ✔ tiny movement below threshold → null (0.0336ms)
+  ✔ custom threshold respected (0.0534ms)
+✔ swipeToAction (RTL: rightward = next) (0.359ms)
+▶ preloadIndices (±2 neighbours, default radius 2)
+  ✔ middle of a large album → the 2 before + 2 after, current excluded (1.6041ms)
+  ✔ near the start wraps around to the end (0.1855ms)
+  ✔ near the end wraps to the start (0.1904ms)
+  ✔ never includes the current index (0.1743ms)
+  ✔ small album (3 photos) → the other 2, no dupes, no current (0.1487ms)
+  ✔ two-photo album → just the other one (0.0852ms)
+  ✔ single-photo album → nothing to preload (0.0395ms)
+  ✔ empty album → empty (0.033ms)
+  ✔ custom radius 1 → just ±1 (0.0665ms)
+✔ preloadIndices (±2 neighbours, default radius 2) (2.7753ms)
+✔ SPEEDS are ascending second-multiples in ms (1.937ms)
+✔ nextSpeed cycles to the next speed (0.5656ms)
+✔ nextSpeed wraps from last back to first (0.2003ms)
+✔ nextSpeed with an unknown value returns the first speed (1.5907ms)
+✔ speedLabel shows seconds with a Hebrew suffix (0.6134ms)
+✔ the default 4s interval (M7) is one of the options (0.1923ms)
+✔ same-origin HTML navigation → network-first (1.8846ms)
+✔ same-origin JS / CSS → network-first (so code updates are never stale) (0.6082ms)
+✔ the manifest is always bypassed (must be fresh, never cache-served) (1.5981ms)
+✔ cross-origin photo (lh3) → bypass (0.3414ms)
+✔ same-origin proxied photo (/img/...) → bypass (not in shell cache) (0.5227ms)
+✔ cross-origin font (gstatic) → bypass (0.3343ms)
+✔ localhost dev origin also resolves shell as network-first (0.3997ms)
+✔ query strings on the manifest still bypass (0.2681ms)
+✔ query strings target the documented breakpoints (1.4469ms)
+✔ isPhone true when matchMedia matches PHONE_QUERY (0.4779ms)
+✔ isPhone false when only desktop matches (0.3325ms)
+✔ isTablet true only at tablet breakpoint (0.3822ms)
+✔ isDesktop true only at desktop breakpoint (1.5697ms)
+✔ happy path: renders album name as title (15.4818ms)
+✔ happy path: renders one img per photo (0.4075ms)
+✔ happy path: first 12 are eager, rest lazy (R5 first-paint budget) (0.4166ms)
+✔ happy path: photos are in lexicographic filename order (0.3691ms)
+✔ happy path: each photo links to its slide route (1.9449ms)
+✔ happy path: includes a back link to the country (0.2907ms)
+✔ empty album shows a "no photos" message (0.1446ms)
+✔ loading state when manifest is null (0.1808ms)
+✔ fetch-failed state renders errorHTML (0.2354ms)
+✔ unknown album shows a not-found message + back link home (0.4694ms)
+✔ happy path: renders country name as title (16.451ms)
+✔ happy path: one card per album with album name + photo count (0.3392ms)
+✔ happy path: photo counts are shown (0.1665ms)
+✔ happy path: each album card uses its first photo via the same-origin /img/ proxy (0.2622ms)
+✔ happy path: includes a back link to home (0.2434ms)
+✔ loading state when manifest is null (0.2588ms)
+✔ fetch-failed state renders errorHTML (0.1927ms)
+✔ unknown country shows a not-found message + back link (0.1828ms)
+✔ escapes album names to prevent XSS (0.3404ms)
+✔ happy path: renders header + grid with one card per country (16.9352ms)
+✔ happy path: each card has a same-origin /img/ card image (0.3578ms)
+✔ happy path: card image never emits a raw Google URL (0.4923ms)
+✔ happy path: image uses loading="lazy" (R5 budget) (0.2695ms)
+✔ happy path: image onerror shows the placeholder (no thumbnailLink hop) (0.4478ms)
+✔ happy path: DPR is passed through to image URL (0.3197ms)
+✔ fetch-failed state: renders errorHTML (0.3382ms)
+✔ loading state: renders loadingHTML when manifest is null + no error (0.285ms)
+✔ empty-manifest state: renders empty message when countries=[] (0.1683ms)
+✔ empty-manifest state: also when countries is missing (0.2964ms)
+✔ country with no thumb falls back to placeholder div (0.2471ms)
+✔ escapes country names to prevent XSS (0.4062ms)
+✔ renders the photo at the given index via slide intent (same-origin /img/) (3.1246ms)
+✔ desktop viewport requests the larger slide width (0.5938ms)
+✔ shows a 1-based position counter (idx 2 of 5 → "3 / 5") (0.4008ms)
+✔ next link wraps last → first (0.2588ms)
+✔ prev link wraps first → last (0.2735ms)
+✔ middle index links to both neighbours (1.4176ms)
+✔ exit/close link returns to the album grid (0.185ms)
+✔ out-of-range index is clamped (idx 99 → shows last photo p004) (0.1867ms)
+✔ negative index clamps to first (0.1726ms)
+✔ loading state when manifest null (0.216ms)
+✔ fetch-failed state renders errorHTML (0.1714ms)
+✔ unknown album → not-found + home link (0.0854ms)
+✔ empty album → message + back link, no crash (0.0943ms)
+✔ carries data-slideshow hooks for keyboard/swipe wiring (0.3862ms)
+✔ renders a play button (data-autoplay-toggle) when autoplay is off (0.3176ms)
+✔ shows pause affordance when autoplay is on (0.2054ms)
+✔ autoplay defaults to off when not specified (0.1084ms)
+✔ M9: speed button shows the current speed label + data-speed (0.1963ms)
+✔ M9: fullscreen toggle button present (0.2443ms)
+✔ M9: download link points at the same-origin original + has download attr (0.1946ms)
+✔ M9: info panel shows Hebrew date, weekday, place, position (0.4501ms)
+✔ M9: info panel tolerates a photo with no capturedAt (omits date rows) (0.2335ms)
+ℹ tests 340
+ℹ suites 23
+ℹ pass 328
+ℹ fail 12
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 712.1261
+
+✖ failing tests:
+
+test at src\lib\album-dates.test.mjs:9:3
+✖ min/max of captured dates (4.964ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   end: '__STUB__',
+  +   start: '__STUB__'
+  -   end: '2011-07-27',
+  -   start: '2011-07-23'
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-dates.test.mjs:10:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { start: '__STUB__', end: '__STUB__' },
+    expected: { start: '2011-07-23', end: '2011-07-27' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-dates.test.mjs:14:3
+✖ ignores photos without capturedAt (1.8882ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   end: '__STUB__',
+  +   start: '__STUB__'
+  -   end: '2011-07-23',
+  -   start: '2011-07-23'
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-dates.test.mjs:15:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { start: '__STUB__', end: '__STUB__' },
+    expected: { start: '2011-07-23', end: '2011-07-23' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-dates.test.mjs:19:3
+✖ single dated photo → start === end (0.7626ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   end: '__STUB__',
+  +   start: '__STUB__'
+  -   end: '2011-08-01',
+  -   start: '2011-08-01'
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-dates.test.mjs:20:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { start: '__STUB__', end: '__STUB__' },
+    expected: { start: '2011-08-01', end: '2011-08-01' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-dates.test.mjs:22:3
+✖ no dated photos → null (0.6252ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   end: '__STUB__',
+  +   start: '__STUB__'
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-dates.test.mjs:23:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { start: '__STUB__', end: '__STUB__' },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-dates.test.mjs:26:3
+✖ spans months/years (0.8461ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   end: '__STUB__',
+  +   start: '__STUB__'
+  -   end: '2012-01-03',
+  -   start: '2011-12-30'
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-dates.test.mjs:27:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { start: '__STUB__', end: '__STUB__' },
+    expected: { start: '2011-12-30', end: '2012-01-03' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-dates.test.mjs:34:3
+✖ same day (0.821ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '23 ביולי 2011'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-dates.test.mjs:35:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '23 ביולי 2011',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-dates.test.mjs:37:3
+✖ same month → "23–27 ביולי 2011" (0.3183ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '23–27 ביולי 2011'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-dates.test.mjs:38:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '23–27 ביולי 2011',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-dates.test.mjs:40:3
+✖ same year, different month (0.2948ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '23 ביולי – 2 באוגוסט 2011'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-dates.test.mjs:41:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '23 ביולי – 2 באוגוסט 2011',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-dates.test.mjs:43:3
+✖ across years → both full (0.2883ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '30 בדצמבר 2011 – 3 בינואר 2012'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-dates.test.mjs:44:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '30 בדצמבר 2011 – 3 בינואר 2012',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-dates.test.mjs:46:3
+✖ garbage → empty (0.5465ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== ''
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-dates.test.mjs:47:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-dates.test.mjs:52:3
+✖ formats the album range (0.6265ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '23–27 ביולי 2011'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-dates.test.mjs:53:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '23–27 ביולי 2011',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-dates.test.mjs:58:3
+✖ no dates → empty string (0.3193ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== ''
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-dates.test.mjs:59:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
