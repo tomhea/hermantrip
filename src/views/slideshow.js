@@ -17,7 +17,7 @@ function escapeHTML(s) {
   }[c]));
 }
 
-export function renderSlideshow({ manifest, error, id, idx, dpr = 1, viewport = 'phone' }) {
+export function renderSlideshow({ manifest, error, id, idx, dpr = 1, viewport = 'phone', autoplay = false }) {
   if (error) {
     return `<div class="slideshow-shell">${errorHTML('לא הצלחנו לטעון את התמונה. נסו לרענן.')}</div>`;
   }
@@ -58,9 +58,16 @@ export function renderSlideshow({ manifest, error, id, idx, dpr = 1, viewport = 
 
   const counter = `${i + 1} / ${photos.length}`;
 
+  // Autoplay toggle: ▶ when paused, ❚❚ when playing. main.js reads
+  // data-autoplay-toggle to wire the click and data-autoplay-on to know
+  // whether to (re)start the advance timer after each slide render.
+  const playGlyph = autoplay ? '❚❚' : '▶';
+  const playLabel = autoplay ? 'השהיית מצגת' : 'הפעלת מצגת';
+
   return `
     <div class="slideshow-shell" data-slideshow
-         data-next="${nextHref}" data-prev="${prevHref}" data-exit="${exitHref}">
+         data-next="${nextHref}" data-prev="${prevHref}" data-exit="${exitHref}"
+         data-autoplay-on="${autoplay ? 'true' : 'false'}">
       <div class="slideshow-stage">
         <img class="slideshow-photo" src="${src}" alt="${escapeHTML(album.name)} — ${i + 1}"
              decoding="async" fetchpriority="high" onerror="${onerror}">
@@ -69,6 +76,8 @@ export function renderSlideshow({ manifest, error, id, idx, dpr = 1, viewport = 
       </div>
       <div class="slideshow-bar">
         <a class="slideshow-close" href="${exitHref}" aria-label="סגירה וחזרה לאלבום">✕</a>
+        <button type="button" class="slideshow-play" data-autoplay-toggle
+                aria-label="${playLabel}" aria-pressed="${autoplay ? 'true' : 'false'}">${playGlyph}</button>
         <span class="slideshow-counter" dir="ltr">${counter}</span>
         <span class="slideshow-title">${escapeHTML(album.name)}</span>
       </div>

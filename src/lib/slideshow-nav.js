@@ -49,3 +49,24 @@ export function swipeToAction(dx, threshold = 40) {
   if (dx <= -threshold) return 'prev';  // leftward → prev
   return null;
 }
+
+// Indices to warm into cache around the current slide so navigation is
+// instant (M7 ask #3). Returns up to 2 before + 2 after (radius), wrapping
+// around the album, excluding the current index, de-duplicated, and never
+// returning the current index even in tiny albums.
+
+export function preloadIndices(idx, len, radius = 2) {
+  if (len <= 1) return [];
+  const out = [];
+  const seen = new Set([((idx % len) + len) % len]);
+  for (let d = 1; d <= radius; d += 1) {
+    for (const cand of [idx - d, idx + d]) {
+      const wrapped = ((cand % len) + len) % len;
+      if (!seen.has(wrapped)) {
+        seen.add(wrapped);
+        out.push(wrapped);
+      }
+    }
+  }
+  return out;
+}

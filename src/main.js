@@ -4,11 +4,16 @@
 // freely. Pure logic stays in src/lib/.
 
 import { parseHash, createRouter } from './lib/router.js';
-import { keyToAction, swipeToAction } from './lib/slideshow-nav.js';
+import { keyToAction, swipeToAction, preloadIndices } from './lib/slideshow-nav.js';
+import { albumById } from './lib/album-query.js';
+import { sortPhotosByFilename } from './lib/ordering.js';
+import { imageUrl } from './lib/image-url.js';
 import { renderCountryList } from './views/country-list.js';
 import { renderAlbumList } from './views/album-list.js';
 import { renderAlbumGrid } from './views/album-grid.js';
 import { renderSlideshow } from './views/slideshow.js';
+
+const AUTOPLAY_MS = 4000;
 
 const ROUTES = [
   { pattern: '/', name: 'home' },
@@ -73,17 +78,51 @@ function go(href) {
   if (href) window.location.hash = href.replace(/^#/, '');
 }
 
+// Autoplay state persists across the re-render that each slide navigation
+// triggers; the timer is rescheduled on every slide render while on.
+let autoplayOn = false;
+let autoplayTimer = null;
+// Hold preloaded Image() refs for the current slide so they aren't GC'd
+// before they finish loading; replaced (not appended) each render.
+let preloadRefs = [];
+
+function stopAutoplayTimer() {
+  if (autoplayTimer !== null) {
+    clearTimeout(autoplayTimer);
+    autoplayTimer = null;
+  }
+}
+
 function renderSlide(params) {
   app.innerHTML = renderSlideshow({
     manifest, error: manifestError, id: params.id, idx: params.idx,
-    dpr: dpr(), viewport: viewportClass(),
+    dpr: dpr(), viewport: viewportClass(), autoplay: autoplayOn,
   });
   window.scrollTo(0, 0);
   wireSlideshow();
+  preloadNeighbours(params);
 }
 
-// Attach keyboard + swipe handlers to the freshly-rendered slideshow.
-// Click-zone navigation is plain <a href>, so only keyboard + touch need JS.
+// Warm ±2 neighbour slide images into the browser cache so navigation
+// (manual or autoplay) is instant (ask #3).
+function preloadNeighbours(params) {
+  preloadRefs = [];
+  if (!manifest) return;
+  const album = albumById(manifest, params.id);
+  if (!album || album.photos.length === 0) return;
+  const photos = sortPhotosByFilename(album.photos);
+  const cur = Math.max(0, Math.min(photos.length - 1, Number.parseInt(params.idx, 10) || 0));
+  const vp = viewportClass();
+  for (const pi of preloadIndices(cur, photos.length)) {
+    const img = new Image();
+    img.decoding = 'async';
+    img.src = imageUrl(photos[pi].id, 'slide', { dpr: dpr(), viewport: vp });
+    preloadRefs.push(img);
+  }
+}
+
+// Attach swipe + autoplay-toggle handlers to the freshly-rendered slideshow.
+// Click-zone + close navigation is plain <a href>; keyboard is global below.
 function wireSlideshow() {
   const shell = app.querySelector('[data-slideshow]');
   if (!shell) return;
@@ -107,6 +146,22 @@ function wireSlideshow() {
       const action = swipeToAction(dx);
       if (action) go(hrefs[action]);
     }, { passive: true });
+  }
+
+  // Autoplay toggle button.
+  const toggle = shell.querySelector('[data-autoplay-toggle]');
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      autoplayOn = !autoplayOn;
+      render(); // re-render the slide so the button reflects the new state
+    });
+  }
+
+  // (Re)schedule the auto-advance while autoplay is on. Each slide render
+  // sets a fresh timer; navigating away clears it (see render()).
+  stopAutoplayTimer();
+  if (autoplayOn) {
+    autoplayTimer = setTimeout(() => go(shell.dataset.next), AUTOPLAY_MS);
   }
 }
 
@@ -135,6 +190,13 @@ function renderNotFound(path) {
 function render() {
   const path = parseHash(window.location.hash);
   const match = router.match(path);
+  // Any navigation cancels a pending auto-advance; renderSlide reschedules
+  // if we're landing on another slide and autoplay is still on. Leaving the
+  // slideshow entirely turns autoplay back off so it doesn't silently resume.
+  stopAutoplayTimer();
+  if (!match || match.name !== 'slide') {
+    autoplayOn = false;
+  }
   if (!match) {
     renderNotFound(path);
     return;

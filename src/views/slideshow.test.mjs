@@ -93,3 +93,22 @@ test('carries data-slideshow hooks for keyboard/swipe wiring', () => {
   assert.match(html, /data-prev="#\/album\/1\/slide\/1"/);
   assert.match(html, /data-exit="#\/album\/1"/);
 });
+
+test('renders a play button (data-autoplay-toggle) when autoplay is off', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2', autoplay: false });
+  assert.match(html, /data-autoplay-toggle/);
+  assert.match(html, /data-autoplay-on="false"/);
+  assert.match(html, /aria-label="(הפעלת מצגת|הפעלה אוטומטית|הפעלה)"/);
+});
+
+test('shows pause affordance when autoplay is on', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2', autoplay: true });
+  assert.match(html, /data-autoplay-toggle/);
+  assert.match(html, /data-autoplay-on="true"/);
+  assert.match(html, /aria-label="(השהיית מצגת|השהיה)"/);
+});
+
+test('autoplay defaults to off when not specified', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2' });
+  assert.match(html, /data-autoplay-on="false"/);
+});
