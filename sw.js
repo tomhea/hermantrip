@@ -1,9 +1,16 @@
-// Minimal service worker — caches the app shell so navigation works offline
-// after first visit. Does NOT cache photos (those come from lh3 and are
-// huge), does NOT cache data/manifest.json yet (M11/M12 will revisit once
-// the manifest's lifecycle is clearer).
+// Service worker (registered as a module — see main.js). Caches the app
+// shell so navigation works offline after the first visit, but uses a
+// NETWORK-FIRST strategy for the shell so a returning visitor (or a dev
+// mid-iteration) always gets the latest code when online. The old
+// cache-first strategy served stale code until a second reload, which is
+// what made post-deploy updates "disappear" (fix/sw-stale-shell).
+//
+// Does NOT cache photos (lh3, cross-origin) or data/manifest.json — the
+// routing policy lives in src/lib/sw-strategy.js so it's unit-testable.
 
-const SHELL_CACHE = 'hermantrip-shell-v5';
+import { requestStrategy } from './src/lib/sw-strategy.js';
+
+const SHELL_CACHE = 'hermantrip-shell-v6';
 const SHELL_FILES = [
   '/',
   '/index.html',
@@ -18,6 +25,7 @@ const SHELL_FILES = [
   '/src/lib/photo-img.js',
   '/src/lib/ordering.js',
   '/src/lib/slideshow-nav.js',
+  '/src/lib/sw-strategy.js',
   '/src/views/country-list.js',
   '/src/views/album-list.js',
   '/src/views/album-grid.js',
@@ -43,24 +51,20 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-  // Only handle same-origin requests; let lh3.googleusercontent.com etc. go
-  // straight through to the network.
-  if (url.origin !== self.location.origin) return;
-  // Bypass the manifest data file — it should always be fresh until we have
-  // a versioning story.
-  if (url.pathname === '/data/manifest.json') return;
+  const strategy = requestStrategy(event.request.url, self.location.origin);
+  if (strategy === 'bypass') return; // let the browser handle it directly
 
+  // network-first: try the network, update the cache, fall back to cache
+  // when offline.
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const network = fetch(event.request).then((res) => {
-        const copy = res.clone();
-        if (res.ok && SHELL_FILES.includes(url.pathname)) {
+    fetch(event.request)
+      .then((res) => {
+        if (res && res.ok) {
+          const copy = res.clone();
           caches.open(SHELL_CACHE).then((cache) => cache.put(event.request, copy));
         }
         return res;
-      }).catch(() => cached);
-      return cached || network;
-    }),
+      })
+      .catch(() => caches.match(event.request)),
   );
 });

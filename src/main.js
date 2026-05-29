@@ -173,7 +173,9 @@ window.addEventListener('popstate', render);
   render();
 
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch((err) => {
+    // Module worker so sw.js can import the shared routing policy from
+    // src/lib/sw-strategy.js (universally supported in modern browsers).
+    navigator.serviceWorker.register('/sw.js', { type: 'module' }).catch((err) => {
       console.warn('Service worker registration failed:', err);
     });
   }
