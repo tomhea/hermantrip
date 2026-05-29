@@ -25,10 +25,15 @@ test('happy path: renders header + grid with one card per country', () => {
   assert.match(html, /תאילנד/);
 });
 
-test('happy path: each card has a thumb image with lh3 URL', () => {
+test('happy path: each card has a same-origin /img/ card image', () => {
   const html = renderCountryList({ manifest });
-  assert.match(html, /<img class="country-thumb"[^>]*src="https:\/\/lh3\.googleusercontent\.com\/d\/photo-np=w140"/);
-  assert.match(html, /<img class="country-thumb"[^>]*src="https:\/\/lh3\.googleusercontent\.com\/d\/photo-th=w140"/);
+  assert.match(html, /<img class="country-thumb"[^>]*src="\/img\/photo-np\/360"/);
+  assert.match(html, /<img class="country-thumb"[^>]*src="\/img\/photo-th\/360"/);
+});
+
+test('happy path: card image never emits a raw Google URL', () => {
+  const html = renderCountryList({ manifest });
+  assert.equal(/googleusercontent|drive\.google/.test(html), false);
 });
 
 test('happy path: image uses loading="lazy" (R5 budget)', () => {
@@ -36,34 +41,20 @@ test('happy path: image uses loading="lazy" (R5 budget)', () => {
   assert.match(html, /loading="lazy"/);
 });
 
-test('happy path: image has onerror fallback to thumbnailLink (R4)', () => {
+test('happy path: image onerror shows the placeholder (no thumbnailLink hop)', () => {
   const m = {
     countries: [{ code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [1] }],
     albums: [{ id: 1, name: 'a', primary: 'np', countries: ['np'],
-      photos: [{ id: 'p1', name: 'a.jpg',
-        thumbnailLink: 'https://lh3.googleusercontent.com/drive-storage/abc=s220' }] }],
-  };
-  const html = renderCountryList({ manifest: m });
-  // onerror sets data-fb, swaps src to thumbnailLink on first failure,
-  // then falls through to the broken-image placeholder on second failure
-  assert.match(html, /onerror="[^"]*this\.dataset\.fb/);
-  assert.match(html, /this\.src='https:\/\/lh3\.googleusercontent\.com\/drive-storage\/abc=s220'/);
-  assert.match(html, /country-thumb-broken/);
-});
-
-test('happy path: image with no thumbnailLink still has broken-placeholder onerror', () => {
-  const m = {
-    countries: [{ code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [1] }],
-    albums: [{ id: 1, name: 'a', primary: 'np', countries: ['np'],
-      photos: [{ id: 'p1', name: 'a.jpg' /* no thumbnailLink */ }] }],
+      photos: [{ id: 'p1', name: 'a.jpg' }] }],
   };
   const html = renderCountryList({ manifest: m });
   assert.match(html, /onerror="this\.classList\.add\('country-thumb-broken'\)"/);
+  assert.equal(html.includes('dataset.fb'), false);
 });
 
 test('happy path: DPR is passed through to image URL', () => {
   const html = renderCountryList({ manifest, dpr: 2 });
-  assert.match(html, /=w280/);
+  assert.match(html, /src="\/img\/photo-np\/720"/);
 });
 
 test('fetch-failed state: renders errorHTML', () => {

@@ -2,64 +2,83 @@ import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { imageUrl } from './image-url.js';
 
-const BASE = 'https://lh3.googleusercontent.com/d/';
+// Images are served same-origin via /img/{id}/{width}; the proxy (Caddy in
+// prod, serve.mjs in dev) rewrites to lh3. So image-url.js emits NO raw
+// Google URLs — that's the whole point of the M8 fix.
 
-// M6 right-sizing: widths are tuned to the actual display size so we don't
-// pay for pixels we never show. Measured bytes for a representative photo:
-//   w280 ≈ 20 KB (grid thumb)   vs the old w600 ≈ 70 KB
-//   w1040 ≈ 160 KB (phone slide) vs the old w1600 ≈ 243 KB (full original)
-
-test('thumb intent: =w140 at DPR 1 (small grid tile)', () => {
-  assert.equal(imageUrl('abc', 'thumb'), `${BASE}abc=w140`);
+test('thumb intent: /img/{id}/140 at DPR 1', () => {
+  assert.equal(imageUrl('abc', 'thumb'), '/img/abc/140');
 });
 
-test('thumb intent: =w280 at DPR 2', () => {
-  assert.equal(imageUrl('abc', 'thumb', { dpr: 2 }), `${BASE}abc=w280`);
+test('thumb intent: /280 at DPR 2', () => {
+  assert.equal(imageUrl('abc', 'thumb', { dpr: 2 }), '/img/abc/280');
 });
 
 test('thumb intent caps at 280 even at DPR 3', () => {
-  assert.equal(imageUrl('abc', 'thumb', { dpr: 3 }), `${BASE}abc=w280`);
+  assert.equal(imageUrl('abc', 'thumb', { dpr: 3 }), '/img/abc/280');
 });
 
-test('pin intent: =w120 default', () => {
-  assert.equal(imageUrl('xyz', 'pin'), `${BASE}xyz=w120`);
+test('card intent: /360 at DPR 1 (preview hero)', () => {
+  assert.equal(imageUrl('abc', 'card'), '/img/abc/360');
 });
 
-test('pin intent: caps at 240 at high DPR', () => {
-  assert.equal(imageUrl('xyz', 'pin', { dpr: 4 }), `${BASE}xyz=w240`);
+test('card intent: /720 at DPR 2', () => {
+  assert.equal(imageUrl('abc', 'card', { dpr: 2 }), '/img/abc/720');
 });
 
-test('slide intent on phone: =w520 at DPR 1', () => {
-  assert.equal(imageUrl('id', 'slide', { viewport: 'phone' }), `${BASE}id=w520`);
+test('card intent caps at 720 even at DPR 3', () => {
+  assert.equal(imageUrl('abc', 'card', { dpr: 3 }), '/img/abc/720');
 });
 
-test('slide intent on phone DPR 2: =w1040 (sharp on a 390px screen, ~160 KB)', () => {
-  assert.equal(imageUrl('id', 'slide', { viewport: 'phone', dpr: 2 }), `${BASE}id=w1040`);
+test('pin intent: /120 default', () => {
+  assert.equal(imageUrl('xyz', 'pin'), '/img/xyz/120');
 });
 
-test('slide intent on phone caps at 1080 at DPR 3', () => {
-  assert.equal(imageUrl('id', 'slide', { viewport: 'phone', dpr: 3 }), `${BASE}id=w1080`);
+test('pin intent caps at 240 at high DPR', () => {
+  assert.equal(imageUrl('xyz', 'pin', { dpr: 4 }), '/img/xyz/240');
 });
 
-test('slide intent on tablet: =w760 baseline', () => {
-  assert.equal(imageUrl('id', 'slide', { viewport: 'tablet' }), `${BASE}id=w760`);
+test('slide on phone: /520 at DPR 1', () => {
+  assert.equal(imageUrl('id', 'slide', { viewport: 'phone' }), '/img/id/520');
 });
 
-test('slide intent on desktop: =w920 baseline', () => {
-  assert.equal(imageUrl('id', 'slide', { viewport: 'desktop' }), `${BASE}id=w920`);
+test('slide on phone DPR 2: /1040', () => {
+  assert.equal(imageUrl('id', 'slide', { viewport: 'phone', dpr: 2 }), '/img/id/1040');
 });
 
-test('slide intent on desktop DPR 2 caps at 2000', () => {
-  assert.equal(imageUrl('id', 'slide', { viewport: 'desktop', dpr: 2 }), `${BASE}id=w1840`);
+test('slide on phone caps at 1080 at DPR 3', () => {
+  assert.equal(imageUrl('id', 'slide', { viewport: 'phone', dpr: 3 }), '/img/id/1080');
 });
 
-test('slide intent caps at 2000 at DPR 3 desktop', () => {
-  assert.equal(imageUrl('id', 'slide', { viewport: 'desktop', dpr: 3 }), `${BASE}id=w2000`);
+test('slide on tablet: /760 baseline', () => {
+  assert.equal(imageUrl('id', 'slide', { viewport: 'tablet' }), '/img/id/760');
 });
 
-test('original intent: =w2400 regardless of DPR', () => {
-  assert.equal(imageUrl('id', 'original'), `${BASE}id=w2400`);
-  assert.equal(imageUrl('id', 'original', { dpr: 3 }), `${BASE}id=w2400`);
+test('slide on desktop: /920 baseline', () => {
+  assert.equal(imageUrl('id', 'slide', { viewport: 'desktop' }), '/img/id/920');
+});
+
+test('slide on desktop DPR 2: /1840', () => {
+  assert.equal(imageUrl('id', 'slide', { viewport: 'desktop', dpr: 2 }), '/img/id/1840');
+});
+
+test('slide on desktop caps at 2000 at DPR 3', () => {
+  assert.equal(imageUrl('id', 'slide', { viewport: 'desktop', dpr: 3 }), '/img/id/2000');
+});
+
+test('original intent: /2400 regardless of DPR', () => {
+  assert.equal(imageUrl('id', 'original'), '/img/id/2400');
+  assert.equal(imageUrl('id', 'original', { dpr: 3 }), '/img/id/2400');
+});
+
+test('download intent: /img/{id}/orig (full original, server adds attachment header)', () => {
+  assert.equal(imageUrl('id', 'download'), '/img/id/orig');
+});
+
+test('emits NO raw Google URL (same-origin only)', () => {
+  const u = imageUrl('abc', 'thumb', { dpr: 2 });
+  assert.equal(/googleusercontent|drive\.google/.test(u), false);
+  assert.ok(u.startsWith('/img/'));
 });
 
 test('unknown intent throws', () => {
@@ -72,7 +91,7 @@ test('missing fileId throws', () => {
   assert.throws(() => imageUrl(undefined, 'thumb'));
 });
 
-test('fileId with special URL chars is rejected (Drive IDs are alphanumeric+_-)', () => {
+test('fileId with special URL chars is rejected', () => {
   assert.throws(() => imageUrl('a/b', 'thumb'));
   assert.throws(() => imageUrl('a?b', 'thumb'));
   assert.throws(() => imageUrl('a b', 'thumb'));

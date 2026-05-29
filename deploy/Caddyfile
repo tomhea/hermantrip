@@ -1,0 +1,65 @@
+# Caddy config for hermantrip.tomhe.app
+#
+# Two jobs:
+#   1. Serve the static site (index.html + src/ + data/ + sw.js + ...).
+#   2. Proxy /img/{id}/{width} → lh3.googleusercontent.com, server-side, so
+#      browsers never hotlink Google directly (which gets ORB-blocked /
+#      throttled). Each resized image is fetched from Google once; Cloudflare
+#      (in front) + the immutable Cache-Control header keep it at the edge.
+#
+# Deploy: rsync the built site to /var/www/hermantrip, point this server
+# block's root at it, reload Caddy.
+
+hermantrip.tomhe.app {
+	root * /var/www/hermantrip
+	encode gzip zstd
+
+	# --- Image proxy: /img/{id}/{size} -> lh3 =w{size} (or =s0 for "orig") ---
+	# {size} is digits (a pixel width) or the literal "orig" (full original,
+	# offered as a download).
+	@imgw path_regexp imgw ^/img/([A-Za-z0-9_-]+)/(\d+)$
+	handle @imgw {
+		rewrite * /d/{re.imgw.1}=w{re.imgw.2}
+		reverse_proxy https://lh3.googleusercontent.com {
+			header_up Host lh3.googleusercontent.com
+			header_up -Referer
+		}
+		# Content-addressed by (id,width) → never changes → cache forever.
+		header Cache-Control "public, max-age=31536000, immutable"
+		header -Server
+	}
+
+	@imgorig path_regexp imgorig ^/img/([A-Za-z0-9_-]+)/orig$
+	handle @imgorig {
+		rewrite * /d/{re.imgorig.1}=s0
+		reverse_proxy https://lh3.googleusercontent.com {
+			header_up Host lh3.googleusercontent.com
+			header_up -Referer
+		}
+		header Cache-Control "public, max-age=31536000, immutable"
+		header Content-Disposition "attachment"
+		header -Server
+	}
+
+	# --- Static site ---
+	# The app uses hash routing, so the URL path is always "/" for views —
+	# no SPA rewrite needed. data/manifest.json + the JS/CSS get normal
+	# static serving; the service worker (network-first) keeps them fresh.
+	handle {
+		file_server
+		# App shell: let the SW's network-first strategy manage freshness;
+		# don't let a CDN pin stale JS. (Images above are the cacheable part.)
+		header /src/* Cache-Control "no-cache"
+		header /sw.js Cache-Control "no-cache"
+		header /data/* Cache-Control "no-cache"
+	}
+}
+
+# --- Cloudflare note ---
+# /img/{id}/{width} has no file extension, so Cloudflare won't edge-cache it
+# by default. Add a Cache Rule:
+#   When incoming request URI Path matches "/img/*"
+#   → Cache eligibility: Eligible for cache
+#   → Edge TTL: Respect origin (we send max-age=1y, immutable)
+# Everything else (the HTML/JS/CSS shell) is sent no-cache so deploys are
+# instant; the SW handles offline.

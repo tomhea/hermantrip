@@ -16,8 +16,13 @@ export function requestStrategy(requestUrl, swOrigin) {
   const url = new URL(requestUrl);
   const origin = new URL(swOrigin).origin;
 
-  // Cross-origin (lh3 photos, gstatic fonts) — never our concern.
+  // Cross-origin (gstatic fonts) — never our concern.
   if (url.origin !== origin) return 'bypass';
+
+  // Same-origin proxied photos (/img/...) are immutable and large; let the
+  // HTTP cache + Cloudflare handle them. Never pull them into the shell
+  // cache (it would balloon with thousands of photos).
+  if (url.pathname.startsWith('/img/')) return 'bypass';
 
   // The manifest must always reflect the latest data; never serve it from
   // the shell cache.

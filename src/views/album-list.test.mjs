@@ -32,9 +32,10 @@ test('happy path: photo counts are shown', () => {
   assert.match(html, /2 תמונות/); // album 2 has 2 photos
 });
 
-test('happy path: each album thumb uses first photo via lh3', () => {
+test('happy path: each album card uses its first photo via the same-origin /img/ proxy', () => {
   const html = renderAlbumList({ manifest, code: 'np' });
-  assert.match(html, /lh3\.googleusercontent\.com\/d\/p1=w/);
+  assert.match(html, /src="\/img\/p1\/\d+"/);
+  assert.equal(/googleusercontent|drive\.google/.test(html), false);
 });
 
 test('happy path: includes a back link to home', () => {
