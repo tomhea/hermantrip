@@ -36,7 +36,7 @@ function albumCard(album, code, dpr) {
       <a href="${albumPath(code, album.id)}">
         ${thumb}
         <div class="album-card-meta">
-          <span class="album-name">${escapeHTML(album.name)}</span>
+          <span class="album-name">${escapeHTML(album.title ?? album.name)}</span>
           <span class="album-count">${count.toLocaleString('he-IL')} תמונות</span>
         </div>
       </a>

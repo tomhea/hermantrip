@@ -12,6 +12,7 @@ import { sortPhotosByFilename } from './lib/ordering.js';
 import { imageUrl } from './lib/image-url.js';
 import { codeFromSlug, slugFromCode } from './lib/countries.js';
 import { albumPath } from './lib/paths.js';
+import { transformManifest } from './lib/album-transform.js';
 import { renderCountryList } from './views/country-list.js';
 import { renderAlbumList } from './views/album-list.js';
 import { renderAlbumGrid } from './views/album-grid.js';
@@ -60,7 +61,9 @@ async function loadManifest() {
   try {
     const res = await fetch('/data/manifest.json', { cache: 'force-cache' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    manifest = await res.json();
+    // Apply the presentation transform (clean titles + album merges) once;
+    // every view then works with the merged albums + display titles.
+    manifest = transformManifest(await res.json());
   } catch (err) {
     manifestError = err;
     console.error('Failed to load manifest:', err);

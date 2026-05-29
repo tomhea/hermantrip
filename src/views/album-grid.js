@@ -56,7 +56,7 @@ export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
   const subtitle = `${photos.length.toLocaleString('he-IL')} תמונות`;
 
   if (photos.length === 0) {
-    return `${header(album.name, backHref, 'חזרה', subtitle)}<p class="muted">אין תמונות באלבום זה.</p>`;
+    return `${header(album.title ?? album.name, backHref, 'חזרה', subtitle)}<p class="muted">אין תמונות באלבום זה.</p>`;
   }
 
   const tiles = photos.map((photo, i) => {
@@ -74,7 +74,7 @@ export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
   });
 
   return `
-    ${header(album.name, backHref, 'חזרה', subtitle)}
+    ${header(album.title ?? album.name, backHref, 'חזרה', subtitle)}
     <ul class="photo-grid" aria-label="תמונות באלבום">
       ${tiles.join('')}
     </ul>
