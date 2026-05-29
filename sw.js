@@ -3,7 +3,7 @@
 // huge), does NOT cache data/manifest.json yet (M11/M12 will revisit once
 // the manifest's lifecycle is clearer).
 
-const SHELL_CACHE = 'hermantrip-shell-v4';
+const SHELL_CACHE = 'hermantrip-shell-v5';
 const SHELL_FILES = [
   '/',
   '/index.html',
@@ -17,9 +17,11 @@ const SHELL_FILES = [
   '/src/lib/album-query.js',
   '/src/lib/photo-img.js',
   '/src/lib/ordering.js',
+  '/src/lib/slideshow-nav.js',
   '/src/views/country-list.js',
   '/src/views/album-list.js',
   '/src/views/album-grid.js',
+  '/src/views/slideshow.js',
   '/icon.svg',
   '/manifest.webmanifest',
 ];

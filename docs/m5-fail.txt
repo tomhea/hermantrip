@@ -1,0 +1,1012 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (0.5534ms)
+✔ empty input returns empty array (1.4475ms)
+✔ no collisions: one entry per folder, folderIds wraps the source (0.4949ms)
+✔ same id: photos concatenated, both folderIds tracked (0.2195ms)
+✔ same id: first folder name wins (lex order preserves "Bhagsu 1") (1.2093ms)
+✔ mixed: some collide, some do not (0.5027ms)
+✔ does not mutate input photos arrays (0.3303ms)
+▶ extractAlbumNumber — common patterns
+  ✔ "01" → 1 (1.3127ms)
+  ✔ "1" → 1 (0.2239ms)
+  ✔ "01 קטמנדו" → 1 (0.1784ms)
+  ✔ "1 - דהלי" → 1 (0.1847ms)
+  ✔ "1. דהלי" → 1 (0.1981ms)
+  ✔ "1-עלייה לאוורסט" → 1 (0.166ms)
+  ✔ "37 - יאנגשואו" → 37 (0.1477ms)
+  ✔ "037 - sometext" → 37 (0.1926ms)
+  ✔ "88 פוקט" → 88 (0.2132ms)
+  ✔ "88" → 88 (0.218ms)
+  ✔ "14a" → 14 (0.1573ms)
+  ✔ "14a. הודו - באגסו 2" → 14 (0.1991ms)
+✔ extractAlbumNumber — common patterns (5.6066ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✔ ".temp" → null (0.2882ms)
+  ✔ ".temp_1" → null (1.3356ms)
+  ✔ ".temp_2" → null (0.1347ms)
+  ✔ ".temp_3" → null (0.0715ms)
+  ✔ ".hidden" → null (0.037ms)
+  ✔ "export" → null (0.0362ms)
+  ✔ "Export" → null (0.032ms)
+  ✔ "EXPORT" → null (0.0323ms)
+  ✔ "exports" → null (0.0436ms)
+✔ extractAlbumNumber — ignored folders return null (2.3923ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✔ "תיאור בלי מספר" → null (0.1746ms)
+  ✔ "random folder" → null (0.1238ms)
+  ✔ "a01" → null (0.0704ms)
+  ✔ "_01" → null (0.0498ms)
+  ✔ "" → null (0.0416ms)
+✔ extractAlbumNumber — names without leading digits return null (0.6464ms)
+✔ extractAlbumNumber strips leading zeros (0.1999ms)
+✔ albumsForCountry returns albums where code is in countries[], sorted by id (1.6208ms)
+✔ albumsForCountry includes cross-country albums (0.3435ms)
+✔ albumsForCountry for thailand returns [1, 19] sorted (0.1767ms)
+✔ albumsForCountry unknown country returns empty array (0.097ms)
+✔ albumsForCountry does not mutate manifest.albums order (0.1152ms)
+✔ albumById returns the matching album (0.165ms)
+✔ albumById accepts string id (router params are strings) (0.0851ms)
+✔ albumById unknown id returns null (0.0642ms)
+✔ albumById non-numeric string returns null (0.0999ms)
+✔ COUNTRY_ORDER lists the seven countries in trip order (1.6437ms)
+✔ COUNTRIES exposes Hebrew + English names for every code (0.3997ms)
+▶ assignAlbumToCountries — single-country
+  ✔ album 5 → only [np], primary np (0.3982ms)
+  ✔ album 12 → only [in], primary in (0.1467ms)
+  ✔ album 25 → only [vn], primary vn (0.1865ms)
+  ✔ album 34 → only [cn], primary cn (0.1791ms)
+  ✔ album 45 → only [au], primary au (0.1277ms)
+  ✔ album 65 → only [nz], primary nz (0.1516ms)
+  ✔ album 80 → only [th], primary th (0.2159ms)
+  ✔ album 19 → only [th], primary th (0.2452ms)
+✔ assignAlbumToCountries — single-country (2.3551ms)
+✔ album 1 is Nepal + Thailand, primary Nepal (0.2689ms)
+✔ album 37 is China + Australia + Thailand, primary China (0.1606ms)
+▶ assignAlbumToCountries — range boundaries
+  ✔ album 7 → [np] (1.3752ms)
+  ✔ album 8 → [in] (0.209ms)
+  ✔ album 18 → [in] (0.0816ms)
+  ✔ album 20 → [vn] (0.0465ms)
+  ✔ album 29 → [vn] (0.0256ms)
+  ✔ album 30 → [cn] (0.0267ms)
+  ✔ album 38 → [au] (0.0295ms)
+  ✔ album 53 → [au] (0.0242ms)
+  ✔ album 54 → [nz] (0.0245ms)
+  ✔ album 76 → [nz] (0.0365ms)
+  ✔ album 77 → [th] (0.025ms)
+  ✔ album 88 → [th] (0.0249ms)
+✔ assignAlbumToCountries — range boundaries (2.2832ms)
+✔ album with no country range throws loudly (0.5865ms)
+✔ non-positive album throws (0.2205ms)
+✔ returns first photo of lowest-id primary album (1.1633ms)
+✔ Thailand uses album 19 (its lowest primary), not album 1 (Nepal primary) (0.2477ms)
+✔ country with no primary albums returns null (0.1486ms)
+✔ unknown country returns null (0.2026ms)
+✔ country whose primary album has no photos falls through to next primary album (0.1386ms)
+✔ country with all-empty primary albums returns null (0.0829ms)
+✔ does not mutate manifest (0.1144ms)
+✔ thumb intent: =w300 at DPR 1 (2.8725ms)
+✔ thumb intent: =w600 at DPR 2 (0.2853ms)
+✔ thumb intent caps at 600 even at DPR 3 (0.1525ms)
+✔ pin intent: =w120 default (0.1354ms)
+✔ pin intent: caps at 240 at high DPR (0.1704ms)
+✔ slide intent on phone: =w800 at DPR 1 (0.1502ms)
+✔ slide intent on tablet: =w1600 baseline (0.2024ms)
+✔ slide intent on desktop: =w1600 baseline (0.252ms)
+✔ slide intent: phone × DPR 2 = 1600 (0.2354ms)
+✔ slide intent: desktop × DPR 2 caps at 2400 (0.3688ms)
+✔ slide intent: caps at 2400 even at DPR 3 desktop (0.2329ms)
+✔ original intent: =w2400 regardless of DPR (0.2019ms)
+✔ unknown intent throws (0.7163ms)
+✔ missing fileId throws (0.1937ms)
+✔ fileId with special URL chars is rejected (Drive IDs are alphanumeric+_-) (0.2042ms)
+✔ default loading text is Hebrew "טוען..." (0.7545ms)
+✔ default error text is Hebrew and not auto-translated (0.2263ms)
+✔ loadingHTML uses default text (0.6605ms)
+✔ loadingHTML uses custom text (0.3193ms)
+✔ loadingHTML includes role="status" for assistive tech (0.2684ms)
+✔ loadingHTML includes aria-live="polite" (0.2298ms)
+✔ errorHTML uses default text (0.2413ms)
+✔ errorHTML uses custom text (0.1945ms)
+✔ errorHTML includes role="alert" (0.2803ms)
+✔ escapes HTML special chars in custom text to prevent XSS (0.4455ms)
+✔ empty array returns empty (1.159ms)
+✔ already-sorted returns equivalent order (0.3792ms)
+✔ reverse-sorted gets sorted (0.1228ms)
+✔ numeric suffixes sort lexicographically (NOT numerically) (1.0372ms)
+✔ case-sensitive: uppercase comes before lowercase (0.1351ms)
+✔ does not mutate input array (0.1188ms)
+✔ returns a new array, not the original (0.1263ms)
+✔ builds an img with the lh3 thumb URL for the given intent (2.3129ms)
+✔ passes dpr through to the URL (0.2608ms)
+✔ passes viewport through for slide intent (0.1829ms)
+✔ includes loading="lazy" by default (R5) (0.152ms)
+✔ eager loading when loading:"eager" passed (first paint above the fold) (0.1731ms)
+✔ onerror chain falls back to thumbnailLink then broken class (R4) (0.1955ms)
+✔ onerror with no thumbnailLink goes straight to broken class (0.1023ms)
+✔ applies a custom className (0.1278ms)
+✔ default className is "photo" (0.1141ms)
+✔ alt defaults to empty (decorative) and is escaped when provided (0.2213ms)
+✔ decoding="async" is set (0.093ms)
+✔ escapes a malicious thumbnailLink to prevent attribute breakout (0.1193ms)
+✔ extractPhotoMeta — full record with EXIF (0.7587ms)
+✔ extractPhotoMeta — missing EXIF leaves capturedAt null (0.1534ms)
+✔ extractPhotoMeta — imageMediaMetadata present but no time (0.0898ms)
+✔ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.1328ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.1564ms)
+▶ parseHash
+  ✔ "" → "/" (0.7049ms)
+  ✔ "#" → "/" (0.1041ms)
+  ✔ "#/" → "/" (0.0735ms)
+  ✔ "#/country/np" → "/country/np" (0.0717ms)
+  ✔ "#/album/5" → "/album/5" (0.0631ms)
+  ✔ "#/album/5/slide/12" → "/album/5/slide/12" (0.0819ms)
+  ✔ "/country/np" → "/country/np" (0.0979ms)
+  ✔ "#country/np" → "/country/np" (0.0606ms)
+  ✔ "#/random" → "/random" (0.0994ms)
+✔ parseHash (2.2885ms)
+▶ createRouter — static routes
+  ✔ matches home route (0.8045ms)
+  ✔ matches map route (0.0967ms)
+  ✔ unknown path returns null (0.0866ms)
+✔ createRouter — static routes (1.1316ms)
+▶ createRouter — param routes
+  ✔ single param (0.1479ms)
+  ✔ two params (0.1507ms)
+  ✔ static segment after param (1.2249ms)
+  ✔ decodes URI components in params (0.2884ms)
+  ✔ extra segments do not match shorter pattern (0.1632ms)
+  ✔ first matching route wins (0.1475ms)
+✔ createRouter — param routes (2.4719ms)
+▶ clampIndex
+  ✖ in-range index unchanged (6.3636ms)
+  ✖ negative clamps to 0 (0.3748ms)
+  ✖ over-length clamps to last (0.266ms)
+  ✖ non-integer string parses (0.1931ms)
+  ✖ garbage clamps to 0 (0.1942ms)
+  ✖ empty album → 0 (0.1778ms)
+✖ clampIndex (8.8808ms)
+▶ nextIndex (wraps by default)
+  ✖ advances by one (0.3353ms)
+  ✖ wraps last → first (0.2826ms)
+  ✖ no-wrap stays at last (0.2271ms)
+✖ nextIndex (wraps by default) (1.1821ms)
+▶ prevIndex (wraps by default)
+  ✖ goes back by one (0.3488ms)
+  ✖ wraps first → last (0.2229ms)
+  ✖ no-wrap stays at first (0.157ms)
+✖ prevIndex (wraps by default) (0.902ms)
+▶ keyToAction (RTL: ArrowLeft = next)
+  ✖ ArrowLeft → next (1.2469ms)
+  ✖ ArrowRight → prev (0.2794ms)
+  ✖ Escape → exit (0.2131ms)
+  ✖ spacebar → next (0.1531ms)
+  ✖ unrelated key → null (0.1446ms)
+✖ keyToAction (RTL: ArrowLeft = next) (2.2653ms)
+▶ swipeToAction (RTL: rightward = next)
+  ✖ big rightward swipe → next (0.2949ms)
+  ✖ big leftward swipe → prev (0.1528ms)
+  ✖ tiny movement below threshold → null (0.1156ms)
+  ✖ custom threshold respected (0.1428ms)
+✖ swipeToAction (RTL: rightward = next) (0.8995ms)
+✔ query strings target the documented breakpoints (1.2434ms)
+✔ isPhone true when matchMedia matches PHONE_QUERY (0.392ms)
+✔ isPhone false when only desktop matches (0.1988ms)
+✔ isTablet true only at tablet breakpoint (0.1931ms)
+✔ isDesktop true only at desktop breakpoint (1.3515ms)
+✔ happy path: renders album name as title (13.9347ms)
+✔ happy path: renders one img per photo (0.3146ms)
+✔ happy path: first 12 are eager, rest lazy (R5 first-paint budget) (0.1949ms)
+✔ happy path: photos are in lexicographic filename order (0.2221ms)
+✔ happy path: each photo links to its slide route (0.1532ms)
+✔ happy path: includes a back link to the country (0.1355ms)
+✔ empty album shows a "no photos" message (0.1149ms)
+✔ loading state when manifest is null (0.1227ms)
+✔ fetch-failed state renders errorHTML (0.177ms)
+✔ unknown album shows a not-found message + back link home (0.8182ms)
+✔ happy path: renders country name as title (13.9327ms)
+✔ happy path: one card per album with album name + photo count (0.2062ms)
+✔ happy path: photo counts are shown (0.1202ms)
+✔ happy path: each album thumb uses first photo via lh3 (0.1959ms)
+✔ happy path: includes a back link to home (0.258ms)
+✔ loading state when manifest is null (0.3084ms)
+✔ fetch-failed state renders errorHTML (0.179ms)
+✔ unknown country shows a not-found message + back link (0.1338ms)
+✔ escapes album names to prevent XSS (0.3783ms)
+✔ happy path: renders header + grid with one card per country (15.3822ms)
+✔ happy path: each card has a thumb image with lh3 URL (0.4832ms)
+✔ happy path: image uses loading="lazy" (R5 budget) (0.2503ms)
+✔ happy path: image has onerror fallback to thumbnailLink (R4) (0.3061ms)
+✔ happy path: image with no thumbnailLink still has broken-placeholder onerror (0.2101ms)
+✔ happy path: DPR is passed through to image URL (0.2305ms)
+✔ fetch-failed state: renders errorHTML (0.277ms)
+✔ loading state: renders loadingHTML when manifest is null + no error (0.2068ms)
+✔ empty-manifest state: renders empty message when countries=[] (0.198ms)
+✔ empty-manifest state: also when countries is missing (0.2845ms)
+✔ country with no thumb falls back to placeholder div (0.2477ms)
+✔ escapes country names to prevent XSS (0.2325ms)
+✖ renders the photo at the given index via slide intent (3.0871ms)
+✖ desktop viewport requests the larger slide width (0.4515ms)
+✖ shows a 1-based position counter (idx 2 of 5 → "3 / 5") (0.2828ms)
+✖ next link wraps last → first (0.1419ms)
+✖ prev link wraps first → last (0.1494ms)
+✖ middle index links to both neighbours (0.126ms)
+✖ exit/close link returns to the album grid (0.1201ms)
+✖ out-of-range index is clamped (idx 99 → shows last photo p004) (0.1081ms)
+✖ negative index clamps to first (0.3804ms)
+✖ loading state when manifest null (0.4587ms)
+✖ fetch-failed state renders errorHTML (0.1883ms)
+✖ unknown album → not-found + home link (0.1515ms)
+✖ empty album → message + back link, no crash (0.1258ms)
+✖ carries data-slideshow hooks for keyboard/swipe wiring (0.107ms)
+ℹ tests 214
+ℹ suites 13
+ℹ pass 179
+ℹ fail 35
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 295.8352
+
+✖ failing tests:
+
+test at src\lib\slideshow-nav.test.mjs:8:3
+✖ in-range index unchanged (6.3636ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 3
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:9:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 3,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:11:3
+✖ negative clamps to 0 (0.3748ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 0
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:12:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:14:3
+✖ over-length clamps to last (0.266ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 9
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:15:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 9,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:17:3
+✖ non-integer string parses (0.1931ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 4
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:18:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 4,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:20:3
+✖ garbage clamps to 0 (0.1942ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 0
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:21:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:23:3
+✖ empty album → 0 (0.1778ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 0
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:24:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:29:3
+✖ advances by one (0.3353ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 3
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:30:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 3,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:32:3
+✖ wraps last → first (0.2826ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 0
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:33:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:35:3
+✖ no-wrap stays at last (0.2271ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 9
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:36:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 9,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:41:3
+✖ goes back by one (0.3488ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 1
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:42:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:44:3
+✖ wraps first → last (0.2229ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 9
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:45:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 9,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:47:3
+✖ no-wrap stays at first (0.157ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  -1 !== 0
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:48:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:53:3
+✖ ArrowLeft → next (1.2469ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== 'next'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:54:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'next',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:56:3
+✖ ArrowRight → prev (0.2794ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== 'prev'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:57:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'prev',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:59:3
+✖ Escape → exit (0.2131ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== 'exit'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:60:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'exit',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:62:3
+✖ spacebar → next (0.1531ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== 'next'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:63:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'next',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:65:3
+✖ unrelated key → null (0.1446ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:66:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:71:3
+✖ big rightward swipe → next (0.2949ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== 'next'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:72:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'next',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:74:3
+✖ big leftward swipe → prev (0.1528ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== 'prev'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:75:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'prev',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:77:3
+✖ tiny movement below threshold → null (0.1156ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:78:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\slideshow-nav.test.mjs:80:3
+✖ custom threshold respected (0.1428ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/slideshow-nav.test.mjs:81:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:20:1
+✖ renders the photo at the given index via slide intent (3.0871ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /lh3\.googleusercontent\.com\/d\/p002=w800/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:22:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /lh3\.googleusercontent\.com\/d\/p002=w800/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:25:1
+✖ desktop viewport requests the larger slide width (0.4515ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /=w1600/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:27:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /=w1600/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:30:1
+✖ shows a 1-based position counter (idx 2 of 5 → "3 / 5") (0.2828ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /3\s*\/\s*5/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:32:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /3\s*\/\s*5/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:35:1
+✖ next link wraps last → first (0.1419ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="#\/album\/1\/slide\/0"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:37:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /href="#\/album\/1\/slide\/0"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:40:1
+✖ prev link wraps first → last (0.1494ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="#\/album\/1\/slide\/4"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:42:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /href="#\/album\/1\/slide\/4"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:45:1
+✖ middle index links to both neighbours (0.126ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="#\/album\/1\/slide\/3"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:47:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /href="#\/album\/1\/slide\/3"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:51:1
+✖ exit/close link returns to the album grid (0.1201ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="#\/album\/1"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:53:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /href="#\/album\/1"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:56:1
+✖ out-of-range index is clamped (idx 99 → shows last photo p004) (0.1081ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /d\/p004=w/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:58:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /d\/p004=w/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:61:1
+✖ negative index clamps to first (0.3804ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /d\/p000=w/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:63:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /d\/p000=w/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:66:1
+✖ loading state when manifest null (0.4587ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /role="status"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:68:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /role="status"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:71:1
+✖ fetch-failed state renders errorHTML (0.1883ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /role="alert"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:73:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /role="alert"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:76:1
+✖ unknown album → not-found + home link (0.1515ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /לא נמצא/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:78:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /לא נמצא/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:82:1
+✖ empty album → message + back link, no crash (0.1258ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /אין תמונות/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:84:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /אין תמונות/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:88:1
+✖ carries data-slideshow hooks for keyboard/swipe wiring (0.107ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /data-slideshow/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:91:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /data-slideshow/,
+    operator: 'match',
+    diff: 'simple'
+  }
