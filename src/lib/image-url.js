@@ -7,15 +7,18 @@ const LH3_BASE = 'https://lh3.googleusercontent.com/d/';
 // caller can't accidentally inject URL-breaking characters.
 const FILE_ID_RE = /^[A-Za-z0-9_-]+$/;
 
-// (baseWidth, dprCap) per intent. The CDN caps at source resolution
-// regardless, so the cap below is purely to stop us paying bytes for
-// resolution we won't ever display.
+// (baseWidth, dprCap) per intent. Widths are right-sized to the actual
+// display size (M6) — measured bytes for a representative photo:
+//   thumb  w280  ≈ 20 KB  (grid tile is ~116-165px CSS; old w600 was 70 KB)
+//   slide  w1040 ≈ 160 KB (phone, DPR2; old w1600 fetched the 243 KB original)
+// The CDN caps at source resolution regardless, so `cap` only stops us
+// paying bytes for resolution we'd never display.
 const INTENTS = {
-  thumb:    { base: 300,  cap: 600 },
-  pin:      { base: 120,  cap: 240 },
-  slidePhone:   { base: 800,  cap: 2400 },
-  slideTablet:  { base: 1600, cap: 2400 },
-  slideDesktop: { base: 1600, cap: 2400 },
+  thumb:    { base: 140, cap: 280 },
+  pin:      { base: 120, cap: 240 },
+  slidePhone:   { base: 520, cap: 1080 },
+  slideTablet:  { base: 760, cap: 1520 },
+  slideDesktop: { base: 920, cap: 2000 },
   original: { base: 2400, cap: 2400, ignoreDpr: true },
 };
 

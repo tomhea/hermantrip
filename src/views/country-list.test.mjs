@@ -27,8 +27,8 @@ test('happy path: renders header + grid with one card per country', () => {
 
 test('happy path: each card has a thumb image with lh3 URL', () => {
   const html = renderCountryList({ manifest });
-  assert.match(html, /<img class="country-thumb"[^>]*src="https:\/\/lh3\.googleusercontent\.com\/d\/photo-np=w300"/);
-  assert.match(html, /<img class="country-thumb"[^>]*src="https:\/\/lh3\.googleusercontent\.com\/d\/photo-th=w300"/);
+  assert.match(html, /<img class="country-thumb"[^>]*src="https:\/\/lh3\.googleusercontent\.com\/d\/photo-np=w140"/);
+  assert.match(html, /<img class="country-thumb"[^>]*src="https:\/\/lh3\.googleusercontent\.com\/d\/photo-th=w140"/);
 });
 
 test('happy path: image uses loading="lazy" (R5 budget)', () => {
@@ -63,7 +63,7 @@ test('happy path: image with no thumbnailLink still has broken-placeholder onerr
 
 test('happy path: DPR is passed through to image URL', () => {
   const html = renderCountryList({ manifest, dpr: 2 });
-  assert.match(html, /=w600/);
+  assert.match(html, /=w280/);
 });
 
 test('fetch-failed state: renders errorHTML', () => {

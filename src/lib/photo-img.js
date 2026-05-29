@@ -24,9 +24,11 @@ export function photoImgHTML(photo, opts = {}) {
     className = 'photo',
     alt = '',
     loading = 'lazy',
+    priority = null, // 'high' to jump the network queue for on-screen images
   } = opts;
 
   const src = imageUrl(photo.id, intent, { dpr, viewport });
+  const priorityAttr = priority ? ` fetchpriority="${escapeHTML(priority)}"` : '';
 
   // R4 fallback chain: on first error swap to the manifest's thumbnailLink
   // (a different lh3 path); on the second error tag the element so CSS can
@@ -36,5 +38,5 @@ export function photoImgHTML(photo, opts = {}) {
     ? `if(!this.dataset.fb){this.dataset.fb='1';this.src='${fallback}'}else{this.classList.add('photo-broken')}`
     : "this.classList.add('photo-broken')";
 
-  return `<img class="${escapeHTML(className)}" src="${src}" loading="${escapeHTML(loading)}" decoding="async" alt="${escapeHTML(alt)}" onerror="${onerror}">`;
+  return `<img class="${escapeHTML(className)}" src="${src}" loading="${escapeHTML(loading)}"${priorityAttr} decoding="async" alt="${escapeHTML(alt)}" onerror="${onerror}">`;
 }
