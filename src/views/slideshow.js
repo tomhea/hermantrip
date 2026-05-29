@@ -29,7 +29,7 @@ function escapeHTML(s) {
 function infoPanel(album, photo, i, total) {
   const countries = (album.countries || [])
     .map((c) => COUNTRY_HE.get(c)).filter(Boolean).join(' · ');
-  const place = albumPlace(album.name);
+  const place = album.title ?? albumPlace(album.name);
   const date = formatHebrewDate(photo.capturedAt);
   const wd = hebrewWeekday(photo.capturedAt);
   const clock = formatClock(photo.capturedAt);
@@ -44,7 +44,7 @@ function infoPanel(album, photo, i, total) {
         ${row('שעה', clock)}
         ${row('מדינה', countries)}
         ${row('מקום', place)}
-        ${row('אלבום', album.name)}
+        ${row('אלבום', album.title ?? album.name)}
         <div class="info-row"><dt>תמונה</dt><dd dir="ltr">${i + 1} / ${total}</dd></div>
         ${row('קובץ', photo.name)}
       </dl>
@@ -105,7 +105,7 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
          data-next="${nextHref}" data-prev="${prevHref}" data-exit="${exitHref}"
          data-autoplay-on="${autoplay ? 'true' : 'false'}" data-speed="${speed}">
       <div class="slideshow-stage">
-        <img class="slideshow-photo" src="${src}" alt="${escapeHTML(album.name)} — ${i + 1}"
+        <img class="slideshow-photo" src="${src}" alt="${escapeHTML(album.title ?? album.name)} — ${i + 1}"
              decoding="async" fetchpriority="high" onerror="${onerror}">
         <a class="slideshow-zone slideshow-zone-next" href="${nextHref}" aria-label="התמונה הבאה"></a>
         <a class="slideshow-zone slideshow-zone-prev" href="${prevHref}" aria-label="התמונה הקודמת"></a>
