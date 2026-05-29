@@ -1,0 +1,69 @@
+import { test } from 'node:test';
+import { strict as assert } from 'node:assert';
+import { renderAlbumList } from './album-list.js';
+
+const manifest = {
+  countries: [
+    { code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [1, 2] },
+  ],
+  albums: [
+    { id: 1, name: '01. נפאל - קטמנדו', primary: 'np', countries: ['np', 'th'],
+      photos: [{ id: 'p1', name: 'a.jpg', thumbnailLink: 'https://lh3.googleusercontent.com/drive-storage/a=s220' }] },
+    { id: 2, name: '02. נפאל - פוקרה', primary: 'np', countries: ['np'],
+      photos: [{ id: 'p2a', name: 'a.jpg' }, { id: 'p2b', name: 'b.jpg' }] },
+  ],
+};
+
+test('happy path: renders country name as title', () => {
+  const html = renderAlbumList({ manifest, code: 'np' });
+  assert.match(html, /נפאל/);
+});
+
+test('happy path: one card per album with album name + photo count', () => {
+  const html = renderAlbumList({ manifest, code: 'np' });
+  assert.match(html, /01\. נפאל - קטמנדו/);
+  assert.match(html, /02\. נפאל - פוקרה/);
+  assert.match(html, /href="#\/album\/1"/);
+  assert.match(html, /href="#\/album\/2"/);
+});
+
+test('happy path: photo counts are shown', () => {
+  const html = renderAlbumList({ manifest, code: 'np' });
+  assert.match(html, /2 תמונות/); // album 2 has 2 photos
+});
+
+test('happy path: each album thumb uses first photo via lh3', () => {
+  const html = renderAlbumList({ manifest, code: 'np' });
+  assert.match(html, /lh3\.googleusercontent\.com\/d\/p1=w/);
+});
+
+test('happy path: includes a back link to home', () => {
+  const html = renderAlbumList({ manifest, code: 'np' });
+  assert.match(html, /href="#\/"/);
+});
+
+test('loading state when manifest is null', () => {
+  const html = renderAlbumList({ manifest: null, code: 'np' });
+  assert.match(html, /role="status"/);
+  assert.match(html, /טוען/);
+});
+
+test('fetch-failed state renders errorHTML', () => {
+  const html = renderAlbumList({ manifest: null, error: new Error('x'), code: 'np' });
+  assert.match(html, /role="alert"/);
+});
+
+test('unknown country shows a not-found message + back link', () => {
+  const html = renderAlbumList({ manifest, code: 'zz' });
+  assert.match(html, /לא נמצאה/);
+  assert.match(html, /href="#\/"/);
+});
+
+test('escapes album names to prevent XSS', () => {
+  const m = {
+    countries: [{ code: 'x', he: 'X', en: 'X', primaryAlbums: [1] }],
+    albums: [{ id: 1, name: '<script>alert(1)</script>', primary: 'x', countries: ['x'], photos: [] }],
+  };
+  const html = renderAlbumList({ manifest: m, code: 'x' });
+  assert.equal(html.includes('<script>alert(1)</script>'), false);
+});

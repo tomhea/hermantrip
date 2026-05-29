@@ -4,8 +4,9 @@
 // freely. Pure logic stays in src/lib/.
 
 import { parseHash, createRouter } from './lib/router.js';
-import { loadingHTML, errorHTML } from './lib/loading.js';
 import { renderCountryList } from './views/country-list.js';
+import { renderAlbumList } from './views/album-list.js';
+import { renderAlbumGrid } from './views/album-grid.js';
 
 const ROUTES = [
   { pattern: '/', name: 'home' },
@@ -44,12 +45,20 @@ function escapeHTML(s) {
   }[c]));
 }
 
+const dpr = () => window.devicePixelRatio || 1;
+
 function renderHome() {
-  app.innerHTML = renderCountryList({
-    manifest,
-    error: manifestError,
-    dpr: window.devicePixelRatio || 1,
-  });
+  app.innerHTML = renderCountryList({ manifest, error: manifestError, dpr: dpr() });
+}
+
+function renderCountry(params) {
+  app.innerHTML = renderAlbumList({ manifest, error: manifestError, code: params.code, dpr: dpr() });
+  window.scrollTo(0, 0);
+}
+
+function renderAlbum(params) {
+  app.innerHTML = renderAlbumGrid({ manifest, error: manifestError, id: params.id, dpr: dpr() });
+  window.scrollTo(0, 0);
 }
 
 function renderNotFound(path) {
@@ -72,6 +81,12 @@ function render() {
   switch (match.name) {
     case 'home':
       renderHome();
+      break;
+    case 'country':
+      renderCountry(match.params);
+      break;
+    case 'album':
+      renderAlbum(match.params);
       break;
     default:
       // Placeholder for routes whose views ship in later milestones.
