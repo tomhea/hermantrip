@@ -1,0 +1,1006 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (0.6395ms)
+✔ empty input returns empty array (1.1236ms)
+✔ no collisions: one entry per folder, folderIds wraps the source (0.3212ms)
+✔ same id: photos concatenated, both folderIds tracked (0.114ms)
+✔ same id: first folder name wins (lex order preserves "Bhagsu 1") (1.1948ms)
+✔ mixed: some collide, some do not (0.5215ms)
+✔ does not mutate input photos arrays (0.2681ms)
+▶ extractAlbumNumber — common patterns
+  ✔ "01" → 1 (0.8691ms)
+  ✔ "1" → 1 (0.3024ms)
+  ✔ "01 קטמנדו" → 1 (0.2209ms)
+  ✔ "1 - דהלי" → 1 (0.1789ms)
+  ✔ "1. דהלי" → 1 (0.1927ms)
+  ✔ "1-עלייה לאוורסט" → 1 (0.2048ms)
+  ✔ "37 - יאנגשואו" → 37 (0.1846ms)
+  ✔ "037 - sometext" → 37 (0.1263ms)
+  ✔ "88 פוקט" → 88 (0.1261ms)
+  ✔ "88" → 88 (0.196ms)
+  ✔ "14a" → 14 (0.0767ms)
+  ✔ "14a. הודו - באגסו 2" → 14 (0.073ms)
+✔ extractAlbumNumber — common patterns (4.5181ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✔ ".temp" → null (0.3381ms)
+  ✔ ".temp_1" → null (0.8436ms)
+  ✔ ".temp_2" → null (0.0831ms)
+  ✔ ".temp_3" → null (0.0333ms)
+  ✔ ".hidden" → null (0.0249ms)
+  ✔ "export" → null (0.0251ms)
+  ✔ "Export" → null (0.038ms)
+  ✔ "EXPORT" → null (0.025ms)
+  ✔ "exports" → null (0.0214ms)
+✔ extractAlbumNumber — ignored folders return null (1.6788ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✔ "תיאור בלי מספר" → null (0.0765ms)
+  ✔ "random folder" → null (0.0232ms)
+  ✔ "a01" → null (0.02ms)
+  ✔ "_01" → null (0.0198ms)
+  ✔ "" → null (0.0276ms)
+✔ extractAlbumNumber — names without leading digits return null (0.236ms)
+✔ extractAlbumNumber strips leading zeros (0.0652ms)
+✖ albumsForCountry returns albums where code is in countries[], sorted by id (3.7799ms)
+✖ albumsForCountry includes cross-country albums (6.0708ms)
+✖ albumsForCountry for thailand returns [1, 19] sorted (0.5135ms)
+✖ albumsForCountry unknown country returns empty array (0.5743ms)
+✔ albumsForCountry does not mutate manifest.albums order (0.5907ms)
+✖ albumById returns the matching album (0.4754ms)
+✖ albumById accepts string id (router params are strings) (0.2519ms)
+✖ albumById unknown id returns null (0.5003ms)
+✖ albumById non-numeric string returns null (0.361ms)
+✔ COUNTRY_ORDER lists the seven countries in trip order (1.1697ms)
+✔ COUNTRIES exposes Hebrew + English names for every code (0.2448ms)
+▶ assignAlbumToCountries — single-country
+  ✔ album 5 → only [np], primary np (0.2719ms)
+  ✔ album 12 → only [in], primary in (0.0782ms)
+  ✔ album 25 → only [vn], primary vn (0.1215ms)
+  ✔ album 34 → only [cn], primary cn (0.1004ms)
+  ✔ album 45 → only [au], primary au (0.0634ms)
+  ✔ album 65 → only [nz], primary nz (0.1037ms)
+  ✔ album 80 → only [th], primary th (0.08ms)
+  ✔ album 19 → only [th], primary th (0.1596ms)
+✔ assignAlbumToCountries — single-country (1.4256ms)
+✔ album 1 is Nepal + Thailand, primary Nepal (0.1065ms)
+✔ album 37 is China + Australia + Thailand, primary China (0.0904ms)
+▶ assignAlbumToCountries — range boundaries
+  ✔ album 7 → [np] (1.3102ms)
+  ✔ album 8 → [in] (0.2114ms)
+  ✔ album 18 → [in] (0.1506ms)
+  ✔ album 20 → [vn] (0.1004ms)
+  ✔ album 29 → [vn] (0.0825ms)
+  ✔ album 30 → [cn] (0.077ms)
+  ✔ album 38 → [au] (0.0729ms)
+  ✔ album 53 → [au] (0.0913ms)
+  ✔ album 54 → [nz] (0.0973ms)
+  ✔ album 76 → [nz] (0.1105ms)
+  ✔ album 77 → [th] (0.0787ms)
+  ✔ album 88 → [th] (0.0835ms)
+✔ assignAlbumToCountries — range boundaries (3.0724ms)
+✔ album with no country range throws loudly (0.5069ms)
+✔ non-positive album throws (0.12ms)
+✔ returns first photo of lowest-id primary album (1.2576ms)
+✔ Thailand uses album 19 (its lowest primary), not album 1 (Nepal primary) (0.2303ms)
+✔ country with no primary albums returns null (0.1165ms)
+✔ unknown country returns null (0.2056ms)
+✔ country whose primary album has no photos falls through to next primary album (0.185ms)
+✔ country with all-empty primary albums returns null (0.0965ms)
+✔ does not mutate manifest (0.1277ms)
+✔ thumb intent: =w300 at DPR 1 (2.4203ms)
+✔ thumb intent: =w600 at DPR 2 (0.3525ms)
+✔ thumb intent caps at 600 even at DPR 3 (0.2348ms)
+✔ pin intent: =w120 default (0.1764ms)
+✔ pin intent: caps at 240 at high DPR (0.2069ms)
+✔ slide intent on phone: =w800 at DPR 1 (0.2787ms)
+✔ slide intent on tablet: =w1600 baseline (0.1909ms)
+✔ slide intent on desktop: =w1600 baseline (0.2277ms)
+✔ slide intent: phone × DPR 2 = 1600 (0.2712ms)
+✔ slide intent: desktop × DPR 2 caps at 2400 (0.3213ms)
+✔ slide intent: caps at 2400 even at DPR 3 desktop (0.1847ms)
+✔ original intent: =w2400 regardless of DPR (0.2213ms)
+✔ unknown intent throws (0.6747ms)
+✔ missing fileId throws (0.2734ms)
+✔ fileId with special URL chars is rejected (Drive IDs are alphanumeric+_-) (0.2689ms)
+✔ default loading text is Hebrew "טוען..." (1.1787ms)
+✔ default error text is Hebrew and not auto-translated (0.5445ms)
+✔ loadingHTML uses default text (0.3493ms)
+✔ loadingHTML uses custom text (0.1793ms)
+✔ loadingHTML includes role="status" for assistive tech (0.2254ms)
+✔ loadingHTML includes aria-live="polite" (0.1414ms)
+✔ errorHTML uses default text (0.1922ms)
+✔ errorHTML uses custom text (0.183ms)
+✔ errorHTML includes role="alert" (0.1437ms)
+✔ escapes HTML special chars in custom text to prevent XSS (0.2309ms)
+✔ empty array returns empty (1.1627ms)
+✔ already-sorted returns equivalent order (0.2419ms)
+✔ reverse-sorted gets sorted (0.1055ms)
+✔ numeric suffixes sort lexicographically (NOT numerically) (0.8822ms)
+✔ case-sensitive: uppercase comes before lowercase (0.1892ms)
+✔ does not mutate input array (0.1324ms)
+✔ returns a new array, not the original (0.1304ms)
+✖ builds an img with the lh3 thumb URL for the given intent (1.3754ms)
+✖ passes dpr through to the URL (0.3448ms)
+✖ passes viewport through for slide intent (0.1504ms)
+✖ includes loading="lazy" by default (R5) (0.1328ms)
+✖ eager loading when loading:"eager" passed (first paint above the fold) (0.1638ms)
+✖ onerror chain falls back to thumbnailLink then broken class (R4) (0.1729ms)
+✖ onerror with no thumbnailLink goes straight to broken class (0.1224ms)
+✖ applies a custom className (0.1573ms)
+✖ default className is "photo" (0.2161ms)
+✖ alt defaults to empty (decorative) and is escaped when provided (0.2398ms)
+✖ decoding="async" is set (0.1324ms)
+✔ escapes a malicious thumbnailLink to prevent attribute breakout (0.2498ms)
+✔ extractPhotoMeta — full record with EXIF (0.87ms)
+✔ extractPhotoMeta — missing EXIF leaves capturedAt null (0.2646ms)
+✔ extractPhotoMeta — imageMediaMetadata present but no time (0.1792ms)
+✔ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.2997ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.1842ms)
+▶ parseHash
+  ✔ "" → "/" (0.779ms)
+  ✔ "#" → "/" (0.1143ms)
+  ✔ "#/" → "/" (0.0987ms)
+  ✔ "#/country/np" → "/country/np" (0.0695ms)
+  ✔ "#/album/5" → "/album/5" (0.0627ms)
+  ✔ "#/album/5/slide/12" → "/album/5/slide/12" (0.0544ms)
+  ✔ "/country/np" → "/country/np" (0.0745ms)
+  ✔ "#country/np" → "/country/np" (0.082ms)
+  ✔ "#/random" → "/random" (0.081ms)
+✔ parseHash (2.3743ms)
+▶ createRouter — static routes
+  ✔ matches home route (0.7978ms)
+  ✔ matches map route (0.0954ms)
+  ✔ unknown path returns null (0.0817ms)
+✔ createRouter — static routes (1.1066ms)
+▶ createRouter — param routes
+  ✔ single param (0.2149ms)
+  ✔ two params (0.1315ms)
+  ✔ static segment after param (0.7598ms)
+  ✔ decodes URI components in params (0.0983ms)
+  ✔ extra segments do not match shorter pattern (0.0517ms)
+  ✔ first matching route wins (0.0477ms)
+✔ createRouter — param routes (1.5373ms)
+✔ query strings target the documented breakpoints (0.6184ms)
+✔ isPhone true when matchMedia matches PHONE_QUERY (0.1525ms)
+✔ isPhone false when only desktop matches (0.0828ms)
+✔ isTablet true only at tablet breakpoint (0.0786ms)
+✔ isDesktop true only at desktop breakpoint (0.7003ms)
+✖ happy path: renders album name as title (1.2184ms)
+✖ happy path: renders one img per photo (0.9824ms)
+✖ happy path: first 12 are eager, rest lazy (R5 first-paint budget) (0.2164ms)
+✖ happy path: photos are in lexicographic filename order (3.0979ms)
+✖ happy path: each photo links to its slide route (0.2065ms)
+✖ happy path: includes a back link to the country (0.1455ms)
+✖ empty album shows a "no photos" message (0.6738ms)
+✖ loading state when manifest is null (0.1584ms)
+✖ fetch-failed state renders errorHTML (0.2013ms)
+✖ unknown album shows a not-found message + back link home (0.1946ms)
+✖ happy path: renders country name as title (1.1157ms)
+✖ happy path: one card per album with album name + photo count (0.2584ms)
+✖ happy path: photo counts are shown (0.749ms)
+✖ happy path: each album thumb uses first photo via lh3 (0.15ms)
+✖ happy path: includes a back link to home (0.15ms)
+✖ loading state when manifest is null (0.1569ms)
+✖ fetch-failed state renders errorHTML (0.1212ms)
+✖ unknown country shows a not-found message + back link (0.1824ms)
+✔ escapes album names to prevent XSS (0.2234ms)
+✔ happy path: renders header + grid with one card per country (13.7347ms)
+✔ happy path: each card has a thumb image with lh3 URL (0.271ms)
+✔ happy path: image uses loading="lazy" (R5 budget) (0.1825ms)
+✔ happy path: image has onerror fallback to thumbnailLink (R4) (0.1806ms)
+✔ happy path: image with no thumbnailLink still has broken-placeholder onerror (0.1185ms)
+✔ happy path: DPR is passed through to image URL (0.1297ms)
+✔ fetch-failed state: renders errorHTML (0.1291ms)
+✔ loading state: renders loadingHTML when manifest is null + no error (0.0901ms)
+✔ empty-manifest state: renders empty message when countries=[] (0.1315ms)
+✔ empty-manifest state: also when countries is missing (0.1787ms)
+✔ country with no thumb falls back to placeholder div (0.1286ms)
+✔ escapes country names to prevent XSS (0.1438ms)
+ℹ tests 179
+ℹ suites 8
+ℹ pass 142
+ℹ fail 37
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 256.3458
+
+✖ failing tests:
+
+test at src\lib\album-query.test.mjs:19:1
+✖ albumsForCountry returns albums where code is in countries[], sorted by id (3.7799ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   -1
+  -   1,
+  -   2,
+  -   3
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-query.test.mjs:21:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ -1 ],
+    expected: [ 1, 2, 3 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-query.test.mjs:24:1
+✖ albumsForCountry includes cross-country albums (6.0708ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(np.includes(1))
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-query.test.mjs:28:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at src\lib\album-query.test.mjs:32:1
+✖ albumsForCountry for thailand returns [1, 19] sorted (0.5135ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   -1
+  -   1,
+  -   19
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-query.test.mjs:33:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ -1 ],
+    expected: [ 1, 19 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-query.test.mjs:36:1
+✖ albumsForCountry unknown country returns empty array (0.5743ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   {
+  +     id: -1,
+  +     name: '__STUB__'
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-query.test.mjs:37:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { id: -1, name: '__STUB__' } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-query.test.mjs:46:1
+✖ albumById returns the matching album (0.4754ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== 'th'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-query.test.mjs:47:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'th',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-query.test.mjs:50:1
+✖ albumById accepts string id (router params are strings) (0.2519ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== 'th'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-query.test.mjs:51:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'th',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-query.test.mjs:54:1
+✖ albumById unknown id returns null (0.5003ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   id: -1,
+  +   name: '__STUB__'
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-query.test.mjs:55:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: -1, name: '__STUB__' },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\album-query.test.mjs:58:1
+✖ albumById non-numeric string returns null (0.361ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   id: -1,
+  +   name: '__STUB__'
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/album-query.test.mjs:59:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: -1, name: '__STUB__' },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:11:1
+✖ builds an img with the lh3 thumb URL for the given intent (1.3754ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /<img\b/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:13:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /<img\b/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:17:1
+✖ passes dpr through to the URL (0.3448ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /=w600/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:19:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /=w600/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:22:1
+✖ passes viewport through for slide intent (0.1504ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /=w1600/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:24:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /=w1600/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:27:1
+✖ includes loading="lazy" by default (R5) (0.1328ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /loading="lazy"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:28:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /loading="lazy"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:31:1
+✖ eager loading when loading:"eager" passed (first paint above the fold) (0.1638ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /loading="eager"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:32:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /loading="eager"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:35:1
+✖ onerror chain falls back to thumbnailLink then broken class (R4) (0.1729ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /onerror="[^"]*this\.dataset\.fb/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:37:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /onerror="[^"]*this\.dataset\.fb/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:42:1
+✖ onerror with no thumbnailLink goes straight to broken class (0.1224ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /onerror="this\.classList\.add\('photo-broken'\)"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:44:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /onerror="this\.classList\.add\('photo-broken'\)"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:47:1
+✖ applies a custom className (0.1573ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /class="album-thumb"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:49:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /class="album-thumb"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:52:1
+✖ default className is "photo" (0.2161ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /class="photo"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:53:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /class="photo"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:56:1
+✖ alt defaults to empty (decorative) and is escaped when provided (0.2398ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /alt=""/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:57:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /alt=""/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\photo-img.test.mjs:62:1
+✖ decoding="async" is set (0.1324ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /decoding="async"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/photo-img.test.mjs:63:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /decoding="async"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-grid.test.mjs:22:1
+✖ happy path: renders album name as title (1.2184ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /01\. נפאל - קטמנדו/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-grid.test.mjs:24:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /01\. נפאל - קטמנדו/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-grid.test.mjs:27:1
+✖ happy path: renders one img per photo (0.9824ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 20
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-grid.test.mjs:30:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 20,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\views\album-grid.test.mjs:33:1
+✖ happy path: first 12 are eager, rest lazy (R5 first-paint budget) (0.2164ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 12
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-grid.test.mjs:37:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 12,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\views\album-grid.test.mjs:41:1
+✖ happy path: photos are in lexicographic filename order (3.0979ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(firstIdx !== -1 && firstIdx < secondIdx)
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-grid.test.mjs:45:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at src\views\album-grid.test.mjs:48:1
+✖ happy path: each photo links to its slide route (0.2065ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="#\/album\/1\/slide\/0"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-grid.test.mjs:50:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /href="#\/album\/1\/slide\/0"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-grid.test.mjs:54:1
+✖ happy path: includes a back link to the country (0.1455ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="#\/country\/np"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-grid.test.mjs:57:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /href="#\/country\/np"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-grid.test.mjs:60:1
+✖ empty album shows a "no photos" message (0.6738ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /אין תמונות/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-grid.test.mjs:62:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /אין תמונות/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-grid.test.mjs:65:1
+✖ loading state when manifest is null (0.1584ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /role="status"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-grid.test.mjs:67:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /role="status"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-grid.test.mjs:70:1
+✖ fetch-failed state renders errorHTML (0.2013ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /role="alert"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-grid.test.mjs:72:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /role="alert"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-grid.test.mjs:75:1
+✖ unknown album shows a not-found message + back link home (0.1946ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /לא נמצא/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-grid.test.mjs:77:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /לא נמצא/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-list.test.mjs:17:1
+✖ happy path: renders country name as title (1.1157ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /נפאל/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-list.test.mjs:19:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /נפאל/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-list.test.mjs:22:1
+✖ happy path: one card per album with album name + photo count (0.2584ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /01\. נפאל - קטמנדו/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-list.test.mjs:24:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /01\. נפאל - קטמנדו/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-list.test.mjs:30:1
+✖ happy path: photo counts are shown (0.749ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /2 תמונות/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-list.test.mjs:32:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /2 תמונות/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-list.test.mjs:35:1
+✖ happy path: each album thumb uses first photo via lh3 (0.15ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /lh3\.googleusercontent\.com\/d\/p1=w/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-list.test.mjs:37:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /lh3\.googleusercontent\.com\/d\/p1=w/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-list.test.mjs:40:1
+✖ happy path: includes a back link to home (0.15ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="#\/"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-list.test.mjs:42:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /href="#\/"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-list.test.mjs:45:1
+✖ loading state when manifest is null (0.1569ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /role="status"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-list.test.mjs:47:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /role="status"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-list.test.mjs:51:1
+✖ fetch-failed state renders errorHTML (0.1212ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /role="alert"/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-list.test.mjs:53:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /role="alert"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-list.test.mjs:56:1
+✖ unknown country shows a not-found message + back link (0.1824ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /לא נמצאה/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-list.test.mjs:58:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /לא נמצאה/,
+    operator: 'match',
+    diff: 'simple'
+  }
