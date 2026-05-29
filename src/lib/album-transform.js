@@ -11,6 +11,7 @@
 // Album NAMES in the raw manifest are kept as-is; views render `title`.
 
 import { albumPlace } from './album-place.js';
+import { correctPhotoDate } from './date-fixes.js';
 
 // Merge groups: the albums in `ids` collapse into `into` (kept id), photos
 // concatenated in id order, with the given title.
@@ -25,8 +26,12 @@ const TITLES = {
 
 export function transformManifest(manifest) {
   // Clone albums (shallow per album + fresh photos array) so we never mutate
-  // the input.
-  let albums = (manifest.albums ?? []).map((a) => ({ ...a, photos: [...a.photos] }));
+  // the input. Apply hand-curated photo date corrections (M16) per album as
+  // we clone.
+  let albums = (manifest.albums ?? []).map((a) => ({
+    ...a,
+    photos: a.photos.map((p) => correctPhotoDate(p, a.id)),
+  }));
 
   const removedIds = new Set();
   for (const merge of MERGES) {
