@@ -5,6 +5,7 @@
 
 import { parseHash, createRouter } from './lib/router.js';
 import { keyToAction, swipeToAction, preloadIndices } from './lib/slideshow-nav.js';
+import { nextSpeed } from './lib/slideshow-speed.js';
 import { albumById } from './lib/album-query.js';
 import { sortPhotosByFilename } from './lib/ordering.js';
 import { imageUrl } from './lib/image-url.js';
@@ -12,8 +13,6 @@ import { renderCountryList } from './views/country-list.js';
 import { renderAlbumList } from './views/album-list.js';
 import { renderAlbumGrid } from './views/album-grid.js';
 import { renderSlideshow } from './views/slideshow.js';
-
-const AUTOPLAY_MS = 4000;
 
 const ROUTES = [
   { pattern: '/', name: 'home' },
@@ -82,6 +81,7 @@ function go(href) {
 // triggers; the timer is rescheduled on every slide render while on.
 let autoplayOn = false;
 let autoplayTimer = null;
+let autoplaySpeed = 4000; // ms between auto-advances; cycled by the speed button
 // Hold preloaded Image() refs for the current slide so they aren't GC'd
 // before they finish loading; replaced (not appended) each render.
 let preloadRefs = [];
@@ -96,7 +96,7 @@ function stopAutoplayTimer() {
 function renderSlide(params) {
   app.innerHTML = renderSlideshow({
     manifest, error: manifestError, id: params.id, idx: params.idx,
-    dpr: dpr(), viewport: viewportClass(), autoplay: autoplayOn,
+    dpr: dpr(), viewport: viewportClass(), autoplay: autoplayOn, speed: autoplaySpeed,
   });
   window.scrollTo(0, 0);
   wireSlideshow();
@@ -157,11 +157,33 @@ function wireSlideshow() {
     });
   }
 
+  // Speed button — cycle the auto-advance interval. Re-render so the label
+  // updates and (if playing) the timer below reschedules at the new speed.
+  const speedBtn = shell.querySelector('[data-speed-toggle]');
+  if (speedBtn) {
+    speedBtn.addEventListener('click', () => {
+      autoplaySpeed = nextSpeed(autoplaySpeed);
+      render();
+    });
+  }
+
+  // Fullscreen toggle on the slideshow shell.
+  const fsBtn = shell.querySelector('[data-fullscreen-toggle]');
+  if (fsBtn) {
+    fsBtn.addEventListener('click', () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen?.();
+      } else {
+        shell.requestFullscreen?.().catch(() => { /* ignore — not fatal */ });
+      }
+    });
+  }
+
   // (Re)schedule the auto-advance while autoplay is on. Each slide render
   // sets a fresh timer; navigating away clears it (see render()).
   stopAutoplayTimer();
   if (autoplayOn) {
-    autoplayTimer = setTimeout(() => go(shell.dataset.next), AUTOPLAY_MS);
+    autoplayTimer = setTimeout(() => go(shell.dataset.next), autoplaySpeed);
   }
 }
 

@@ -427,6 +427,66 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .slideshow-play:hover,
 .slideshow-play:focus-visible { color: #fff; }
 .slideshow-play[aria-pressed="true"] { color: var(--earth-ochre); }
+
+/* M9: shared bar control (speed / fullscreen / download / info) */
+.slideshow-speed-btn,
+.slideshow-fs,
+.slideshow-dl,
+.slideshow-info > summary {
+  flex: 0 0 auto;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: none;
+  color: #f2ece2;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  min-width: 2.5rem;
+  height: 2.75rem;            /* ≥44px touch target */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-family: var(--font-family);
+  list-style: none;           /* hide default <summary> marker */
+}
+.slideshow-speed-btn { font-variant-numeric: tabular-nums; font-size: 0.8rem; }
+.slideshow-info > summary::-webkit-details-marker { display: none; }
+.slideshow-speed-btn:hover, .slideshow-speed-btn:focus-visible,
+.slideshow-fs:hover, .slideshow-fs:focus-visible,
+.slideshow-dl:hover, .slideshow-dl:focus-visible,
+.slideshow-info > summary:hover { color: #fff; }
+
+/* Info panel: pops up above the bar from the ⓘ summary */
+.slideshow-info { position: relative; }
+.slideshow-info[open] > summary { color: var(--earth-ochre); }
+.slideshow-info .info-body {
+  position: absolute;
+  bottom: 3rem;
+  inset-inline-start: 0;
+  margin: 0;
+  min-width: 16rem;
+  max-width: 78vw;
+  background: rgba(20, 17, 14, 0.96);
+  border: 1px solid rgba(242, 236, 226, 0.2);
+  border-radius: 4px;
+  padding: var(--space-3);
+  color: #f2ece2;
+  font-size: var(--type-small);
+  line-height: 1.5;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+.slideshow-info .info-row {
+  display: flex;
+  gap: var(--space-2);
+  padding: 2px 0;
+}
+.slideshow-info .info-row dt {
+  flex: 0 0 4rem;
+  color: rgba(242, 236, 226, 0.6);
+}
+.slideshow-info .info-row dd { margin: 0; flex: 1 1 auto; }
 .slideshow-counter {
   flex: 0 0 auto;
   font-variant-numeric: tabular-nums;

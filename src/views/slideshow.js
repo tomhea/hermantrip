@@ -10,6 +10,12 @@ import { albumById } from '../lib/album-query.js';
 import { sortPhotosByFilename } from '../lib/ordering.js';
 import { imageUrl } from '../lib/image-url.js';
 import { clampIndex, nextIndex, prevIndex } from '../lib/slideshow-nav.js';
+import { speedLabel } from '../lib/slideshow-speed.js';
+import { albumPlace } from '../lib/album-place.js';
+import { formatHebrewDate, hebrewWeekday, formatClock } from '../lib/photo-date.js';
+import { COUNTRIES } from '../lib/countries.js';
+
+const COUNTRY_HE = new Map(COUNTRIES.map((c) => [c.code, c.he]));
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -17,7 +23,35 @@ function escapeHTML(s) {
   }[c]));
 }
 
-export function renderSlideshow({ manifest, error, id, idx, dpr = 1, viewport = 'phone', autoplay = false }) {
+// Info panel: date · weekday · time · country · place · album · position.
+// Rendered inside a <details> so the toggle needs no JS.
+function infoPanel(album, photo, i, total) {
+  const countries = (album.countries || [])
+    .map((c) => COUNTRY_HE.get(c)).filter(Boolean).join(' · ');
+  const place = albumPlace(album.name);
+  const date = formatHebrewDate(photo.capturedAt);
+  const wd = hebrewWeekday(photo.capturedAt);
+  const clock = formatClock(photo.capturedAt);
+  const row = (label, value) => (value
+    ? `<div class="info-row"><dt>${escapeHTML(label)}</dt><dd>${escapeHTML(value)}</dd></div>`
+    : '');
+  return `
+    <details class="slideshow-info">
+      <summary aria-label="פרטי התמונה" title="פרטים">ⓘ</summary>
+      <dl class="info-body">
+        ${row('תאריך', [wd, date].filter(Boolean).join(', '))}
+        ${row('שעה', clock)}
+        ${row('מדינה', countries)}
+        ${row('מקום', place)}
+        ${row('אלבום', album.name)}
+        <div class="info-row"><dt>תמונה</dt><dd dir="ltr">${i + 1} / ${total}</dd></div>
+        ${row('קובץ', photo.name)}
+      </dl>
+    </details>
+  `;
+}
+
+export function renderSlideshow({ manifest, error, id, idx, dpr = 1, viewport = 'phone', autoplay = false, speed = 4000 }) {
   if (error) {
     return `<div class="slideshow-shell">${errorHTML('לא הצלחנו לטעון את התמונה. נסו לרענן.')}</div>`;
   }
@@ -60,11 +94,12 @@ export function renderSlideshow({ manifest, error, id, idx, dpr = 1, viewport = 
   // whether to (re)start the advance timer after each slide render.
   const playGlyph = autoplay ? '❚❚' : '▶';
   const playLabel = autoplay ? 'השהיית מצגת' : 'הפעלת מצגת';
+  const downloadHref = imageUrl(photo.id, 'download');
 
   return `
     <div class="slideshow-shell" data-slideshow
          data-next="${nextHref}" data-prev="${prevHref}" data-exit="${exitHref}"
-         data-autoplay-on="${autoplay ? 'true' : 'false'}">
+         data-autoplay-on="${autoplay ? 'true' : 'false'}" data-speed="${speed}">
       <div class="slideshow-stage">
         <img class="slideshow-photo" src="${src}" alt="${escapeHTML(album.name)} — ${i + 1}"
              decoding="async" fetchpriority="high" onerror="${onerror}">
@@ -75,8 +110,14 @@ export function renderSlideshow({ manifest, error, id, idx, dpr = 1, viewport = 
         <a class="slideshow-close" href="${exitHref}" aria-label="סגירה וחזרה לאלבום">✕</a>
         <button type="button" class="slideshow-play" data-autoplay-toggle
                 aria-label="${playLabel}" aria-pressed="${autoplay ? 'true' : 'false'}">${playGlyph}</button>
+        <button type="button" class="slideshow-speed-btn" data-speed-toggle
+                aria-label="מהירות מצגת">${escapeHTML(speedLabel(speed))}</button>
+        <button type="button" class="slideshow-fs" data-fullscreen-toggle
+                aria-label="מסך מלא">⛶</button>
+        <a class="slideshow-dl" href="${downloadHref}" download="${escapeHTML(photo.name)}"
+           aria-label="הורדת התמונה המקורית">⬇</a>
+        ${infoPanel(album, photo, i, photos.length)}
         <span class="slideshow-counter" dir="ltr">${counter}</span>
-        <span class="slideshow-title">${escapeHTML(album.name)}</span>
       </div>
     </div>
   `;

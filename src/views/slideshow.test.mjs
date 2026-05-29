@@ -112,3 +112,50 @@ test('autoplay defaults to off when not specified', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '2' });
   assert.match(html, /data-autoplay-on="false"/);
 });
+
+test('M9: speed button shows the current speed label + data-speed', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2', speed: 7000 });
+  assert.match(html, /data-speed-toggle/);
+  assert.match(html, /data-speed="7000"/);
+  assert.match(html, /7ש/); // label "7ש'" (apostrophe is HTML-escaped)
+});
+
+test('M9: fullscreen toggle button present', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2' });
+  assert.match(html, /data-fullscreen-toggle/);
+});
+
+test('M9: download link points at the same-origin original + has download attr', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2' });
+  assert.match(html, /class="slideshow-dl"[^>]*href="\/img\/p002\/orig"/);
+  assert.match(html, /download="IMG_0002\.jpg"/);
+});
+
+test('M9: info panel shows Hebrew date, weekday, place, position', () => {
+  const m = {
+    countries: [{ code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [1] }],
+    albums: [{
+      id: 1, name: '01. נפאל - קטמנדו', primary: 'np', countries: ['np'],
+      photos: [{ id: 'pA', name: 'a.jpg', capturedAt: '2011-07-23T14:32:05' }],
+    }],
+  };
+  const html = renderSlideshow({ manifest: m, id: '1', idx: '0' });
+  assert.match(html, /<details class="slideshow-info"/);
+  assert.match(html, /23 ביולי 2011/);
+  assert.match(html, /יום שבת/);
+  assert.match(html, /14:32/);
+  assert.match(html, /נפאל/);     // country
+  assert.match(html, /קטמנדו/);   // place
+});
+
+test('M9: info panel tolerates a photo with no capturedAt (omits date rows)', () => {
+  const m = {
+    countries: [{ code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [1] }],
+    albums: [{ id: 1, name: '01. נפאל - קטמנדו', primary: 'np', countries: ['np'],
+      photos: [{ id: 'pA', name: 'a.jpg' /* no capturedAt */ }] }],
+  };
+  const html = renderSlideshow({ manifest: m, id: '1', idx: '0' });
+  // still renders the panel + position, just no date row
+  assert.match(html, /<details class="slideshow-info"/);
+  assert.match(html, /1 \/ 1/);
+});
