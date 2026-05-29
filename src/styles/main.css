@@ -415,7 +415,20 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   top: 0;
   bottom: 0;
   width: 40%;
-  /* no visible style; just a big touch/click target */
+  /* Invisible click/touch target. The random slideshow renders these zones as
+     <button> (JS-driven nav), and a bare <button> paints the UA default
+     ButtonFace background (~#f0f0f0) — which covered 80% of the photo area in
+     pale grey. Reset every UA control style so the dark shell shows through and
+     the full, uncropped photo reads edge-to-edge. */
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
 }
 .slideshow-zone-next { inset-inline-start: 0; }   /* left in RTL */
 .slideshow-zone-prev { inset-inline-end: 0; }      /* right in RTL */
