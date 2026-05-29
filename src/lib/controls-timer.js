@@ -12,3 +12,14 @@ export function shouldHide({ lastActivityAt, now, hoveringBar = false, hideAfter
   if (hoveringBar) return false;
   return (now - lastActivityAt) >= hideAfterMs;
 }
+
+// Whether the control bar should be VISIBLE right now (M11).
+//   - Not fullscreen → always visible (the bar is constant, below the photo).
+//   - Fullscreen → visible unless idle past the hide window (and not hovering
+//     the bar). `lastActivityAt` is the last REAL pointer activity — it is
+//     NOT reset when a new slide renders, which fixes the bug where autoplay
+//     kept the bar permanently on screen.
+export function controlsVisible({ fullscreen, lastActivityAt, now, hoveringBar = false, hideAfterMs = CONTROLS_HIDE_MS }) {
+  if (!fullscreen) return true;
+  return !shouldHide({ lastActivityAt, now, hoveringBar, hideAfterMs });
+}

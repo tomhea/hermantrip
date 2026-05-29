@@ -1,0 +1,455 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (0.5796ms)
+✔ empty input returns empty array (1.1214ms)
+✔ no collisions: one entry per folder, folderIds wraps the source (0.2738ms)
+✔ same id: photos concatenated, both folderIds tracked (0.1026ms)
+✔ same id: first folder name wins (lex order preserves "Bhagsu 1") (0.8129ms)
+✔ mixed: some collide, some do not (0.2575ms)
+✔ does not mutate input photos arrays (0.1251ms)
+▶ extractAlbumNumber — common patterns
+  ✔ "01" → 1 (0.834ms)
+  ✔ "1" → 1 (0.2853ms)
+  ✔ "01 קטמנדו" → 1 (0.2299ms)
+  ✔ "1 - דהלי" → 1 (0.1531ms)
+  ✔ "1. דהלי" → 1 (0.1976ms)
+  ✔ "1-עלייה לאוורסט" → 1 (0.1645ms)
+  ✔ "37 - יאנגשואו" → 37 (0.1494ms)
+  ✔ "037 - sometext" → 37 (0.1266ms)
+  ✔ "88 פוקט" → 88 (0.2027ms)
+  ✔ "88" → 88 (0.2423ms)
+  ✔ "14a" → 14 (0.1367ms)
+  ✔ "14a. הודו - באגסו 2" → 14 (0.1078ms)
+✔ extractAlbumNumber — common patterns (4.4974ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✔ ".temp" → null (1.0551ms)
+  ✔ ".temp_1" → null (0.1448ms)
+  ✔ ".temp_2" → null (0.1352ms)
+  ✔ ".temp_3" → null (0.0685ms)
+  ✔ ".hidden" → null (0.0655ms)
+  ✔ "export" → null (0.0585ms)
+  ✔ "Export" → null (0.0644ms)
+  ✔ "EXPORT" → null (0.056ms)
+  ✔ "exports" → null (0.0613ms)
+✔ extractAlbumNumber — ignored folders return null (2.0563ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✔ "תיאור בלי מספר" → null (0.1544ms)
+  ✔ "random folder" → null (0.0632ms)
+  ✔ "a01" → null (0.0516ms)
+  ✔ "_01" → null (0.0534ms)
+  ✔ "" → null (0.0691ms)
+✔ extractAlbumNumber — names without leading digits return null (0.5952ms)
+✔ extractAlbumNumber strips leading zeros (0.0998ms)
+✔ strips "NN. {country} - " prefix, returns the place (0.7929ms)
+✔ album 1 "ההתחלה - בנגקוק וקטמנדו" → place after the dash (0.1125ms)
+✔ no " - " separator → cleaned remainder (number prefix stripped) (0.0807ms)
+✔ handles the "NNa." merged-folder prefix (0.1243ms)
+✔ takes text after the LAST dash when multiple (0.1083ms)
+✔ trims surrounding whitespace (0.0767ms)
+✔ empty / non-string → empty string (0.1442ms)
+✔ name with only a number → empty (0.0965ms)
+✔ albumsForCountry returns albums where code is in countries[], sorted by id (1.3628ms)
+✔ albumsForCountry includes cross-country albums (0.3968ms)
+✔ albumsForCountry for thailand returns [1, 19] sorted (0.2025ms)
+✔ albumsForCountry unknown country returns empty array (0.1291ms)
+✔ albumsForCountry does not mutate manifest.albums order (0.1395ms)
+✔ albumById returns the matching album (0.1306ms)
+✔ albumById accepts string id (router params are strings) (0.0756ms)
+✔ albumById unknown id returns null (0.0948ms)
+✔ albumById non-numeric string returns null (0.2048ms)
+✔ CONTROLS_HIDE_MS is 5 seconds (0.7012ms)
+✔ hides once idle ≥ hide window (0.9444ms)
+✔ stays visible while still within the window (0.0991ms)
+✔ never hides while the pointer is over the bar (0.082ms)
+✔ respects a custom hideAfterMs (0.202ms)
+✔ exactly at the boundary hides (>= window) (0.122ms)
+▶ controlsVisible
+  ✖ NOT fullscreen → always visible, even after long idle (3.235ms)
+  ✖ NOT fullscreen → visible regardless of hovering (0.3449ms)
+  ✖ fullscreen + recent activity → visible (0.322ms)
+  ✖ fullscreen + idle past window → hidden (0.4478ms)
+  ✖ fullscreen + hovering bar → visible even when idle (0.2614ms)
+✖ controlsVisible (5.1873ms)
+✔ COUNTRY_ORDER lists the seven countries in trip order (1.328ms)
+✔ COUNTRIES exposes Hebrew + English names for every code (0.4617ms)
+▶ assignAlbumToCountries — single-country
+  ✔ album 5 → only [np], primary np (0.4091ms)
+  ✔ album 12 → only [in], primary in (0.0978ms)
+  ✔ album 25 → only [vn], primary vn (0.1166ms)
+  ✔ album 34 → only [cn], primary cn (0.1377ms)
+  ✔ album 45 → only [au], primary au (0.2044ms)
+  ✔ album 65 → only [nz], primary nz (0.1463ms)
+  ✔ album 80 → only [th], primary th (0.1436ms)
+  ✔ album 19 → only [th], primary th (0.2114ms)
+✔ assignAlbumToCountries — single-country (2.2135ms)
+✔ album 1 is Nepal + Thailand, primary Nepal (0.1633ms)
+✔ album 37 is China + Australia + Thailand, primary China (0.1458ms)
+▶ assignAlbumToCountries — range boundaries
+  ✔ album 7 → [np] (1.1143ms)
+  ✔ album 8 → [in] (0.1582ms)
+  ✔ album 18 → [in] (0.1061ms)
+  ✔ album 20 → [vn] (0.0526ms)
+  ✔ album 29 → [vn] (0.0422ms)
+  ✔ album 30 → [cn] (0.0403ms)
+  ✔ album 38 → [au] (0.0379ms)
+  ✔ album 53 → [au] (0.0395ms)
+  ✔ album 54 → [nz] (0.0413ms)
+  ✔ album 76 → [nz] (0.0616ms)
+  ✔ album 77 → [th] (0.0403ms)
+  ✔ album 88 → [th] (0.0391ms)
+✔ assignAlbumToCountries — range boundaries (2.1437ms)
+✔ album with no country range throws loudly (0.6681ms)
+✔ non-positive album throws (0.1321ms)
+✔ returns first photo of lowest-id primary album (0.7321ms)
+✔ Thailand uses album 19 (its lowest primary), not album 1 (Nepal primary) (0.1232ms)
+✔ country with no primary albums returns null (0.0732ms)
+✔ unknown country returns null (0.1257ms)
+✔ country whose primary album has no photos falls through to next primary album (0.1473ms)
+✔ country with all-empty primary albums returns null (0.0875ms)
+✔ does not mutate manifest (0.1123ms)
+✔ thumb intent: /img/{id}/140 at DPR 1 (1.2636ms)
+✔ thumb intent: /280 at DPR 2 (0.1801ms)
+✔ thumb intent caps at 280 even at DPR 3 (0.1931ms)
+✔ card intent: /360 at DPR 1 (preview hero) (0.0902ms)
+✔ card intent: /720 at DPR 2 (0.1133ms)
+✔ card intent caps at 720 even at DPR 3 (0.1436ms)
+✔ pin intent: /120 default (0.0962ms)
+✔ pin intent caps at 240 at high DPR (0.0873ms)
+✔ slide on phone: /520 at DPR 1 (0.1071ms)
+✔ slide on phone DPR 2: /1040 (0.2174ms)
+✔ slide on phone caps at 1080 at DPR 3 (0.1362ms)
+✔ slide on tablet: /760 baseline (0.0744ms)
+✔ slide on desktop: /920 baseline (0.0767ms)
+✔ slide on desktop DPR 2: /1840 (0.0962ms)
+✔ slide on desktop caps at 2000 at DPR 3 (0.0578ms)
+✔ original intent: /2400 regardless of DPR (0.1067ms)
+✔ download intent: /img/{id}/orig (full original, server adds attachment header) (0.0655ms)
+✔ emits NO raw Google URL (same-origin only) (0.329ms)
+✔ unknown intent throws (1.1377ms)
+✔ missing fileId throws (0.1794ms)
+✔ fileId with special URL chars is rejected (0.148ms)
+▶ parseImgPath
+  ✔ width path → { id, size } (1.111ms)
+  ✔ orig path → { id, size: "orig" } (0.1599ms)
+  ✔ id with - and _ accepted (0.1157ms)
+  ✔ non-/img path → null (0.1142ms)
+  ✔ bad size (not digits/orig) → null (0.0933ms)
+  ✔ path traversal / extra segments → null (0.0878ms)
+  ✔ id with illegal chars → null (no upstream injection) (0.0757ms)
+✔ parseImgPath (2.6188ms)
+▶ lh3UrlFor
+  ✔ numeric size → =w{size} (0.1279ms)
+  ✔ orig → =s0 (full original) (0.0833ms)
+✔ lh3UrlFor (0.3559ms)
+▶ client URLs round-trip through the server parser
+  ✔ server parses client URL /img/FILE1/280 (0.3446ms)
+  ✔ server parses client URL /img/FILE2/720 (0.1008ms)
+  ✔ server parses client URL /img/FILE3/1040 (0.0885ms)
+  ✔ server parses client URL /img/FILE4/orig (0.102ms)
+✔ client URLs round-trip through the server parser (0.7725ms)
+✔ default loading text is Hebrew "טוען..." (1.2683ms)
+✔ default error text is Hebrew and not auto-translated (0.2754ms)
+✔ loadingHTML uses default text (0.2668ms)
+✔ loadingHTML uses custom text (0.1393ms)
+✔ loadingHTML includes role="status" for assistive tech (0.1009ms)
+✔ loadingHTML includes aria-live="polite" (0.0678ms)
+✔ errorHTML uses default text (0.1181ms)
+✔ errorHTML uses custom text (0.0857ms)
+✔ errorHTML includes role="alert" (0.1212ms)
+✔ escapes HTML special chars in custom text to prevent XSS (0.2163ms)
+✔ empty array returns empty (1.1388ms)
+✔ already-sorted returns equivalent order (0.2312ms)
+✔ reverse-sorted gets sorted (0.1013ms)
+✔ numeric suffixes sort lexicographically (NOT numerically) (0.7362ms)
+✔ case-sensitive: uppercase comes before lowercase (0.1254ms)
+✔ does not mutate input array (0.1081ms)
+✔ returns a new array, not the original (0.112ms)
+✔ formatHebrewDate: "23 ביולי 2011" (ב-prefixed month) (0.7467ms)
+✔ formatHebrewDate: handles each month prefix (0.8784ms)
+✔ formatHebrewDate: no leading zero on day (0.1591ms)
+✔ formatHebrewDate: null/garbage → empty string (0.1124ms)
+✔ hebrewWeekday: known dates (0.1273ms)
+✔ hebrewWeekday: midweek (0.0863ms)
+✔ hebrewWeekday: null → empty (0.0603ms)
+✔ formatClock: "14:32" (0.1027ms)
+✔ formatClock: pads single-digit hour/minute (0.1592ms)
+✔ formatClock: null → empty (0.248ms)
+✔ builds an img with the same-origin /img/ thumb URL for the given intent (1.6416ms)
+✔ passes dpr through to the URL (0.2365ms)
+✔ passes viewport through for slide intent (0.1438ms)
+✔ never emits a raw Google URL (same-origin only) (0.4297ms)
+✔ includes loading="lazy" by default (R5) (0.2564ms)
+✔ eager loading when loading:"eager" passed (first paint above the fold) (0.1496ms)
+✔ no fetchpriority attribute by default (0.1868ms)
+✔ fetchpriority="high" emitted when priority:"high" passed (on-screen images) (0.1796ms)
+✔ onerror tags the element for the CSS placeholder (no thumbnailLink hop needed now) (0.2389ms)
+✔ applies a custom className (11.1657ms)
+✔ default className is "photo" (0.2165ms)
+✔ alt defaults to empty (decorative) and is escaped when provided (0.1301ms)
+✔ decoding="async" is set (0.0851ms)
+✔ rejects a malformed photo id (cannot break out of the attribute) (0.2375ms)
+✔ extractPhotoMeta — full record with EXIF (0.6824ms)
+✔ extractPhotoMeta — missing EXIF leaves capturedAt null (0.1201ms)
+✔ extractPhotoMeta — imageMediaMetadata present but no time (0.0823ms)
+✔ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.1366ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.1423ms)
+▶ parseHash
+  ✔ "" → "/" (0.597ms)
+  ✔ "#" → "/" (0.1036ms)
+  ✔ "#/" → "/" (0.0695ms)
+  ✔ "#/country/np" → "/country/np" (0.073ms)
+  ✔ "#/album/5" → "/album/5" (0.0699ms)
+  ✔ "#/album/5/slide/12" → "/album/5/slide/12" (0.0545ms)
+  ✔ "/country/np" → "/country/np" (0.0813ms)
+  ✔ "#country/np" → "/country/np" (0.0522ms)
+  ✔ "#/random" → "/random" (0.0879ms)
+✔ parseHash (2.1064ms)
+▶ createRouter — static routes
+  ✔ matches home route (0.8807ms)
+  ✔ matches map route (0.1021ms)
+  ✔ unknown path returns null (0.06ms)
+✔ createRouter — static routes (1.1976ms)
+▶ createRouter — param routes
+  ✔ single param (0.1428ms)
+  ✔ two params (0.1273ms)
+  ✔ static segment after param (0.2984ms)
+  ✔ decodes URI components in params (0.9532ms)
+  ✔ extra segments do not match shorter pattern (0.0808ms)
+  ✔ first matching route wins (0.0555ms)
+✔ createRouter — param routes (1.8354ms)
+▶ clampIndex
+  ✔ in-range index unchanged (0.5381ms)
+  ✔ negative clamps to 0 (0.0988ms)
+  ✔ over-length clamps to last (0.086ms)
+  ✔ non-integer string parses (0.0962ms)
+  ✔ garbage clamps to 0 (0.0875ms)
+  ✔ empty album → 0 (0.0791ms)
+✔ clampIndex (1.7924ms)
+▶ nextIndex (wraps by default)
+  ✔ advances by one (0.1399ms)
+  ✔ wraps last → first (0.1069ms)
+  ✔ no-wrap stays at last (0.094ms)
+✔ nextIndex (wraps by default) (0.5063ms)
+▶ prevIndex (wraps by default)
+  ✔ goes back by one (0.3562ms)
+  ✔ wraps first → last (0.1287ms)
+  ✔ no-wrap stays at first (0.9511ms)
+✔ prevIndex (wraps by default) (1.5716ms)
+▶ keyToAction (RTL: ArrowLeft = next)
+  ✔ ArrowLeft → next (0.1511ms)
+  ✔ ArrowRight → prev (0.0441ms)
+  ✔ Escape → exit (0.0314ms)
+  ✔ spacebar → next (0.0265ms)
+  ✔ unrelated key → null (0.0353ms)
+✔ keyToAction (RTL: ArrowLeft = next) (0.4096ms)
+▶ swipeToAction (RTL: rightward = next)
+  ✔ big rightward swipe → next (0.1057ms)
+  ✔ big leftward swipe → prev (0.0729ms)
+  ✔ tiny movement below threshold → null (0.0495ms)
+  ✔ custom threshold respected (0.037ms)
+✔ swipeToAction (RTL: rightward = next) (0.3636ms)
+▶ preloadIndices (±2 neighbours, default radius 2)
+  ✔ middle of a large album → the 2 before + 2 after, current excluded (0.687ms)
+  ✔ near the start wraps around to the end (0.0988ms)
+  ✔ near the end wraps to the start (0.0636ms)
+  ✔ never includes the current index (0.0538ms)
+  ✔ small album (3 photos) → the other 2, no dupes, no current (0.0849ms)
+  ✔ two-photo album → just the other one (0.0441ms)
+  ✔ single-photo album → nothing to preload (0.0301ms)
+  ✔ empty album → empty (0.0264ms)
+  ✔ custom radius 1 → just ±1 (0.0519ms)
+✔ preloadIndices (±2 neighbours, default radius 2) (1.2895ms)
+✔ SPEEDS are ascending second-multiples in ms (1.0872ms)
+✔ nextSpeed cycles to the next speed (0.1333ms)
+✔ nextSpeed wraps from last back to first (0.0797ms)
+✔ nextSpeed with an unknown value returns the first speed (0.9365ms)
+✔ speedLabel shows seconds with a Hebrew suffix (0.2068ms)
+✔ the default 4s interval (M7) is one of the options (0.1006ms)
+✔ same-origin HTML navigation → network-first (0.6913ms)
+✔ same-origin JS / CSS → network-first (so code updates are never stale) (0.1274ms)
+✔ the manifest is always bypassed (must be fresh, never cache-served) (0.9032ms)
+✔ cross-origin photo (lh3) → bypass (0.2241ms)
+✔ same-origin proxied photo (/img/...) → bypass (not in shell cache) (0.2712ms)
+✔ cross-origin font (gstatic) → bypass (0.1504ms)
+✔ localhost dev origin also resolves shell as network-first (0.1238ms)
+✔ query strings on the manifest still bypass (0.0818ms)
+✔ query strings target the documented breakpoints (0.5726ms)
+✔ isPhone true when matchMedia matches PHONE_QUERY (0.1307ms)
+✔ isPhone false when only desktop matches (0.0756ms)
+✔ isTablet true only at tablet breakpoint (0.0781ms)
+✔ isDesktop true only at desktop breakpoint (0.7701ms)
+✔ happy path: renders album name as title (12.9695ms)
+✔ happy path: renders one img per photo (0.2679ms)
+✔ happy path: first 12 are eager, rest lazy (R5 first-paint budget) (0.1903ms)
+✔ happy path: photos are in lexicographic filename order (0.1867ms)
+✔ happy path: each photo links to its slide route (0.1342ms)
+✔ happy path: includes a back link to the country (0.1021ms)
+✔ empty album shows a "no photos" message (0.0841ms)
+✔ loading state when manifest is null (0.1043ms)
+✔ fetch-failed state renders errorHTML (0.1294ms)
+✔ unknown album shows a not-found message + back link home (0.6658ms)
+✔ happy path: renders country name as title (12.9676ms)
+✔ happy path: one card per album with album name + photo count (0.1938ms)
+✔ happy path: photo counts are shown (0.117ms)
+✔ happy path: each album card uses its first photo via the same-origin /img/ proxy (0.196ms)
+✔ happy path: includes a back link to home (0.147ms)
+✔ loading state when manifest is null (0.1293ms)
+✔ fetch-failed state renders errorHTML (0.0997ms)
+✔ unknown country shows a not-found message + back link (0.0784ms)
+✔ escapes album names to prevent XSS (0.154ms)
+✔ happy path: renders header + grid with one card per country (13.6128ms)
+✔ happy path: each card has a same-origin /img/ card image (0.2636ms)
+✔ happy path: card image never emits a raw Google URL (0.1778ms)
+✔ happy path: image uses loading="lazy" (R5 budget) (0.1163ms)
+✔ happy path: image onerror shows the placeholder (no thumbnailLink hop) (0.1423ms)
+✔ happy path: DPR is passed through to image URL (0.1075ms)
+✔ fetch-failed state: renders errorHTML (0.1461ms)
+✔ loading state: renders loadingHTML when manifest is null + no error (0.1061ms)
+✔ empty-manifest state: renders empty message when countries=[] (0.1095ms)
+✔ empty-manifest state: also when countries is missing (0.2292ms)
+✔ country with no thumb falls back to placeholder div (0.135ms)
+✔ escapes country names to prevent XSS (0.1083ms)
+✔ renders the photo at the given index via slide intent (same-origin /img/) (1.3494ms)
+✔ desktop viewport requests the larger slide width (0.2154ms)
+✔ shows a 1-based position counter (idx 2 of 5 → "3 / 5") (0.2863ms)
+✔ next link wraps last → first (0.1321ms)
+✔ prev link wraps first → last (0.3971ms)
+✔ middle index links to both neighbours (0.2592ms)
+✔ exit/close link returns to the album grid (0.7488ms)
+✔ out-of-range index is clamped (idx 99 → shows last photo p004) (0.1761ms)
+✔ negative index clamps to first (0.1653ms)
+✔ loading state when manifest null (0.2025ms)
+✔ fetch-failed state renders errorHTML (0.1692ms)
+✔ unknown album → not-found + home link (0.0768ms)
+✔ empty album → message + back link, no crash (0.0512ms)
+✔ carries data-slideshow hooks for keyboard/swipe wiring (0.1611ms)
+✔ renders a play button (data-autoplay-toggle) when autoplay is off (0.161ms)
+✔ shows pause affordance when autoplay is on (0.1339ms)
+✔ autoplay defaults to off when not specified (0.0564ms)
+✔ M9: speed button shows the current speed label + data-speed (0.1007ms)
+✔ M9: fullscreen toggle button present (0.0834ms)
+✔ M9: download link points at the same-origin original + has download attr (0.1518ms)
+✔ M9: info panel shows Hebrew date, weekday, place, position (0.2219ms)
+✔ M9: info panel tolerates a photo with no capturedAt (omits date rows) (0.085ms)
+ℹ tests 295
+ℹ suites 18
+ℹ pass 290
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 344.6798
+
+✖ failing tests:
+
+test at src\lib\controls-timer.test.mjs:33:3
+✖ NOT fullscreen → always visible, even after long idle (3.235ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  null !== true
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/controls-timer.test.mjs:34:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\controls-timer.test.mjs:36:3
+✖ NOT fullscreen → visible regardless of hovering (0.3449ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  null !== true
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/controls-timer.test.mjs:37:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\controls-timer.test.mjs:39:3
+✖ fullscreen + recent activity → visible (0.322ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  null !== true
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/controls-timer.test.mjs:40:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\controls-timer.test.mjs:42:3
+✖ fullscreen + idle past window → hidden (0.4478ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  null !== false
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/controls-timer.test.mjs:43:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\controls-timer.test.mjs:45:3
+✖ fullscreen + hovering bar → visible even when idle (0.2614ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  null !== true
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/controls-timer.test.mjs:46:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

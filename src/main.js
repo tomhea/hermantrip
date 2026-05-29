@@ -6,7 +6,7 @@
 import { parseHash, createRouter } from './lib/router.js';
 import { keyToAction, swipeToAction, preloadIndices } from './lib/slideshow-nav.js';
 import { nextSpeed } from './lib/slideshow-speed.js';
-import { shouldHide, CONTROLS_HIDE_MS } from './lib/controls-timer.js';
+import { controlsVisible, CONTROLS_HIDE_MS } from './lib/controls-timer.js';
 import { albumById } from './lib/album-query.js';
 import { sortPhotosByFilename } from './lib/ordering.js';
 import { imageUrl } from './lib/image-url.js';
@@ -184,7 +184,7 @@ function wireSlideshow() {
     });
   }
 
-  wireAutoHideControls(shell);
+  wireControls(shell);
 
   // (Re)schedule the auto-advance while autoplay is on. Each slide render
   // sets a fresh timer; navigating away clears it (see render()).
@@ -194,42 +194,57 @@ function wireSlideshow() {
   }
 }
 
-// Overlay controls that auto-hide after CONTROLS_HIDE_MS of pointer idle and
-// reveal on mouse move / tap, staying put while the pointer is over the bar
-// (M10). Applied every render; the per-render timer is tracked at module
-// scope so it survives nothing — each render arms a fresh one.
-let controlsHideTimer = null;
-function wireAutoHideControls(shell) {
-  const bar = shell.querySelector('.slideshow-bar');
-  if (!bar) return;
-  let lastActivityAt = performance.now();
-  let hoveringBar = false;
+// Control-bar visibility (M10 + M11).
+//   - NOT fullscreen: the bar is CONSTANT (always shown, below the photo).
+//   - Fullscreen: the bar auto-hides CONTROLS_HIDE_MS after the LAST REAL
+//     pointer activity (mouse move / tap / hovering the bar) — crucially NOT
+//     reset by slide re-renders, so autoplay no longer keeps it pinned on.
+// Activity state lives at module scope so it persists across the innerHTML
+// re-render that every slide advance performs.
+let lastPointerActivityAt = 0;
+let hoveringBar = false;
+let controlsPollTimer = null;
 
-  const reveal = () => {
-    lastActivityAt = performance.now();
-    shell.classList.add('controls-visible');
-    schedule();
-  };
-  const schedule = () => {
-    if (controlsHideTimer !== null) clearTimeout(controlsHideTimer);
-    controlsHideTimer = setTimeout(tick, CONTROLS_HIDE_MS + 50);
-  };
-  const tick = () => {
-    if (shouldHide({ lastActivityAt, now: performance.now(), hoveringBar })) {
-      shell.classList.remove('controls-visible');
-    } else {
-      schedule(); // still hovering or recent activity — check again later
-    }
-  };
-
-  shell.addEventListener('mousemove', reveal);
-  shell.addEventListener('touchstart', reveal, { passive: true });
-  bar.addEventListener('mouseenter', () => { hoveringBar = true; reveal(); });
-  bar.addEventListener('mouseleave', () => { hoveringBar = false; reveal(); });
-
-  // Reveal on entry so the controls are discoverable, then let them fade.
-  reveal();
+function applyControls() {
+  const shell = app.querySelector('[data-slideshow]');
+  if (!shell) return;
+  const fs = !!document.fullscreenElement;
+  shell.classList.toggle('is-fullscreen', fs);
+  const vis = controlsVisible({
+    fullscreen: fs, lastActivityAt: lastPointerActivityAt,
+    now: performance.now(), hoveringBar,
+  });
+  shell.classList.toggle('controls-visible', vis);
+  // While fullscreen + visible, keep polling so it hides once idle elapses.
+  if (controlsPollTimer !== null) { clearTimeout(controlsPollTimer); controlsPollTimer = null; }
+  if (fs && vis) controlsPollTimer = setTimeout(applyControls, 400);
 }
+
+function noteActivity() {
+  lastPointerActivityAt = performance.now();
+  applyControls();
+}
+
+function wireControls(shell) {
+  shell.addEventListener('mousemove', noteActivity);
+  shell.addEventListener('touchstart', noteActivity, { passive: true });
+  const bar = shell.querySelector('.slideshow-bar');
+  if (bar) {
+    bar.addEventListener('mouseenter', () => { hoveringBar = true; noteActivity(); });
+    bar.addEventListener('mouseleave', () => { hoveringBar = false; noteActivity(); });
+  }
+  // Apply persisted state to this freshly-rendered shell WITHOUT resetting
+  // the activity clock (the bug fix). In non-fullscreen this shows the
+  // constant bar; in fullscreen it respects time since the last real move.
+  applyControls();
+}
+
+// Entering/leaving fullscreen: reveal for the hide window on entry, and
+// re-apply (constant bar) on exit.
+document.addEventListener('fullscreenchange', () => {
+  if (document.fullscreenElement) lastPointerActivityAt = performance.now();
+  applyControls();
+});
 
 // One global keyboard listener; acts only while a slideshow is mounted.
 window.addEventListener('keydown', (e) => {
