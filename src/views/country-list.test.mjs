@@ -19,8 +19,8 @@ test('happy path: renders header + grid with one card per country', () => {
   const html = renderCountryList({ manifest });
   assert.match(html, /class="display">הרמן בדרכים/);
   assert.match(html, /class="country-grid"/);
-  assert.match(html, /href="#\/country\/np"/);
-  assert.match(html, /href="#\/country\/th"/);
+  assert.match(html, /href="\/nepal"/);
+  assert.match(html, /href="\/thailand"/);
   assert.match(html, /נפאל/);
   assert.match(html, /תאילנד/);
 });

@@ -1,0 +1,1174 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (0.8398ms)
+✔ empty input returns empty array (3.27ms)
+✔ no collisions: one entry per folder, folderIds wraps the source (0.655ms)
+✔ same id: photos concatenated, both folderIds tracked (0.2839ms)
+✔ same id: first folder name wins (lex order preserves "Bhagsu 1") (1.4067ms)
+✔ mixed: some collide, some do not (0.5425ms)
+✔ does not mutate input photos arrays (0.3425ms)
+▶ extractAlbumNumber — common patterns
+  ✔ "01" → 1 (1.206ms)
+  ✔ "1" → 1 (0.2669ms)
+  ✔ "01 קטמנדו" → 1 (0.1775ms)
+  ✔ "1 - דהלי" → 1 (0.125ms)
+  ✔ "1. דהלי" → 1 (0.1416ms)
+  ✔ "1-עלייה לאוורסט" → 1 (0.1208ms)
+  ✔ "37 - יאנגשואו" → 37 (0.1041ms)
+  ✔ "037 - sometext" → 37 (0.1159ms)
+  ✔ "88 פוקט" → 88 (0.1565ms)
+  ✔ "88" → 88 (0.222ms)
+  ✔ "14a" → 14 (0.1266ms)
+  ✔ "14a. הודו - באגסו 2" → 14 (0.0766ms)
+✔ extractAlbumNumber — common patterns (4.6661ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✔ ".temp" → null (0.2858ms)
+  ✔ ".temp_1" → null (1.3321ms)
+  ✔ ".temp_2" → null (0.105ms)
+  ✔ ".temp_3" → null (0.0646ms)
+  ✔ ".hidden" → null (0.0393ms)
+  ✔ "export" → null (0.0332ms)
+  ✔ "Export" → null (0.0337ms)
+  ✔ "EXPORT" → null (0.056ms)
+  ✔ "exports" → null (0.0804ms)
+✔ extractAlbumNumber — ignored folders return null (2.3192ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✔ "תיאור בלי מספר" → null (0.1348ms)
+  ✔ "random folder" → null (0.0351ms)
+  ✔ "a01" → null (0.0346ms)
+  ✔ "_01" → null (0.0298ms)
+  ✔ "" → null (0.0874ms)
+✔ extractAlbumNumber — names without leading digits return null (0.4515ms)
+✔ extractAlbumNumber strips leading zeros (0.1788ms)
+✔ strips "NN. {country} - " prefix, returns the place (1.5801ms)
+✔ album 1 "ההתחלה - בנגקוק וקטמנדו" → place after the dash (0.296ms)
+✔ no " - " separator → cleaned remainder (number prefix stripped) (0.1976ms)
+✔ handles the "NNa." merged-folder prefix (0.4021ms)
+✔ takes text after the LAST dash when multiple (0.3657ms)
+✔ trims surrounding whitespace (0.2861ms)
+✔ empty / non-string → empty string (0.4777ms)
+✔ name with only a number → empty (0.3641ms)
+✔ albumsForCountry returns albums where code is in countries[], sorted by id (3.8187ms)
+✔ albumsForCountry includes cross-country albums (0.8576ms)
+✔ albumsForCountry for thailand returns [1, 19] sorted (0.4089ms)
+✔ albumsForCountry unknown country returns empty array (0.2902ms)
+✔ albumsForCountry does not mutate manifest.albums order (0.3361ms)
+✔ albumById returns the matching album (0.4585ms)
+✔ albumById accepts string id (router params are strings) (0.1934ms)
+✔ albumById unknown id returns null (0.1583ms)
+✔ albumById non-numeric string returns null (0.2604ms)
+✔ CONTROLS_HIDE_MS is 5 seconds (2.1122ms)
+✔ hides once idle ≥ hide window (1.8845ms)
+✔ stays visible while still within the window (0.3699ms)
+✔ never hides while the pointer is over the bar (0.3196ms)
+✔ respects a custom hideAfterMs (0.3744ms)
+✔ exactly at the boundary hides (>= window) (0.2684ms)
+▶ controlsVisible
+  ✔ NOT fullscreen → always visible, even after long idle (0.5524ms)
+  ✔ NOT fullscreen → visible regardless of hovering (0.4037ms)
+  ✔ fullscreen + recent activity → visible (0.342ms)
+  ✔ fullscreen + idle past window → hidden (0.4409ms)
+  ✔ fullscreen + hovering bar → visible even when idle (0.255ms)
+✔ controlsVisible (2.8767ms)
+▶ slug ↔ code (M12)
+  ✔ every country has a unique non-empty slug (1.5844ms)
+  ✔ slugFromCode (0.2699ms)
+  ✔ codeFromSlug (0.2153ms)
+  ✔ codeFromSlug unknown → null (0.191ms)
+  ✔ round-trips for every country (0.2912ms)
+✔ slug ↔ code (M12) (4.3217ms)
+✔ COUNTRY_ORDER lists the seven countries in trip order (0.9132ms)
+✔ COUNTRIES exposes Hebrew + English names for every code (0.2354ms)
+▶ assignAlbumToCountries — single-country
+  ✔ album 5 → only [np], primary np (0.4322ms)
+  ✔ album 12 → only [in], primary in (0.1715ms)
+  ✔ album 25 → only [vn], primary vn (0.3336ms)
+  ✔ album 34 → only [cn], primary cn (0.1847ms)
+  ✔ album 45 → only [au], primary au (0.2826ms)
+  ✔ album 65 → only [nz], primary nz (0.0852ms)
+  ✔ album 80 → only [th], primary th (0.0517ms)
+  ✔ album 19 → only [th], primary th (0.1568ms)
+✔ assignAlbumToCountries — single-country (3.3883ms)
+✔ album 1 is Nepal + Thailand, primary Nepal (0.1744ms)
+✔ album 37 is China + Australia + Thailand, primary China (0.1472ms)
+▶ assignAlbumToCountries — range boundaries
+  ✔ album 7 → [np] (0.2527ms)
+  ✔ album 8 → [in] (0.0951ms)
+  ✔ album 18 → [in] (0.0612ms)
+  ✔ album 20 → [vn] (0.0819ms)
+  ✔ album 29 → [vn] (0.0658ms)
+  ✔ album 30 → [cn] (0.0644ms)
+  ✔ album 38 → [au] (0.0768ms)
+  ✔ album 53 → [au] (0.0674ms)
+  ✔ album 54 → [nz] (0.0657ms)
+  ✔ album 76 → [nz] (0.1165ms)
+  ✔ album 77 → [th] (0.0913ms)
+  ✔ album 88 → [th] (0.0752ms)
+✔ assignAlbumToCountries — range boundaries (1.5955ms)
+✔ album with no country range throws loudly (0.883ms)
+✔ non-positive album throws (0.2184ms)
+✔ returns first photo of lowest-id primary album (1.1982ms)
+✔ Thailand uses album 19 (its lowest primary), not album 1 (Nepal primary) (0.1778ms)
+✔ country with no primary albums returns null (0.1169ms)
+✔ unknown country returns null (0.3321ms)
+✔ country whose primary album has no photos falls through to next primary album (0.4826ms)
+✔ country with all-empty primary albums returns null (0.2596ms)
+✔ does not mutate manifest (0.3323ms)
+✔ thumb intent: /img/{id}/140 at DPR 1 (2.6891ms)
+✔ thumb intent: /280 at DPR 2 (0.4693ms)
+✔ thumb intent caps at 280 even at DPR 3 (0.334ms)
+✔ card intent: /360 at DPR 1 (preview hero) (0.2922ms)
+✔ card intent: /720 at DPR 2 (0.3375ms)
+✔ card intent caps at 720 even at DPR 3 (0.3787ms)
+✔ pin intent: /120 default (0.2829ms)
+✔ pin intent caps at 240 at high DPR (0.316ms)
+✔ slide on phone: /520 at DPR 1 (0.3447ms)
+✔ slide on phone DPR 2: /1040 (0.5319ms)
+✔ slide on phone caps at 1080 at DPR 3 (0.3673ms)
+✔ slide on tablet: /760 baseline (0.207ms)
+✔ slide on desktop: /920 baseline (0.2049ms)
+✔ slide on desktop DPR 2: /1840 (0.2844ms)
+✔ slide on desktop caps at 2000 at DPR 3 (0.2591ms)
+✔ original intent: /2400 regardless of DPR (0.3227ms)
+✔ download intent: /img/{id}/orig (full original, server adds attachment header) (0.1877ms)
+✔ emits NO raw Google URL (same-origin only) (0.4705ms)
+✔ unknown intent throws (0.7967ms)
+✔ missing fileId throws (1.4441ms)
+✔ fileId with special URL chars is rejected (0.2987ms)
+▶ parseImgPath
+  ✔ width path → { id, size } (2.5872ms)
+  ✔ orig path → { id, size: "orig" } (0.4009ms)
+  ✔ id with - and _ accepted (0.3503ms)
+  ✔ non-/img path → null (0.2912ms)
+  ✔ bad size (not digits/orig) → null (0.2298ms)
+  ✔ path traversal / extra segments → null (0.2675ms)
+  ✔ id with illegal chars → null (no upstream injection) (0.2611ms)
+✔ parseImgPath (6.6186ms)
+▶ lh3UrlFor
+  ✔ numeric size → =w{size} (0.401ms)
+  ✔ orig → =s0 (full original) (0.2832ms)
+✔ lh3UrlFor (1.0795ms)
+▶ client URLs round-trip through the server parser
+  ✔ server parses client URL /img/FILE1/280 (0.8573ms)
+  ✔ server parses client URL /img/FILE2/720 (0.1783ms)
+  ✔ server parses client URL /img/FILE3/1040 (0.1317ms)
+  ✔ server parses client URL /img/FILE4/orig (0.1173ms)
+✔ client URLs round-trip through the server parser (1.5271ms)
+✔ default loading text is Hebrew "טוען..." (1.6231ms)
+✔ default error text is Hebrew and not auto-translated (0.4437ms)
+✔ loadingHTML uses default text (0.36ms)
+✔ loadingHTML uses custom text (0.267ms)
+✔ loadingHTML includes role="status" for assistive tech (0.2171ms)
+✔ loadingHTML includes aria-live="polite" (0.1427ms)
+✔ errorHTML uses default text (0.217ms)
+✔ errorHTML uses custom text (0.1239ms)
+✔ errorHTML includes role="alert" (0.1866ms)
+✔ escapes HTML special chars in custom text to prevent XSS (0.3808ms)
+✔ empty array returns empty (2.4859ms)
+✔ already-sorted returns equivalent order (0.3809ms)
+✔ reverse-sorted gets sorted (0.1641ms)
+✔ numeric suffixes sort lexicographically (NOT numerically) (1.3429ms)
+✔ case-sensitive: uppercase comes before lowercase (0.3303ms)
+✔ does not mutate input array (0.2377ms)
+✔ returns a new array, not the original (0.2495ms)
+✖ homePath (3.7312ms)
+✖ countryPath maps code → slug (0.8708ms)
+✖ countryRandomPath (0.6023ms)
+✖ albumPath (global album id under the country slug) (0.4884ms)
+✖ albumPath accepts string id (0.5422ms)
+✖ slidePath (0.4643ms)
+✖ all-countries random + feature pages (0.4667ms)
+✖ dayPath: bare + specific date (0.4041ms)
+✔ feature-page paths never collide with any country slug (0.69ms)
+✔ formatHebrewDate: "23 ביולי 2011" (ב-prefixed month) (1.2788ms)
+✔ formatHebrewDate: handles each month prefix (1.3545ms)
+✔ formatHebrewDate: no leading zero on day (0.3527ms)
+✔ formatHebrewDate: null/garbage → empty string (0.426ms)
+✔ hebrewWeekday: known dates (0.4952ms)
+✔ hebrewWeekday: midweek (0.2209ms)
+✔ hebrewWeekday: null → empty (0.1354ms)
+✔ formatClock: "14:32" (0.2155ms)
+✔ formatClock: pads single-digit hour/minute (0.2288ms)
+✔ formatClock: null → empty (0.4141ms)
+✔ builds an img with the same-origin /img/ thumb URL for the given intent (2.6824ms)
+✔ passes dpr through to the URL (0.3092ms)
+✔ passes viewport through for slide intent (0.1927ms)
+✔ never emits a raw Google URL (same-origin only) (0.2268ms)
+✔ includes loading="lazy" by default (R5) (0.1625ms)
+✔ eager loading when loading:"eager" passed (first paint above the fold) (0.1599ms)
+✔ no fetchpriority attribute by default (0.1528ms)
+✔ fetchpriority="high" emitted when priority:"high" passed (on-screen images) (0.1561ms)
+✔ onerror tags the element for the CSS placeholder (no thumbnailLink hop needed now) (0.2193ms)
+✔ applies a custom className (0.2556ms)
+✔ default className is "photo" (0.1803ms)
+✔ alt defaults to empty (decorative) and is escaped when provided (0.2029ms)
+✔ decoding="async" is set (0.1621ms)
+✔ rejects a malformed photo id (cannot break out of the attribute) (0.3811ms)
+✔ extractPhotoMeta — full record with EXIF (1.2012ms)
+✔ extractPhotoMeta — missing EXIF leaves capturedAt null (0.2477ms)
+✔ extractPhotoMeta — imageMediaMetadata present but no time (0.1577ms)
+✔ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.2807ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.2635ms)
+▶ parseHash
+  ✔ "" → "/" (1.03ms)
+  ✔ "#" → "/" (0.1569ms)
+  ✔ "#/" → "/" (0.1121ms)
+  ✔ "#/country/np" → "/country/np" (0.1395ms)
+  ✔ "#/album/5" → "/album/5" (0.1033ms)
+  ✔ "#/album/5/slide/12" → "/album/5/slide/12" (0.093ms)
+  ✔ "/country/np" → "/country/np" (0.1214ms)
+  ✔ "#country/np" → "/country/np" (0.081ms)
+  ✔ "#/random" → "/random" (0.1421ms)
+✔ parseHash (3.4577ms)
+▶ createRouter — static routes
+  ✔ matches home route (1.234ms)
+  ✔ matches map route (0.1533ms)
+  ✔ unknown path returns null (0.1301ms)
+✔ createRouter — static routes (1.7439ms)
+▶ createRouter — param routes
+  ✔ single param (0.5118ms)
+  ✔ two params (0.5117ms)
+  ✔ static segment after param (0.438ms)
+  ✔ decodes URI components in params (1.3733ms)
+  ✔ extra segments do not match shorter pattern (0.1521ms)
+  ✔ first matching route wins (0.1006ms)
+✔ createRouter — param routes (3.5053ms)
+▶ clampIndex
+  ✔ in-range index unchanged (1.046ms)
+  ✔ negative clamps to 0 (0.1799ms)
+  ✔ over-length clamps to last (0.1713ms)
+  ✔ non-integer string parses (0.1784ms)
+  ✔ garbage clamps to 0 (0.1809ms)
+  ✔ empty album → 0 (0.1202ms)
+✔ clampIndex (3.3038ms)
+▶ nextIndex (wraps by default)
+  ✔ advances by one (0.2365ms)
+  ✔ wraps last → first (0.1433ms)
+  ✔ no-wrap stays at last (0.1539ms)
+✔ nextIndex (wraps by default) (0.8306ms)
+▶ prevIndex (wraps by default)
+  ✔ goes back by one (0.3206ms)
+  ✔ wraps first → last (0.2992ms)
+  ✔ no-wrap stays at first (0.1575ms)
+✔ prevIndex (wraps by default) (1.9846ms)
+▶ keyToAction (RTL: ArrowLeft = next)
+  ✔ ArrowLeft → next (0.2317ms)
+  ✔ ArrowRight → prev (0.0747ms)
+  ✔ Escape → exit (0.0822ms)
+  ✔ spacebar → next (0.0866ms)
+  ✔ unrelated key → null (0.0883ms)
+✔ keyToAction (RTL: ArrowLeft = next) (0.7153ms)
+▶ swipeToAction (RTL: rightward = next)
+  ✔ big rightward swipe → next (0.1368ms)
+  ✔ big leftward swipe → prev (0.0553ms)
+  ✔ tiny movement below threshold → null (0.0446ms)
+  ✔ custom threshold respected (0.0537ms)
+✔ swipeToAction (RTL: rightward = next) (0.4058ms)
+▶ preloadIndices (±2 neighbours, default radius 2)
+  ✔ middle of a large album → the 2 before + 2 after, current excluded (1.0907ms)
+  ✔ near the start wraps around to the end (0.1693ms)
+  ✔ near the end wraps to the start (0.1474ms)
+  ✔ never includes the current index (0.0681ms)
+  ✔ small album (3 photos) → the other 2, no dupes, no current (0.1004ms)
+  ✔ two-photo album → just the other one (0.0618ms)
+  ✔ single-photo album → nothing to preload (0.0711ms)
+  ✔ empty album → empty (0.0519ms)
+  ✔ custom radius 1 → just ±1 (0.0667ms)
+✔ preloadIndices (±2 neighbours, default radius 2) (2.0329ms)
+✔ SPEEDS are ascending second-multiples in ms (3.2764ms)
+✔ nextSpeed cycles to the next speed (0.3622ms)
+✔ nextSpeed wraps from last back to first (0.3045ms)
+✔ nextSpeed with an unknown value returns the first speed (1.6637ms)
+✔ speedLabel shows seconds with a Hebrew suffix (0.2872ms)
+✔ the default 4s interval (M7) is one of the options (0.1694ms)
+✔ same-origin HTML navigation → network-first (1.7955ms)
+✔ same-origin JS / CSS → network-first (so code updates are never stale) (0.3667ms)
+✔ the manifest is always bypassed (must be fresh, never cache-served) (1.3516ms)
+✔ cross-origin photo (lh3) → bypass (0.2203ms)
+✔ same-origin proxied photo (/img/...) → bypass (not in shell cache) (0.2771ms)
+✔ cross-origin font (gstatic) → bypass (0.1625ms)
+✔ localhost dev origin also resolves shell as network-first (0.1813ms)
+✔ query strings on the manifest still bypass (0.1323ms)
+✔ query strings target the documented breakpoints (0.9887ms)
+✔ isPhone true when matchMedia matches PHONE_QUERY (0.229ms)
+✔ isPhone false when only desktop matches (0.1256ms)
+✔ isTablet true only at tablet breakpoint (0.1322ms)
+✔ isDesktop true only at desktop breakpoint (1.0164ms)
+✔ happy path: renders album name as title (20.9087ms)
+✔ happy path: renders one img per photo (0.4847ms)
+✔ happy path: first 12 are eager, rest lazy (R5 first-paint budget) (0.3243ms)
+✔ happy path: photos are in lexicographic filename order (0.3162ms)
+✖ happy path: each photo links to its slide route (1.2683ms)
+✖ happy path: includes a back link to the country (0.4288ms)
+✔ empty album shows a "no photos" message (1.344ms)
+✔ loading state when manifest is null (0.4714ms)
+✔ fetch-failed state renders errorHTML (0.4805ms)
+✖ unknown album shows a not-found message + back link home (0.8303ms)
+✔ happy path: renders country name as title (20.546ms)
+✖ happy path: one card per album with album name + photo count (1.5875ms)
+✔ happy path: photo counts are shown (0.478ms)
+✔ happy path: each album card uses its first photo via the same-origin /img/ proxy (0.6588ms)
+✖ happy path: includes a back link to home (0.8368ms)
+✔ loading state when manifest is null (0.5772ms)
+✔ fetch-failed state renders errorHTML (0.5647ms)
+✖ unknown country shows a not-found message + back link (0.3787ms)
+✔ escapes album names to prevent XSS (0.3419ms)
+✖ happy path: renders header + grid with one card per country (22.514ms)
+✔ happy path: each card has a same-origin /img/ card image (0.4543ms)
+✔ happy path: card image never emits a raw Google URL (0.2417ms)
+✔ happy path: image uses loading="lazy" (R5 budget) (0.1775ms)
+✔ happy path: image onerror shows the placeholder (no thumbnailLink hop) (0.1895ms)
+✔ happy path: DPR is passed through to image URL (0.2074ms)
+✔ fetch-failed state: renders errorHTML (0.1979ms)
+✔ loading state: renders loadingHTML when manifest is null + no error (0.1336ms)
+✔ empty-manifest state: renders empty message when countries=[] (0.1821ms)
+✔ empty-manifest state: also when countries is missing (0.2829ms)
+✔ country with no thumb falls back to placeholder div (0.2009ms)
+✔ escapes country names to prevent XSS (0.1652ms)
+✔ renders the photo at the given index via slide intent (same-origin /img/) (2.323ms)
+✔ desktop viewport requests the larger slide width (0.2705ms)
+✔ shows a 1-based position counter (idx 2 of 5 → "3 / 5") (0.2599ms)
+✖ next link wraps last → first (1.2409ms)
+✖ prev link wraps first → last (0.6856ms)
+✖ middle index links to both neighbours (0.533ms)
+✖ exit/close link returns to the album grid (0.4199ms)
+✔ out-of-range index is clamped (idx 99 → shows last photo p004) (0.2497ms)
+✔ negative index clamps to first (0.2316ms)
+✔ loading state when manifest null (0.3344ms)
+✔ fetch-failed state renders errorHTML (0.2245ms)
+✖ unknown album → not-found + home link (0.2608ms)
+✖ empty album → message + back link, no crash (0.2078ms)
+✖ carries data-slideshow hooks for keyboard/swipe wiring (0.2616ms)
+✔ renders a play button (data-autoplay-toggle) when autoplay is off (0.1937ms)
+✔ shows pause affordance when autoplay is on (0.2209ms)
+✔ autoplay defaults to off when not specified (0.1525ms)
+✔ M9: speed button shows the current speed label + data-speed (0.2161ms)
+✔ M9: fullscreen toggle button present (0.1091ms)
+✔ M9: download link points at the same-origin original + has download attr (0.1886ms)
+✔ M9: info panel shows Hebrew date, weekday, place, position (0.3057ms)
+✔ M9: info panel tolerates a photo with no capturedAt (omits date rows) (0.1421ms)
+ℹ tests 309
+ℹ suites 19
+ℹ pass 287
+ℹ fail 22
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 576.1313
+
+✖ failing tests:
+
+test at src\lib\paths.test.mjs:8:1
+✖ homePath (3.7312ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== '/'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/paths.test.mjs:9:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '/',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\paths.test.mjs:12:1
+✖ countryPath maps code → slug (0.8708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '/nepal'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/paths.test.mjs:13:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '/nepal',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\paths.test.mjs:18:1
+✖ countryRandomPath (0.6023ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '/nepal/random'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/paths.test.mjs:19:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '/nepal/random',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\paths.test.mjs:22:1
+✖ albumPath (global album id under the country slug) (0.4884ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '/nepal/1'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/paths.test.mjs:23:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '/nepal/1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\paths.test.mjs:27:1
+✖ albumPath accepts string id (0.5422ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '/nepal/5'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/paths.test.mjs:28:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '/nepal/5',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\paths.test.mjs:31:1
+✖ slidePath (0.4643ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '/nepal/1/0'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/paths.test.mjs:32:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '/nepal/1/0',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\paths.test.mjs:36:1
+✖ all-countries random + feature pages (0.4667ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - '/random'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/paths.test.mjs:37:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '/random',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\paths.test.mjs:43:1
+✖ dayPath: bare + specific date (0.4041ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '__STUB__' !== '/day'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/paths.test.mjs:44:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: '/day',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\views\album-grid.test.mjs:48:1
+✖ happy path: each photo links to its slide route (1.2683ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/nepal\/1\/0"/. Input:
+  
+  '\n' +
+    '    \n' +
+    '    <header class="view-header">\n' +
+    '      <a class="back-link" href="__STUB__" aria-label="חזרה">→ חזרה</a>\n' +
+    '      <h1 class="h1">01. נפאל - קטמנדו</h1>\n' +
+    '      <p class="muted small">20 תמונות</p>\n' +
+    '    </header>\n' +
+    '  \n' +
+    '    <ul class="photo-grid" aria-label="תמונות באלבום">\n' +
+    `      <li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p000/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p001/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p002/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p003/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p004/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p005/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p006/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p007/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p008/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p009/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p010/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p011/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p012/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p013/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p014/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p015/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p016/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p017/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p018/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p019/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li>\n` +
+    '    </ul>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-grid.test.mjs:50:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    \n    <header class="view-header">\n      <a class="back-link" href="__STUB__" aria-label="חזרה">→ חזרה</a>\n      <h1 class="h1">01. נפאל - קטמנדו</h1>\n      <p class="muted small">20 תמונות</p>\n    </header>\n  \n    <ul class="photo-grid" aria-label="תמונות באלבום">\n      <li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p000/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p001/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p002/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p003/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p004/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p005/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p006/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p007/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p008/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p009/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p010/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p011/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p012/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p013/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p014/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p015/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p016/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p017/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p018/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p019/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li>\n    </ul>\n  `,
+    expected: /href="\/nepal\/1\/0"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-grid.test.mjs:54:1
+✖ happy path: includes a back link to the country (0.4288ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/nepal"/. Input:
+  
+  '\n' +
+    '    \n' +
+    '    <header class="view-header">\n' +
+    '      <a class="back-link" href="__STUB__" aria-label="חזרה">→ חזרה</a>\n' +
+    '      <h1 class="h1">01. נפאל - קטמנדו</h1>\n' +
+    '      <p class="muted small">20 תמונות</p>\n' +
+    '    </header>\n' +
+    '  \n' +
+    '    <ul class="photo-grid" aria-label="תמונות באלבום">\n' +
+    `      <li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p000/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p001/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p002/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p003/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p004/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p005/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p006/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p007/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p008/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p009/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p010/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p011/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p012/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p013/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p014/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p015/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p016/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p017/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p018/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p019/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li>\n` +
+    '    </ul>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-grid.test.mjs:57:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    \n    <header class="view-header">\n      <a class="back-link" href="__STUB__" aria-label="חזרה">→ חזרה</a>\n      <h1 class="h1">01. נפאל - קטמנדו</h1>\n      <p class="muted small">20 תמונות</p>\n    </header>\n  \n    <ul class="photo-grid" aria-label="תמונות באלבום">\n      <li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p000/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p001/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p002/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p003/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p004/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p005/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p006/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p007/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p008/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p009/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p010/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p011/140" loading="eager" fetchpriority="high" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p012/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p013/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p014/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p015/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p016/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p017/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p018/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li><li class="photo-tile"><a href="__STUB__"><img class="photo album-photo" src="/img/p019/140" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')"></a></li>\n    </ul>\n  `,
+    expected: /href="\/nepal"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-grid.test.mjs:75:1
+✖ unknown album shows a not-found message + back link home (0.8303ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/"/. Input:
+  
+  '\n' +
+    '      \n' +
+    '    <header class="view-header">\n' +
+    '      <a class="back-link" href="__STUB__" aria-label="דף הבית">→ דף הבית</a>\n' +
+    '      <h1 class="h1">אלבום לא נמצא</h1>\n' +
+    '      \n' +
+    '    </header>\n' +
+    '  \n' +
+    '      <p class="muted">האלבום המבוקש לא נמצא. <a href="__STUB__">חזרה לדף הבית</a>.</p>\n' +
+    '    '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-grid.test.mjs:78:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '\n      \n    <header class="view-header">\n      <a class="back-link" href="__STUB__" aria-label="דף הבית">→ דף הבית</a>\n      <h1 class="h1">אלבום לא נמצא</h1>\n      \n    </header>\n  \n      <p class="muted">האלבום המבוקש לא נמצא. <a href="__STUB__">חזרה לדף הבית</a>.</p>\n    ',
+    expected: /href="\/"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-list.test.mjs:22:1
+✖ happy path: one card per album with album name + photo count (1.5875ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/nepal\/1"/. Input:
+  
+  '\n' +
+    '    \n' +
+    '    <header class="view-header">\n' +
+    '      <a class="back-link" href="__STUB__" aria-label="חזרה לדף הבית">→ דף הבית</a>\n' +
+    '      <h1 class="h1">נפאל</h1>\n' +
+    '      <p class="muted small">2 אלבומים · 3 תמונות</p>\n' +
+    '    </header>\n' +
+    '  \n' +
+    '    <ul class="album-grid-list" aria-label="אלבומים">\n' +
+    '      \n' +
+    '    <li class="album-card">\n' +
+    '      <a href="__STUB__">\n' +
+    `        <img class="album-thumb" src="/img/p1/360" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')">\n` +
+    '        <div class="album-card-meta">\n' +
+    '          <span class="album-name">01. נפאל - קטמנדו</span>\n' +
+    '          <span class="album-count">1 תמונות</span>\n' +
+    '        </div>\n' +
+    '      </a>\n' +
+    '    </li>\n' +
+    '  \n' +
+    '    <li class="album-card">\n' +
+    '      <a href="__STUB__">\n' +
+    `        <img class="album-thumb" src="/img/p2a/360" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')">\n` +
+    '        <div class="album-card-meta">\n' +
+    '          <span class="album-name">02. נפאל - פוקרה</span>\n' +
+    '          <span class="album-count">2 תמונות</span>\n' +
+    '        </div>\n' +
+    '      </a>\n' +
+    '    </li>\n' +
+    '  \n' +
+    '    </ul>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-list.test.mjs:26:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    \n    <header class="view-header">\n      <a class="back-link" href="__STUB__" aria-label="חזרה לדף הבית">→ דף הבית</a>\n      <h1 class="h1">נפאל</h1>\n      <p class="muted small">2 אלבומים · 3 תמונות</p>\n    </header>\n  \n    <ul class="album-grid-list" aria-label="אלבומים">\n      \n    <li class="album-card">\n      <a href="__STUB__">\n        <img class="album-thumb" src="/img/p1/360" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')">\n        <div class="album-card-meta">\n          <span class="album-name">01. נפאל - קטמנדו</span>\n          <span class="album-count">1 תמונות</span>\n        </div>\n      </a>\n    </li>\n  \n    <li class="album-card">\n      <a href="__STUB__">\n        <img class="album-thumb" src="/img/p2a/360" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')">\n        <div class="album-card-meta">\n          <span class="album-name">02. נפאל - פוקרה</span>\n          <span class="album-count">2 תמונות</span>\n        </div>\n      </a>\n    </li>\n  \n    </ul>\n  `,
+    expected: /href="\/nepal\/1"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-list.test.mjs:41:1
+✖ happy path: includes a back link to home (0.8368ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/"/. Input:
+  
+  '\n' +
+    '    \n' +
+    '    <header class="view-header">\n' +
+    '      <a class="back-link" href="__STUB__" aria-label="חזרה לדף הבית">→ דף הבית</a>\n' +
+    '      <h1 class="h1">נפאל</h1>\n' +
+    '      <p class="muted small">2 אלבומים · 3 תמונות</p>\n' +
+    '    </header>\n' +
+    '  \n' +
+    '    <ul class="album-grid-list" aria-label="אלבומים">\n' +
+    '      \n' +
+    '    <li class="album-card">\n' +
+    '      <a href="__STUB__">\n' +
+    `        <img class="album-thumb" src="/img/p1/360" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')">\n` +
+    '        <div class="album-card-meta">\n' +
+    '          <span class="album-name">01. נפאל - קטמנדו</span>\n' +
+    '          <span class="album-count">1 תמונות</span>\n' +
+    '        </div>\n' +
+    '      </a>\n' +
+    '    </li>\n' +
+    '  \n' +
+    '    <li class="album-card">\n' +
+    '      <a href="__STUB__">\n' +
+    `        <img class="album-thumb" src="/img/p2a/360" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')">\n` +
+    '        <div class="album-card-meta">\n' +
+    '          <span class="album-name">02. נפאל - פוקרה</span>\n' +
+    '          <span class="album-count">2 תמונות</span>\n' +
+    '        </div>\n' +
+    '      </a>\n' +
+    '    </li>\n' +
+    '  \n' +
+    '    </ul>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-list.test.mjs:43:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    \n    <header class="view-header">\n      <a class="back-link" href="__STUB__" aria-label="חזרה לדף הבית">→ דף הבית</a>\n      <h1 class="h1">נפאל</h1>\n      <p class="muted small">2 אלבומים · 3 תמונות</p>\n    </header>\n  \n    <ul class="album-grid-list" aria-label="אלבומים">\n      \n    <li class="album-card">\n      <a href="__STUB__">\n        <img class="album-thumb" src="/img/p1/360" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')">\n        <div class="album-card-meta">\n          <span class="album-name">01. נפאל - קטמנדו</span>\n          <span class="album-count">1 תמונות</span>\n        </div>\n      </a>\n    </li>\n  \n    <li class="album-card">\n      <a href="__STUB__">\n        <img class="album-thumb" src="/img/p2a/360" loading="lazy" decoding="async" alt="" onerror="this.classList.add('photo-broken')">\n        <div class="album-card-meta">\n          <span class="album-name">02. נפאל - פוקרה</span>\n          <span class="album-count">2 תמונות</span>\n        </div>\n      </a>\n    </li>\n  \n    </ul>\n  `,
+    expected: /href="\/"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\album-list.test.mjs:57:1
+✖ unknown country shows a not-found message + back link (0.3787ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/"/. Input:
+  
+  '\n' +
+    '      \n' +
+    '    <header class="view-header">\n' +
+    '      <a class="back-link" href="__STUB__" aria-label="חזרה לדף הבית">→ דף הבית</a>\n' +
+    '      <h1 class="h1">מדינה לא נמצאה</h1>\n' +
+    '      \n' +
+    '    </header>\n' +
+    '  \n' +
+    '      <p class="muted">המדינה המבוקשת לא נמצאה. <a href="__STUB__">חזרה לדף הבית</a>.</p>\n' +
+    '    '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/album-list.test.mjs:60:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '\n      \n    <header class="view-header">\n      <a class="back-link" href="__STUB__" aria-label="חזרה לדף הבית">→ דף הבית</a>\n      <h1 class="h1">מדינה לא נמצאה</h1>\n      \n    </header>\n  \n      <p class="muted">המדינה המבוקשת לא נמצאה. <a href="__STUB__">חזרה לדף הבית</a>.</p>\n    ',
+    expected: /href="\/"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\country-list.test.mjs:18:1
+✖ happy path: renders header + grid with one card per country (22.514ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/nepal"/. Input:
+  
+  '\n' +
+    '    \n' +
+    '    <header class="home-header">\n' +
+    '      <div class="home-header-text">\n' +
+    '        <h1 class="display">הרמן בדרכים</h1>\n' +
+    '        <p class="tagline">אלבום משפחתי מטיול בן שנה</p>\n' +
+    '      </div>\n' +
+    '      <svg class="home-globe" viewBox="0 0 80 80" aria-hidden="true">\n' +
+    '  <circle cx="40" cy="40" r="32" fill="var(--earth-pale)" stroke="var(--text)" stroke-width="1.2"/>\n' +
+    '  <path d="M 16 32 Q 24 26, 32 32 Q 38 36, 44 32 Q 50 30, 56 34 L 55 40 Q 48 44, 40 42 Q 30 42, 20 40 Z"\n' +
+    '        fill="var(--earth-sage)" opacity="0.85"/>\n' +
+    '  <path d="M 24 52 Q 32 50, 42 54 Q 50 56, 56 52 L 54 60 Q 44 62, 34 60 Q 28 58, 24 56 Z"\n' +
+    '        fill="var(--earth-sage)" opacity="0.85"/>\n' +
+    '  <ellipse cx="40" cy="40" rx="32" ry="9" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>\n' +
+    '  <ellipse cx="40" cy="40" rx="11" ry="32" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>\n' +
+    '  <circle cx="46" cy="36" r="1.6" fill="var(--accent)"/>\n' +
+    '</svg>\n' +
+    '    </header>\n' +
+    '  \n' +
+    '    <ul class="country-grid" aria-label="מדינות">\n' +
+    '      \n' +
+    '    <li class="country-card">\n' +
+    '      <a href="__STUB__">\n' +
+    `        <img class="country-thumb" src="/img/photo-np/360" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">\n` +
+    '        <div class="country-card-meta">\n' +
+    '          <span class="country-dot" style="background:var(--earth-slate)" aria-hidden="true"></span>\n' +
+    '          <span class="country-name">נפאל</span>\n' +
+    '          <span class="country-count">1 תמונות</span>\n' +
+    '        </div>\n' +
+    '      </a>\n' +
+    '    </li>\n' +
+    '  \n' +
+    '    <li class="country-card">\n' +
+    '      <a href="__STUB__">\n' +
+    `        <img class="country-thumb" src="/img/photo-th/360" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">\n` +
+    '        <div class="country-card-meta">\n' +
+    '          <span class="country-dot" style="background:var(--earth-ochre)" aria-hidden="true"></span>\n' +
+    '          <span class="country-name">תאילנד</span>\n' +
+    '          <span class="country-count">2 תמונות</span>\n' +
+    '        </div>\n' +
+    '      </a>\n' +
+    '    </li>\n' +
+    '  \n' +
+    '    </ul>\n' +
+    '    <p class="home-coming-soon">\n' +
+    '      בחרו מדינה כדי לדפדף באלבומים שלה.\n' +
+    '      סלאידשואו, מפה, משחק ניחושים וציר זמן יגיעו במילסטונים הבאים.\n' +
+    '    </p>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/country-list.test.mjs:22:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    \n    <header class="home-header">\n      <div class="home-header-text">\n        <h1 class="display">הרמן בדרכים</h1>\n        <p class="tagline">אלבום משפחתי מטיול בן שנה</p>\n      </div>\n      <svg class="home-globe" viewBox="0 0 80 80" aria-hidden="true">\n  <circle cx="40" cy="40" r="32" fill="var(--earth-pale)" stroke="var(--text)" stroke-width="1.2"/>\n  <path d="M 16 32 Q 24 26, 32 32 Q 38 36, 44 32 Q 50 30, 56 34 L 55 40 Q 48 44, 40 42 Q 30 42, 20 40 Z"\n        fill="var(--earth-sage)" opacity="0.85"/>\n  <path d="M 24 52 Q 32 50, 42 54 Q 50 56, 56 52 L 54 60 Q 44 62, 34 60 Q 28 58, 24 56 Z"\n        fill="var(--earth-sage)" opacity="0.85"/>\n  <ellipse cx="40" cy="40" rx="32" ry="9" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>\n  <ellipse cx="40" cy="40" rx="11" ry="32" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>\n  <circle cx="46" cy="36" r="1.6" fill="var(--accent)"/>\n</svg>\n    </header>\n  \n    <ul class="country-grid" aria-label="מדינות">\n      \n    <li class="country-card">\n      <a href="__STUB__">\n        <img class="country-thumb" src="/img/photo-np/360" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">\n        <div class="country-card-meta">\n          <span class="country-dot" style="background:var(--earth-slate)" aria-hidden="true"></span>\n          <span class="country-name">נפאל</span>\n          <span class="country-count">1 תמונות</span>\n        </div>\n      </a>\n    </li>\n  \n    <li class="country-card">\n      <a href="__STUB__">\n        <img class="country-thumb" src="/img/photo-th/360" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">\n        <div class="country-card-meta">\n          <span class="country-dot" style="background:var(--earth-ochre)" aria-hidden="true"></span>\n          <span class="country-name">תאילנד</span>\n          <span class="country-count">2 תמונות</span>\n        </div>\n      </a>\n    </li>\n  \n    </ul>\n    <p class="home-coming-soon">\n      בחרו מדינה כדי לדפדף באלבומים שלה.\n      סלאידשואו, מפה, משחק ניחושים וציר זמן יגיעו במילסטונים הבאים.\n    </p>\n  `,
+    expected: /href="\/nepal"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:35:1
+✖ next link wraps last → first (1.2409ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/nepal\/1\/0"/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="__STUB__" data-prev="__STUB__" data-exit="__STUB__"\n' +
+    '         data-autoplay-on="false" data-speed="4000">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="/img/p004/520" alt="01. נפאל - קטמנדו — 5"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="__STUB__" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="__STUB__" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="__STUB__" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <button type="button" class="slideshow-speed-btn" data-speed-toggle\n' +
+    '                aria-label="מהירות מצגת">4ש&#39;</button>\n' +
+    '        <button type="button" class="slideshow-fs" data-fullscreen-toggle\n' +
+    '                aria-label="מסך מלא">⛶</button>\n' +
+    '        <a class="slideshow-dl" href="/img/p004/orig" download="IMG_0004.jpg"\n' +
+    '           aria-label="הורדת התמונה המקורית">⬇</a>\n' +
+    '        \n' +
+    '    <details class="slideshow-info">\n' +
+    '      <summary aria-label="פרטי התמונה" title="פרטים">ⓘ</summary>\n' +
+    '      <dl class="info-body">\n' +
+    '        \n' +
+    '        \n' +
+    '        <div class="info-row"><dt>מדינה</dt><dd>נפאל</dd></div>\n' +
+    '        <div class="info-row"><dt>מקום</dt><dd>קטמנדו</dd></div>\n' +
+    '        <div class="info-row"><dt>אלבום</dt><dd>01. נפאל - קטמנדו</dd></div>\n' +
+    '        <div class="info-row"><dt>תמונה</dt><dd dir="ltr">5 / 5</dd></div>\n' +
+    '        <div class="info-row"><dt>קובץ</dt><dd>IMG_0004.jpg</dd></div>\n' +
+    '      </dl>\n' +
+    '    </details>\n' +
+    '  \n' +
+    '        <span class="slideshow-counter" dir="ltr">5 / 5</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:37:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="__STUB__" data-prev="__STUB__" data-exit="__STUB__"\n         data-autoplay-on="false" data-speed="4000">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="/img/p004/520" alt="01. נפאל - קטמנדו — 5"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="__STUB__" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="__STUB__" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="__STUB__" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <button type="button" class="slideshow-speed-btn" data-speed-toggle\n                aria-label="מהירות מצגת">4ש&#39;</button>\n        <button type="button" class="slideshow-fs" data-fullscreen-toggle\n                aria-label="מסך מלא">⛶</button>\n        <a class="slideshow-dl" href="/img/p004/orig" download="IMG_0004.jpg"\n           aria-label="הורדת התמונה המקורית">⬇</a>\n        \n    <details class="slideshow-info">\n      <summary aria-label="פרטי התמונה" title="פרטים">ⓘ</summary>\n      <dl class="info-body">\n        \n        \n        <div class="info-row"><dt>מדינה</dt><dd>נפאל</dd></div>\n        <div class="info-row"><dt>מקום</dt><dd>קטמנדו</dd></div>\n        <div class="info-row"><dt>אלבום</dt><dd>01. נפאל - קטמנדו</dd></div>\n        <div class="info-row"><dt>תמונה</dt><dd dir="ltr">5 / 5</dd></div>\n        <div class="info-row"><dt>קובץ</dt><dd>IMG_0004.jpg</dd></div>\n      </dl>\n    </details>\n  \n        <span class="slideshow-counter" dir="ltr">5 / 5</span>\n      </div>\n    </div>\n  `,
+    expected: /href="\/nepal\/1\/0"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:40:1
+✖ prev link wraps first → last (0.6856ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/nepal\/1\/4"/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="__STUB__" data-prev="__STUB__" data-exit="__STUB__"\n' +
+    '         data-autoplay-on="false" data-speed="4000">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="/img/p000/520" alt="01. נפאל - קטמנדו — 1"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="__STUB__" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="__STUB__" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="__STUB__" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <button type="button" class="slideshow-speed-btn" data-speed-toggle\n' +
+    '                aria-label="מהירות מצגת">4ש&#39;</button>\n' +
+    '        <button type="button" class="slideshow-fs" data-fullscreen-toggle\n' +
+    '                aria-label="מסך מלא">⛶</button>\n' +
+    '        <a class="slideshow-dl" href="/img/p000/orig" download="IMG_0000.jpg"\n' +
+    '           aria-label="הורדת התמונה המקורית">⬇</a>\n' +
+    '        \n' +
+    '    <details class="slideshow-info">\n' +
+    '      <summary aria-label="פרטי התמונה" title="פרטים">ⓘ</summary>\n' +
+    '      <dl class="info-body">\n' +
+    '        \n' +
+    '        \n' +
+    '        <div class="info-row"><dt>מדינה</dt><dd>נפאל</dd></div>\n' +
+    '        <div class="info-row"><dt>מקום</dt><dd>קטמנדו</dd></div>\n' +
+    '        <div class="info-row"><dt>אלבום</dt><dd>01. נפאל - קטמנדו</dd></div>\n' +
+    '        <div class="info-row"><dt>תמונה</dt><dd dir="ltr">1 / 5</dd></div>\n' +
+    '        <div class="info-row"><dt>קובץ</dt><dd>IMG_0000.jpg</dd></div>\n' +
+    '      </dl>\n' +
+    '    </details>\n' +
+    '  \n' +
+    '        <span class="slideshow-counter" dir="ltr">1 / 5</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:42:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="__STUB__" data-prev="__STUB__" data-exit="__STUB__"\n         data-autoplay-on="false" data-speed="4000">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="/img/p000/520" alt="01. נפאל - קטמנדו — 1"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="__STUB__" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="__STUB__" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="__STUB__" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <button type="button" class="slideshow-speed-btn" data-speed-toggle\n                aria-label="מהירות מצגת">4ש&#39;</button>\n        <button type="button" class="slideshow-fs" data-fullscreen-toggle\n                aria-label="מסך מלא">⛶</button>\n        <a class="slideshow-dl" href="/img/p000/orig" download="IMG_0000.jpg"\n           aria-label="הורדת התמונה המקורית">⬇</a>\n        \n    <details class="slideshow-info">\n      <summary aria-label="פרטי התמונה" title="פרטים">ⓘ</summary>\n      <dl class="info-body">\n        \n        \n        <div class="info-row"><dt>מדינה</dt><dd>נפאל</dd></div>\n        <div class="info-row"><dt>מקום</dt><dd>קטמנדו</dd></div>\n        <div class="info-row"><dt>אלבום</dt><dd>01. נפאל - קטמנדו</dd></div>\n        <div class="info-row"><dt>תמונה</dt><dd dir="ltr">1 / 5</dd></div>\n        <div class="info-row"><dt>קובץ</dt><dd>IMG_0000.jpg</dd></div>\n      </dl>\n    </details>\n  \n        <span class="slideshow-counter" dir="ltr">1 / 5</span>\n      </div>\n    </div>\n  `,
+    expected: /href="\/nepal\/1\/4"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:45:1
+✖ middle index links to both neighbours (0.533ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/nepal\/1\/3"/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="__STUB__" data-prev="__STUB__" data-exit="__STUB__"\n' +
+    '         data-autoplay-on="false" data-speed="4000">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="/img/p002/520" alt="01. נפאל - קטמנדו — 3"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="__STUB__" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="__STUB__" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="__STUB__" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <button type="button" class="slideshow-speed-btn" data-speed-toggle\n' +
+    '                aria-label="מהירות מצגת">4ש&#39;</button>\n' +
+    '        <button type="button" class="slideshow-fs" data-fullscreen-toggle\n' +
+    '                aria-label="מסך מלא">⛶</button>\n' +
+    '        <a class="slideshow-dl" href="/img/p002/orig" download="IMG_0002.jpg"\n' +
+    '           aria-label="הורדת התמונה המקורית">⬇</a>\n' +
+    '        \n' +
+    '    <details class="slideshow-info">\n' +
+    '      <summary aria-label="פרטי התמונה" title="פרטים">ⓘ</summary>\n' +
+    '      <dl class="info-body">\n' +
+    '        \n' +
+    '        \n' +
+    '        <div class="info-row"><dt>מדינה</dt><dd>נפאל</dd></div>\n' +
+    '        <div class="info-row"><dt>מקום</dt><dd>קטמנדו</dd></div>\n' +
+    '        <div class="info-row"><dt>אלבום</dt><dd>01. נפאל - קטמנדו</dd></div>\n' +
+    '        <div class="info-row"><dt>תמונה</dt><dd dir="ltr">3 / 5</dd></div>\n' +
+    '        <div class="info-row"><dt>קובץ</dt><dd>IMG_0002.jpg</dd></div>\n' +
+    '      </dl>\n' +
+    '    </details>\n' +
+    '  \n' +
+    '        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:47:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="__STUB__" data-prev="__STUB__" data-exit="__STUB__"\n         data-autoplay-on="false" data-speed="4000">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="/img/p002/520" alt="01. נפאל - קטמנדו — 3"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="__STUB__" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="__STUB__" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="__STUB__" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <button type="button" class="slideshow-speed-btn" data-speed-toggle\n                aria-label="מהירות מצגת">4ש&#39;</button>\n        <button type="button" class="slideshow-fs" data-fullscreen-toggle\n                aria-label="מסך מלא">⛶</button>\n        <a class="slideshow-dl" href="/img/p002/orig" download="IMG_0002.jpg"\n           aria-label="הורדת התמונה המקורית">⬇</a>\n        \n    <details class="slideshow-info">\n      <summary aria-label="פרטי התמונה" title="פרטים">ⓘ</summary>\n      <dl class="info-body">\n        \n        \n        <div class="info-row"><dt>מדינה</dt><dd>נפאל</dd></div>\n        <div class="info-row"><dt>מקום</dt><dd>קטמנדו</dd></div>\n        <div class="info-row"><dt>אלבום</dt><dd>01. נפאל - קטמנדו</dd></div>\n        <div class="info-row"><dt>תמונה</dt><dd dir="ltr">3 / 5</dd></div>\n        <div class="info-row"><dt>קובץ</dt><dd>IMG_0002.jpg</dd></div>\n      </dl>\n    </details>\n  \n        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n      </div>\n    </div>\n  `,
+    expected: /href="\/nepal\/1\/3"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:51:1
+✖ exit/close link returns to the album grid (0.4199ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/nepal\/1"/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="__STUB__" data-prev="__STUB__" data-exit="__STUB__"\n' +
+    '         data-autoplay-on="false" data-speed="4000">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="/img/p002/520" alt="01. נפאל - קטמנדו — 3"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="__STUB__" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="__STUB__" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="__STUB__" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <button type="button" class="slideshow-speed-btn" data-speed-toggle\n' +
+    '                aria-label="מהירות מצגת">4ש&#39;</button>\n' +
+    '        <button type="button" class="slideshow-fs" data-fullscreen-toggle\n' +
+    '                aria-label="מסך מלא">⛶</button>\n' +
+    '        <a class="slideshow-dl" href="/img/p002/orig" download="IMG_0002.jpg"\n' +
+    '           aria-label="הורדת התמונה המקורית">⬇</a>\n' +
+    '        \n' +
+    '    <details class="slideshow-info">\n' +
+    '      <summary aria-label="פרטי התמונה" title="פרטים">ⓘ</summary>\n' +
+    '      <dl class="info-body">\n' +
+    '        \n' +
+    '        \n' +
+    '        <div class="info-row"><dt>מדינה</dt><dd>נפאל</dd></div>\n' +
+    '        <div class="info-row"><dt>מקום</dt><dd>קטמנדו</dd></div>\n' +
+    '        <div class="info-row"><dt>אלבום</dt><dd>01. נפאל - קטמנדו</dd></div>\n' +
+    '        <div class="info-row"><dt>תמונה</dt><dd dir="ltr">3 / 5</dd></div>\n' +
+    '        <div class="info-row"><dt>קובץ</dt><dd>IMG_0002.jpg</dd></div>\n' +
+    '      </dl>\n' +
+    '    </details>\n' +
+    '  \n' +
+    '        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:53:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="__STUB__" data-prev="__STUB__" data-exit="__STUB__"\n         data-autoplay-on="false" data-speed="4000">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="/img/p002/520" alt="01. נפאל - קטמנדו — 3"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="__STUB__" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="__STUB__" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="__STUB__" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <button type="button" class="slideshow-speed-btn" data-speed-toggle\n                aria-label="מהירות מצגת">4ש&#39;</button>\n        <button type="button" class="slideshow-fs" data-fullscreen-toggle\n                aria-label="מסך מלא">⛶</button>\n        <a class="slideshow-dl" href="/img/p002/orig" download="IMG_0002.jpg"\n           aria-label="הורדת התמונה המקורית">⬇</a>\n        \n    <details class="slideshow-info">\n      <summary aria-label="פרטי התמונה" title="פרטים">ⓘ</summary>\n      <dl class="info-body">\n        \n        \n        <div class="info-row"><dt>מדינה</dt><dd>נפאל</dd></div>\n        <div class="info-row"><dt>מקום</dt><dd>קטמנדו</dd></div>\n        <div class="info-row"><dt>אלבום</dt><dd>01. נפאל - קטמנדו</dd></div>\n        <div class="info-row"><dt>תמונה</dt><dd dir="ltr">3 / 5</dd></div>\n        <div class="info-row"><dt>קובץ</dt><dd>IMG_0002.jpg</dd></div>\n      </dl>\n    </details>\n  \n        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n      </div>\n    </div>\n  `,
+    expected: /href="\/nepal\/1"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:76:1
+✖ unknown album → not-found + home link (0.2608ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/"/. Input:
+  
+  '\n' +
+    '      <div class="slideshow-shell">\n' +
+    '        <p class="muted">האלבום המבוקש לא נמצא. <a href="__STUB__">חזרה לדף הבית</a>.</p>\n' +
+    '      </div>\n' +
+    '    '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:79:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '\n      <div class="slideshow-shell">\n        <p class="muted">האלבום המבוקש לא נמצא. <a href="__STUB__">חזרה לדף הבית</a>.</p>\n      </div>\n    ',
+    expected: /href="\/"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:82:1
+✖ empty album → message + back link, no crash (0.2078ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/nepal\/2"/. Input:
+  
+  '\n' +
+    '      <div class="slideshow-shell">\n' +
+    '        <p class="muted">אין תמונות באלבום זה. <a href="__STUB__">חזרה לאלבום</a>.</p>\n' +
+    '      </div>\n' +
+    '    '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:85:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '\n      <div class="slideshow-shell">\n        <p class="muted">אין תמונות באלבום זה. <a href="__STUB__">חזרה לאלבום</a>.</p>\n      </div>\n    ',
+    expected: /href="\/nepal\/2"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\views\slideshow.test.mjs:88:1
+✖ carries data-slideshow hooks for keyboard/swipe wiring (0.2616ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /data-next="\/nepal\/1\/3"/. Input:
+  
+  '\n' +
+    '    <div class="slideshow-shell" data-slideshow\n' +
+    '         data-next="__STUB__" data-prev="__STUB__" data-exit="__STUB__"\n' +
+    '         data-autoplay-on="false" data-speed="4000">\n' +
+    '      <div class="slideshow-stage">\n' +
+    '        <img class="slideshow-photo" src="/img/p002/520" alt="01. נפאל - קטמנדו — 3"\n' +
+    `             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n` +
+    '        <a class="slideshow-zone slideshow-zone-next" href="__STUB__" aria-label="התמונה הבאה"></a>\n' +
+    '        <a class="slideshow-zone slideshow-zone-prev" href="__STUB__" aria-label="התמונה הקודמת"></a>\n' +
+    '      </div>\n' +
+    '      <div class="slideshow-bar">\n' +
+    '        <a class="slideshow-close" href="__STUB__" aria-label="סגירה וחזרה לאלבום">✕</a>\n' +
+    '        <button type="button" class="slideshow-play" data-autoplay-toggle\n' +
+    '                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n' +
+    '        <button type="button" class="slideshow-speed-btn" data-speed-toggle\n' +
+    '                aria-label="מהירות מצגת">4ש&#39;</button>\n' +
+    '        <button type="button" class="slideshow-fs" data-fullscreen-toggle\n' +
+    '                aria-label="מסך מלא">⛶</button>\n' +
+    '        <a class="slideshow-dl" href="/img/p002/orig" download="IMG_0002.jpg"\n' +
+    '           aria-label="הורדת התמונה המקורית">⬇</a>\n' +
+    '        \n' +
+    '    <details class="slideshow-info">\n' +
+    '      <summary aria-label="פרטי התמונה" title="פרטים">ⓘ</summary>\n' +
+    '      <dl class="info-body">\n' +
+    '        \n' +
+    '        \n' +
+    '        <div class="info-row"><dt>מדינה</dt><dd>נפאל</dd></div>\n' +
+    '        <div class="info-row"><dt>מקום</dt><dd>קטמנדו</dd></div>\n' +
+    '        <div class="info-row"><dt>אלבום</dt><dd>01. נפאל - קטמנדו</dd></div>\n' +
+    '        <div class="info-row"><dt>תמונה</dt><dd dir="ltr">3 / 5</dd></div>\n' +
+    '        <div class="info-row"><dt>קובץ</dt><dd>IMG_0002.jpg</dd></div>\n' +
+    '      </dl>\n' +
+    '    </details>\n' +
+    '  \n' +
+    '        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  '
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/views/slideshow.test.mjs:92:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `\n    <div class="slideshow-shell" data-slideshow\n         data-next="__STUB__" data-prev="__STUB__" data-exit="__STUB__"\n         data-autoplay-on="false" data-speed="4000">\n      <div class="slideshow-stage">\n        <img class="slideshow-photo" src="/img/p002/520" alt="01. נפאל - קטמנדו — 3"\n             decoding="async" fetchpriority="high" onerror="this.classList.add('photo-broken')">\n        <a class="slideshow-zone slideshow-zone-next" href="__STUB__" aria-label="התמונה הבאה"></a>\n        <a class="slideshow-zone slideshow-zone-prev" href="__STUB__" aria-label="התמונה הקודמת"></a>\n      </div>\n      <div class="slideshow-bar">\n        <a class="slideshow-close" href="__STUB__" aria-label="סגירה וחזרה לאלבום">✕</a>\n        <button type="button" class="slideshow-play" data-autoplay-toggle\n                aria-label="הפעלת מצגת" aria-pressed="false">▶</button>\n        <button type="button" class="slideshow-speed-btn" data-speed-toggle\n                aria-label="מהירות מצגת">4ש&#39;</button>\n        <button type="button" class="slideshow-fs" data-fullscreen-toggle\n                aria-label="מסך מלא">⛶</button>\n        <a class="slideshow-dl" href="/img/p002/orig" download="IMG_0002.jpg"\n           aria-label="הורדת התמונה המקורית">⬇</a>\n        \n    <details class="slideshow-info">\n      <summary aria-label="פרטי התמונה" title="פרטים">ⓘ</summary>\n      <dl class="info-body">\n        \n        \n        <div class="info-row"><dt>מדינה</dt><dd>נפאל</dd></div>\n        <div class="info-row"><dt>מקום</dt><dd>קטמנדו</dd></div>\n        <div class="info-row"><dt>אלבום</dt><dd>01. נפאל - קטמנדו</dd></div>\n        <div class="info-row"><dt>תמונה</dt><dd dir="ltr">3 / 5</dd></div>\n        <div class="info-row"><dt>קובץ</dt><dd>IMG_0002.jpg</dd></div>\n      </dl>\n    </details>\n  \n        <span class="slideshow-counter" dir="ltr">3 / 5</span>\n      </div>\n    </div>\n  `,
+    expected: /data-next="\/nepal\/1\/3"/,
+    operator: 'match',
+    diff: 'simple'
+  }

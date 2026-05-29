@@ -11,6 +11,7 @@ import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { albumById } from '../lib/album-query.js';
 import { sortPhotosByFilename } from '../lib/ordering.js';
 import { photoImgHTML } from '../lib/photo-img.js';
+import { homePath, countryPath, slidePath } from '../lib/paths.js';
 
 const EAGER_COUNT = 12;
 
@@ -30,23 +31,27 @@ function header(title, backHref, backLabel, subtitle) {
   `;
 }
 
-export function renderAlbumGrid({ manifest, error, id, dpr = 1 }) {
+export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
+  const home = homePath();
   if (error) {
-    return `${header('אלבום', '#/', 'דף הבית', '')}${errorHTML('לא הצלחנו לטעון את האלבום. נסו לרענן.')}`;
+    return `${header('אלבום', home, 'דף הבית', '')}${errorHTML('לא הצלחנו לטעון את האלבום. נסו לרענן.')}`;
   }
   if (!manifest) {
-    return `${header('אלבום', '#/', 'דף הבית', '')}${loadingHTML()}`;
+    return `${header('אלבום', home, 'דף הבית', '')}${loadingHTML()}`;
   }
 
   const album = albumById(manifest, id);
   if (!album) {
     return `
-      ${header('אלבום לא נמצא', '#/', 'דף הבית', '')}
-      <p class="muted">האלבום המבוקש לא נמצא. <a href="#/">חזרה לדף הבית</a>.</p>
+      ${header('אלבום לא נמצא', home, 'דף הבית', '')}
+      <p class="muted">האלבום המבוקש לא נמצא. <a href="${home}">חזרה לדף הבית</a>.</p>
     `;
   }
 
-  const backHref = `#/country/${escapeHTML(album.primary)}`;
+  // Back to the country we navigated from (the URL's country); fall back to
+  // the album's primary country if no context was passed.
+  const backCode = code || album.primary;
+  const backHref = countryPath(backCode);
   const photos = sortPhotosByFilename(album.photos);
   const subtitle = `${photos.length.toLocaleString('he-IL')} תמונות`;
 
@@ -65,7 +70,7 @@ export function renderAlbumGrid({ manifest, error, id, dpr = 1 }) {
       // appear fast (ask #2); off-screen tiles stay lazy + normal priority.
       priority: eager ? 'high' : null,
     });
-    return `<li class="photo-tile"><a href="#/album/${album.id}/slide/${i}">${img}</a></li>`;
+    return `<li class="photo-tile"><a href="${slidePath(backCode, album.id, i)}">${img}</a></li>`;
   });
 
   return `

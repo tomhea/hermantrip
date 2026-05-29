@@ -14,6 +14,7 @@ import { speedLabel } from '../lib/slideshow-speed.js';
 import { albumPlace } from '../lib/album-place.js';
 import { formatHebrewDate, hebrewWeekday, formatClock } from '../lib/photo-date.js';
 import { COUNTRIES } from '../lib/countries.js';
+import { homePath, albumPath, slidePath } from '../lib/paths.js';
 
 const COUNTRY_HE = new Map(COUNTRIES.map((c) => [c.code, c.he]));
 
@@ -51,7 +52,7 @@ function infoPanel(album, photo, i, total) {
   `;
 }
 
-export function renderSlideshow({ manifest, error, id, idx, dpr = 1, viewport = 'phone', autoplay = false, speed = 4000 }) {
+export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewport = 'phone', autoplay = false, speed = 4000 }) {
   if (error) {
     return `<div class="slideshow-shell">${errorHTML('לא הצלחנו לטעון את התמונה. נסו לרענן.')}</div>`;
   }
@@ -63,12 +64,15 @@ export function renderSlideshow({ manifest, error, id, idx, dpr = 1, viewport = 
   if (!album) {
     return `
       <div class="slideshow-shell">
-        <p class="muted">האלבום המבוקש לא נמצא. <a href="#/">חזרה לדף הבית</a>.</p>
+        <p class="muted">האלבום המבוקש לא נמצא. <a href="${homePath()}">חזרה לדף הבית</a>.</p>
       </div>
     `;
   }
 
-  const exitHref = `#/album/${album.id}`;
+  // Keep navigation in the country we came from (URL context); fall back to
+  // the album's primary country.
+  const navCode = code || album.primary;
+  const exitHref = albumPath(navCode, album.id);
   const photos = sortPhotosByFilename(album.photos);
   if (photos.length === 0) {
     return `
@@ -80,8 +84,8 @@ export function renderSlideshow({ manifest, error, id, idx, dpr = 1, viewport = 
 
   const i = clampIndex(idx, photos.length);
   const photo = photos[i];
-  const nextHref = `#/album/${album.id}/slide/${nextIndex(i, photos.length)}`;
-  const prevHref = `#/album/${album.id}/slide/${prevIndex(i, photos.length)}`;
+  const nextHref = slidePath(navCode, album.id, nextIndex(i, photos.length));
+  const prevHref = slidePath(navCode, album.id, prevIndex(i, photos.length));
   const src = imageUrl(photo.id, 'slide', { dpr, viewport });
   // Same-origin /img/ proxy can't be ORB-blocked; onerror just shows the
   // placeholder on a genuine miss.

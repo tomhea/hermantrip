@@ -23,8 +23,8 @@ test('happy path: one card per album with album name + photo count', () => {
   const html = renderAlbumList({ manifest, code: 'np' });
   assert.match(html, /01\. נפאל - קטמנדו/);
   assert.match(html, /02\. נפאל - פוקרה/);
-  assert.match(html, /href="#\/album\/1"/);
-  assert.match(html, /href="#\/album\/2"/);
+  assert.match(html, /href="\/nepal\/1"/);
+  assert.match(html, /href="\/nepal\/2"/);
 });
 
 test('happy path: photo counts are shown', () => {
@@ -40,7 +40,7 @@ test('happy path: each album card uses its first photo via the same-origin /img/
 
 test('happy path: includes a back link to home', () => {
   const html = renderAlbumList({ manifest, code: 'np' });
-  assert.match(html, /href="#\/"/);
+  assert.match(html, /href="\/"/);
 });
 
 test('loading state when manifest is null', () => {
@@ -57,7 +57,7 @@ test('fetch-failed state renders errorHTML', () => {
 test('unknown country shows a not-found message + back link', () => {
   const html = renderAlbumList({ manifest, code: 'zz' });
   assert.match(html, /לא נמצאה/);
-  assert.match(html, /href="#\/"/);
+  assert.match(html, /href="\/"/);
 });
 
 test('escapes album names to prevent XSS', () => {

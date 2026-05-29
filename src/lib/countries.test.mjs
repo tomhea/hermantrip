@@ -4,7 +4,36 @@ import {
   COUNTRIES,
   COUNTRY_ORDER,
   assignAlbumToCountries,
+  slugFromCode,
+  codeFromSlug,
 } from './countries.js';
+
+test.describe('slug ↔ code (M12)', () => {
+  test('every country has a unique non-empty slug', () => {
+    const slugs = COUNTRIES.map((c) => c.slug);
+    assert.ok(slugs.every((s) => typeof s === 'string' && s.length > 0));
+    assert.equal(new Set(slugs).size, slugs.length);
+  });
+  test('slugFromCode', () => {
+    assert.equal(slugFromCode('np'), 'nepal');
+    assert.equal(slugFromCode('nz'), 'new-zealand');
+    assert.equal(slugFromCode('th'), 'thailand');
+  });
+  test('codeFromSlug', () => {
+    assert.equal(codeFromSlug('nepal'), 'np');
+    assert.equal(codeFromSlug('new-zealand'), 'nz');
+    assert.equal(codeFromSlug('thailand'), 'th');
+  });
+  test('codeFromSlug unknown → null', () => {
+    assert.equal(codeFromSlug('atlantis'), null);
+    assert.equal(slugFromCode('xx'), null);
+  });
+  test('round-trips for every country', () => {
+    for (const c of COUNTRIES) {
+      assert.equal(codeFromSlug(slugFromCode(c.code)), c.code);
+    }
+  });
+});
 
 test('COUNTRY_ORDER lists the seven countries in trip order', () => {
   assert.deepEqual(COUNTRY_ORDER, ['np', 'in', 'vn', 'cn', 'au', 'nz', 'th']);
