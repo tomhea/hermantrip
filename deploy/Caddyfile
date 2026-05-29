@@ -23,6 +23,10 @@ hermantrip.tomhe.app {
 		reverse_proxy https://lh3.googleusercontent.com {
 			header_up Host lh3.googleusercontent.com
 			header_up -Referer
+			# Drop upstream's own Cache-Control ("private") so ours wins and
+			# Cloudflare can edge-cache. Without this you get duplicate headers.
+			header_down -Cache-Control
+			header_down -Content-Disposition
 		}
 		# Content-addressed by (id,width) → never changes → cache forever.
 		header Cache-Control "public, max-age=31536000, immutable"
@@ -35,6 +39,8 @@ hermantrip.tomhe.app {
 		reverse_proxy https://lh3.googleusercontent.com {
 			header_up Host lh3.googleusercontent.com
 			header_up -Referer
+			header_down -Cache-Control
+			header_down -Content-Disposition
 		}
 		header Cache-Control "public, max-age=31536000, immutable"
 		header Content-Disposition "attachment"
