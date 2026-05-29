@@ -10,7 +10,7 @@
 
 import { requestStrategy } from './src/lib/sw-strategy.js';
 
-const SHELL_CACHE = 'hermantrip-shell-v13';
+const SHELL_CACHE = 'hermantrip-shell-v14';
 const SHELL_FILES = [
   '/',
   '/index.html',
@@ -28,6 +28,7 @@ const SHELL_FILES = [
   '/src/lib/slideshow-speed.js',
   '/src/lib/controls-timer.js',
   '/src/lib/photo-date.js',
+  '/src/lib/album-dates.js',
   '/src/lib/photo-group.js',
   '/src/lib/album-transform.js',
   '/src/lib/album-place.js',

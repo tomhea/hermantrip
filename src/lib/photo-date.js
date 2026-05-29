@@ -48,3 +48,24 @@ export function formatClock(iso) {
   const pad = (n) => String(n).padStart(2, '0');
   return `${pad(p.hh)}:${pad(p.mm)}`;
 }
+
+// Compact Hebrew range from two date-only strings "YYYY-MM-DD" (M15).
+//   same day        → "23 ביולי 2011"
+//   same month/year → "23–27 ביולי 2011"
+//   same year       → "23 ביולי – 2 באוגוסט 2011"
+//   spans years     → "30 בדצמבר 2011 – 3 בינואר 2012"
+const DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
+export function formatDateRange(startDate, endDate) {
+  const ms = String(startDate).match(DATE_RE);
+  const me = String(endDate).match(DATE_RE);
+  if (!ms || !me) return '';
+  const s = { y: +ms[1], mo: +ms[2], d: +ms[3] };
+  const e = { y: +me[1], mo: +me[2], d: +me[3] };
+  const mon = (mo) => MONTHS_HE[mo - 1];
+  const full = (x) => `${x.d} ${mon(x.mo)} ${x.y}`;
+
+  if (s.y === e.y && s.mo === e.mo && s.d === e.d) return full(s);
+  if (s.y === e.y && s.mo === e.mo) return `${s.d}–${e.d} ${mon(s.mo)} ${s.y}`;
+  if (s.y === e.y) return `${s.d} ${mon(s.mo)} – ${e.d} ${mon(e.mo)} ${s.y}`;
+  return `${full(s)} – ${full(e)}`;
+}
