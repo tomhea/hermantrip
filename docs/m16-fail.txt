@@ -1,0 +1,549 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (1.3671ms)
+▶ albumDateRange
+  ✔ min/max of captured dates (1.1413ms)
+  ✔ ignores photos without capturedAt (0.1253ms)
+  ✔ single dated photo → start === end (0.0872ms)
+  ✔ no dated photos → null (0.121ms)
+  ✔ spans months/years (0.0975ms)
+✔ albumDateRange (2.4295ms)
+▶ formatDateRange
+  ✔ same day (0.383ms)
+  ✔ same month → "23–27 ביולי 2011" (0.1016ms)
+  ✔ same year, different month (0.1297ms)
+  ✔ across years → both full (0.1143ms)
+  ✔ garbage → empty (0.1509ms)
+✔ formatDateRange (1.1583ms)
+▶ albumDateLabel
+  ✔ formats the album range (0.1496ms)
+  ✔ no dates → empty string (0.1063ms)
+✔ albumDateLabel (0.3395ms)
+✔ empty input returns empty array (1.0981ms)
+✔ no collisions: one entry per folder, folderIds wraps the source (0.254ms)
+✔ same id: photos concatenated, both folderIds tracked (0.1302ms)
+✔ same id: first folder name wins (lex order preserves "Bhagsu 1") (0.7766ms)
+✔ mixed: some collide, some do not (0.2867ms)
+✔ does not mutate input photos arrays (0.1397ms)
+▶ extractAlbumNumber — common patterns
+  ✔ "01" → 1 (1.2683ms)
+  ✔ "1" → 1 (0.2421ms)
+  ✔ "01 קטמנדו" → 1 (0.1936ms)
+  ✔ "1 - דהלי" → 1 (0.1368ms)
+  ✔ "1. דהלי" → 1 (0.1625ms)
+  ✔ "1-עלייה לאוורסט" → 1 (0.0933ms)
+  ✔ "37 - יאנגשואו" → 37 (0.0918ms)
+  ✔ "037 - sometext" → 37 (0.1036ms)
+  ✔ "88 פוקט" → 88 (0.1176ms)
+  ✔ "88" → 88 (0.1132ms)
+  ✔ "14a" → 14 (0.0689ms)
+  ✔ "14a. הודו - באגסו 2" → 14 (0.0668ms)
+✔ extractAlbumNumber — common patterns (4.3548ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✔ ".temp" → null (0.4987ms)
+  ✔ ".temp_1" → null (1.5062ms)
+  ✔ ".temp_2" → null (0.1772ms)
+  ✔ ".temp_3" → null (0.1064ms)
+  ✔ ".hidden" → null (0.0775ms)
+  ✔ "export" → null (0.0729ms)
+  ✔ "Export" → null (0.0644ms)
+  ✔ "EXPORT" → null (0.0636ms)
+  ✔ "exports" → null (0.1271ms)
+✔ extractAlbumNumber — ignored folders return null (3.1019ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✔ "תיאור בלי מספר" → null (0.2122ms)
+  ✔ "random folder" → null (0.0694ms)
+  ✔ "a01" → null (0.0662ms)
+  ✔ "_01" → null (0.058ms)
+  ✔ "" → null (0.0548ms)
+✔ extractAlbumNumber — names without leading digits return null (0.6493ms)
+✔ extractAlbumNumber strips leading zeros (0.2032ms)
+✔ strips "NN. {country} - " prefix, returns the place (1.2216ms)
+✔ album 1 "ההתחלה - בנגקוק וקטמנדו" → place after the dash (0.1556ms)
+✔ no " - " separator → cleaned remainder (number prefix stripped) (0.102ms)
+✔ handles the "NNa." merged-folder prefix (0.3682ms)
+✔ takes text after the LAST dash when multiple (0.251ms)
+✔ trims surrounding whitespace (0.2067ms)
+✔ empty / non-string → empty string (0.4062ms)
+✔ name with only a number → empty (0.2662ms)
+✔ albumsForCountry returns albums where code is in countries[], sorted by id (2.072ms)
+✔ albumsForCountry includes cross-country albums (0.3495ms)
+✔ albumsForCountry for thailand returns [1, 19] sorted (0.337ms)
+✔ albumsForCountry unknown country returns empty array (0.2009ms)
+✔ albumsForCountry does not mutate manifest.albums order (0.2073ms)
+✔ albumById returns the matching album (0.2256ms)
+✔ albumById accepts string id (router params are strings) (0.2032ms)
+✔ albumById unknown id returns null (0.161ms)
+✔ albumById non-numeric string returns null (0.2013ms)
+✔ default title strips number + country prefix (albumPlace) (1.1903ms)
+✔ merge 3+4 → one album id 3, title "טרק פון היל", photos combined (1.2088ms)
+✔ merged photos are in id order (3 then 4) (1.1421ms)
+✔ explicit renames: 14 → באגסו, 19 → בנגקוק (0.3732ms)
+✔ country primaryAlbums drop the absorbed id (4) (0.2291ms)
+✔ counts.albums reflects the merge; no photos lost (0.2497ms)
+✔ does not mutate the input manifest (0.2116ms)
+✔ idempotent-ish: every album ends with a non-empty title (0.2541ms)
+✔ CONTROLS_HIDE_MS is 5 seconds (1.0107ms)
+✔ hides once idle ≥ hide window (1.4283ms)
+✔ stays visible while still within the window (0.2154ms)
+✔ never hides while the pointer is over the bar (0.2046ms)
+✔ respects a custom hideAfterMs (0.1793ms)
+✔ exactly at the boundary hides (>= window) (0.0925ms)
+▶ controlsVisible
+  ✔ NOT fullscreen → always visible, even after long idle (0.2262ms)
+  ✔ NOT fullscreen → visible regardless of hovering (0.1735ms)
+  ✔ fullscreen + recent activity → visible (0.2161ms)
+  ✔ fullscreen + idle past window → hidden (0.2014ms)
+  ✔ fullscreen + hovering bar → visible even when idle (0.1357ms)
+✔ controlsVisible (1.373ms)
+▶ slug ↔ code (M12)
+  ✔ every country has a unique non-empty slug (1.3285ms)
+  ✔ slugFromCode (0.2374ms)
+  ✔ codeFromSlug (0.3204ms)
+  ✔ codeFromSlug unknown → null (0.2278ms)
+  ✔ round-trips for every country (0.197ms)
+✔ slug ↔ code (M12) (3.8656ms)
+✔ COUNTRY_ORDER lists the seven countries in trip order (0.8123ms)
+✔ COUNTRIES exposes Hebrew + English names for every code (0.1979ms)
+▶ assignAlbumToCountries — single-country
+  ✔ album 5 → only [np], primary np (0.4039ms)
+  ✔ album 12 → only [in], primary in (0.1493ms)
+  ✔ album 25 → only [vn], primary vn (0.3111ms)
+  ✔ album 34 → only [cn], primary cn (0.1574ms)
+  ✔ album 45 → only [au], primary au (0.2456ms)
+  ✔ album 65 → only [nz], primary nz (0.0811ms)
+  ✔ album 80 → only [th], primary th (0.0576ms)
+  ✔ album 19 → only [th], primary th (0.1083ms)
+✔ assignAlbumToCountries — single-country (3.0323ms)
+✔ album 1 is Nepal + Thailand, primary Nepal (0.1696ms)
+✔ album 37 is China + Australia + Thailand, primary China (0.1345ms)
+▶ assignAlbumToCountries — range boundaries
+  ✔ album 7 → [np] (0.2231ms)
+  ✔ album 8 → [in] (0.0608ms)
+  ✔ album 18 → [in] (0.0483ms)
+  ✔ album 20 → [vn] (0.043ms)
+  ✔ album 29 → [vn] (0.0598ms)
+  ✔ album 30 → [cn] (0.0377ms)
+  ✔ album 38 → [au] (0.0299ms)
+  ✔ album 53 → [au] (0.0252ms)
+  ✔ album 54 → [nz] (0.0234ms)
+  ✔ album 76 → [nz] (0.0529ms)
+  ✔ album 77 → [th] (0.0269ms)
+  ✔ album 88 → [th] (0.0407ms)
+✔ assignAlbumToCountries — range boundaries (0.9098ms)
+✔ album with no country range throws loudly (0.4251ms)
+✔ non-positive album throws (0.0982ms)
+✔ returns first photo of lowest-id primary album (0.73ms)
+✔ Thailand uses album 19 (its lowest primary), not album 1 (Nepal primary) (0.1436ms)
+✔ country with no primary albums returns null (0.0742ms)
+✔ unknown country returns null (0.1848ms)
+✔ country whose primary album has no photos falls through to next primary album (0.1986ms)
+✔ country with all-empty primary albums returns null (0.1086ms)
+✔ does not mutate manifest (0.1608ms)
+✖ sets capturedAt for the album-6 PNGs by id (2.401ms)
+✖ shifts Chiang Mai (album 78) 2011-01-25 → 2012-01-25, keeping the time (0.5784ms)
+✖ does NOT shift other dates in album 78 (0.4012ms)
+✖ does NOT shift 2011-01-25 in OTHER albums (scoped to 78) (1.2927ms)
+✖ returns the same object unchanged when nothing matches (1.0648ms)
+✖ non-matching id + no capturedAt is left as-is (0.5582ms)
+✔ thumb intent: /img/{id}/140 at DPR 1 (1.2916ms)
+✔ thumb intent: /280 at DPR 2 (0.3334ms)
+✔ thumb intent caps at 280 even at DPR 3 (0.1711ms)
+✔ card intent: /360 at DPR 1 (preview hero) (0.1774ms)
+✔ card intent: /720 at DPR 2 (0.1886ms)
+✔ card intent caps at 720 even at DPR 3 (0.2124ms)
+✔ pin intent: /120 default (0.1579ms)
+✔ pin intent caps at 240 at high DPR (0.1536ms)
+✔ slide on phone: /520 at DPR 1 (0.2088ms)
+✔ slide on phone DPR 2: /1040 (0.276ms)
+✔ slide on phone caps at 1080 at DPR 3 (0.1924ms)
+✔ slide on tablet: /760 baseline (0.1535ms)
+✔ slide on desktop: /920 baseline (0.0967ms)
+✔ slide on desktop DPR 2: /1840 (0.1181ms)
+✔ slide on desktop caps at 2000 at DPR 3 (0.0851ms)
+✔ original intent: /2400 regardless of DPR (0.1175ms)
+✔ download intent: /img/{id}/orig (full original, server adds attachment header) (0.0761ms)
+✔ emits NO raw Google URL (same-origin only) (0.411ms)
+✔ unknown intent throws (0.4991ms)
+✔ missing fileId throws (0.9656ms)
+✔ fileId with special URL chars is rejected (0.1637ms)
+▶ parseImgPath
+  ✔ width path → { id, size } (1.0571ms)
+  ✔ orig path → { id, size: "orig" } (0.1502ms)
+  ✔ id with - and _ accepted (0.0971ms)
+  ✔ non-/img path → null (0.108ms)
+  ✔ bad size (not digits/orig) → null (0.0701ms)
+  ✔ path traversal / extra segments → null (0.07ms)
+  ✔ id with illegal chars → null (no upstream injection) (0.0783ms)
+✔ parseImgPath (2.4794ms)
+▶ lh3UrlFor
+  ✔ numeric size → =w{size} (0.1226ms)
+  ✔ orig → =s0 (full original) (0.0826ms)
+✔ lh3UrlFor (0.3522ms)
+▶ client URLs round-trip through the server parser
+  ✔ server parses client URL /img/FILE1/280 (0.3653ms)
+  ✔ server parses client URL /img/FILE2/720 (0.1268ms)
+  ✔ server parses client URL /img/FILE3/1040 (0.0945ms)
+  ✔ server parses client URL /img/FILE4/orig (0.0692ms)
+✔ client URLs round-trip through the server parser (0.8034ms)
+✔ default loading text is Hebrew "טוען..." (0.6757ms)
+✔ default error text is Hebrew and not auto-translated (0.2348ms)
+✔ loadingHTML uses default text (0.3842ms)
+✔ loadingHTML uses custom text (0.232ms)
+✔ loadingHTML includes role="status" for assistive tech (0.1498ms)
+✔ loadingHTML includes aria-live="polite" (0.1307ms)
+✔ errorHTML uses default text (0.17ms)
+✔ errorHTML uses custom text (0.1295ms)
+✔ errorHTML includes role="alert" (0.3354ms)
+✔ escapes HTML special chars in custom text to prevent XSS (0.4331ms)
+✔ empty array returns empty (2.2958ms)
+▶ sortPhotosByDate (M14)
+  ✔ orders by capturedAt ascending (0.458ms)
+  ✔ same instant → filename tiebreak (0.16ms)
+  ✔ undated photos sort AFTER dated ones (0.1003ms)
+  ✔ all-undated falls back to filename order (preserves old behavior) (0.1118ms)
+  ✔ non-mutating (0.1572ms)
+✔ sortPhotosByDate (M14) (1.3361ms)
+✔ already-sorted returns equivalent order (0.1613ms)
+✔ reverse-sorted gets sorted (0.1229ms)
+✔ numeric suffixes sort lexicographically (NOT numerically) (0.1201ms)
+✔ case-sensitive: uppercase comes before lowercase (0.1457ms)
+✔ does not mutate input array (0.1072ms)
+✔ returns a new array, not the original (0.1776ms)
+✔ homePath (0.8679ms)
+✔ countryPath maps code → slug (0.1869ms)
+✔ countryRandomPath (0.2175ms)
+✔ albumPath (global album id under the country slug) (0.1212ms)
+✔ albumPath accepts string id (0.0925ms)
+✔ slidePath (0.0895ms)
+✔ all-countries random + feature pages (0.089ms)
+✔ dayPath: bare + specific date (0.0637ms)
+✔ feature-page paths never collide with any country slug (0.1639ms)
+✔ formatHebrewDate: "23 ביולי 2011" (ב-prefixed month) (0.8597ms)
+✔ formatHebrewDate: handles each month prefix (0.8953ms)
+✔ formatHebrewDate: no leading zero on day (0.1164ms)
+✔ formatHebrewDate: null/garbage → empty string (0.0972ms)
+✔ hebrewWeekday: known dates (0.1519ms)
+✔ hebrewWeekday: midweek (0.0925ms)
+✔ hebrewWeekday: null → empty (0.0688ms)
+✔ formatClock: "14:32" (0.1032ms)
+✔ formatClock: pads single-digit hour/minute (0.1165ms)
+✔ formatClock: null → empty (0.1432ms)
+✔ empty → empty (1.0837ms)
+✔ groups consecutive photos sharing a day (0.247ms)
+✔ preserves input order within and across groups (0.099ms)
+✔ undated photos form a date:null group (0.6929ms)
+✔ a day that recurs non-contiguously starts a new group (input should be pre-sorted) (0.1479ms)
+✔ total photos preserved across groups (0.1696ms)
+✔ builds an img with the same-origin /img/ thumb URL for the given intent (1.9898ms)
+✔ passes dpr through to the URL (0.1727ms)
+✔ passes viewport through for slide intent (0.1334ms)
+✔ never emits a raw Google URL (same-origin only) (0.1485ms)
+✔ includes loading="lazy" by default (R5) (0.1079ms)
+✔ eager loading when loading:"eager" passed (first paint above the fold) (0.093ms)
+✔ no fetchpriority attribute by default (0.0947ms)
+✔ fetchpriority="high" emitted when priority:"high" passed (on-screen images) (0.1012ms)
+✔ onerror tags the element for the CSS placeholder (no thumbnailLink hop needed now) (0.132ms)
+✔ applies a custom className (0.2055ms)
+✔ default className is "photo" (0.1096ms)
+✔ alt defaults to empty (decorative) and is escaped when provided (0.1226ms)
+✔ decoding="async" is set (0.1208ms)
+✔ rejects a malformed photo id (cannot break out of the attribute) (0.2349ms)
+✔ extractPhotoMeta — full record with EXIF (0.8917ms)
+✔ extractPhotoMeta — missing EXIF leaves capturedAt null (0.1299ms)
+✔ extractPhotoMeta — imageMediaMetadata present but no time (0.0843ms)
+✔ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.1447ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.1432ms)
+▶ parseHash
+  ✔ "" → "/" (1.0319ms)
+  ✔ "#" → "/" (0.2313ms)
+  ✔ "#/" → "/" (0.0761ms)
+  ✔ "#/country/np" → "/country/np" (0.0777ms)
+  ✔ "#/album/5" → "/album/5" (0.0645ms)
+  ✔ "#/album/5/slide/12" → "/album/5/slide/12" (0.0546ms)
+  ✔ "/country/np" → "/country/np" (0.0881ms)
+  ✔ "#country/np" → "/country/np" (0.0635ms)
+  ✔ "#/random" → "/random" (0.1098ms)
+✔ parseHash (3.1747ms)
+▶ createRouter — static routes
+  ✔ matches home route (0.8328ms)
+  ✔ matches map route (0.1222ms)
+  ✔ unknown path returns null (0.0603ms)
+✔ createRouter — static routes (1.2094ms)
+▶ createRouter — param routes
+  ✔ single param (0.1461ms)
+  ✔ two params (0.1515ms)
+  ✔ static segment after param (0.1826ms)
+  ✔ decodes URI components in params (0.0933ms)
+  ✔ extra segments do not match shorter pattern (0.0521ms)
+  ✔ first matching route wins (0.0483ms)
+✔ createRouter — param routes (1.42ms)
+▶ clampIndex
+  ✔ in-range index unchanged (1.5584ms)
+  ✔ negative clamps to 0 (0.227ms)
+  ✔ over-length clamps to last (0.1748ms)
+  ✔ non-integer string parses (0.1624ms)
+  ✔ garbage clamps to 0 (0.1292ms)
+  ✔ empty album → 0 (0.1127ms)
+✔ clampIndex (3.8403ms)
+▶ nextIndex (wraps by default)
+  ✔ advances by one (0.1579ms)
+  ✔ wraps last → first (0.0845ms)
+  ✔ no-wrap stays at last (0.1302ms)
+✔ nextIndex (wraps by default) (0.5441ms)
+▶ prevIndex (wraps by default)
+  ✔ goes back by one (0.273ms)
+  ✔ wraps first → last (0.1088ms)
+  ✔ no-wrap stays at first (0.7723ms)
+✔ prevIndex (wraps by default) (1.2906ms)
+▶ keyToAction (RTL: ArrowLeft = next)
+  ✔ ArrowLeft → next (0.1831ms)
+  ✔ ArrowRight → prev (0.0527ms)
+  ✔ Escape → exit (0.1656ms)
+  ✔ spacebar → next (0.1028ms)
+  ✔ unrelated key → null (0.0866ms)
+✔ keyToAction (RTL: ArrowLeft = next) (0.7488ms)
+▶ swipeToAction (RTL: rightward = next)
+  ✔ big rightward swipe → next (0.1937ms)
+  ✔ big leftward swipe → prev (0.0894ms)
+  ✔ tiny movement below threshold → null (0.0784ms)
+  ✔ custom threshold respected (0.0791ms)
+✔ swipeToAction (RTL: rightward = next) (0.615ms)
+▶ preloadIndices (±2 neighbours, default radius 2)
+  ✔ middle of a large album → the 2 before + 2 after, current excluded (1.3227ms)
+  ✔ near the start wraps around to the end (0.2902ms)
+  ✔ near the end wraps to the start (0.1821ms)
+  ✔ never includes the current index (0.1237ms)
+  ✔ small album (3 photos) → the other 2, no dupes, no current (0.1548ms)
+  ✔ two-photo album → just the other one (0.1354ms)
+  ✔ single-photo album → nothing to preload (0.1416ms)
+  ✔ empty album → empty (0.1461ms)
+  ✔ custom radius 1 → just ±1 (0.1302ms)
+✔ preloadIndices (±2 neighbours, default radius 2) (2.9675ms)
+✔ SPEEDS are ascending second-multiples in ms (1.402ms)
+✔ nextSpeed cycles to the next speed (0.2549ms)
+✔ nextSpeed wraps from last back to first (0.0901ms)
+✔ nextSpeed with an unknown value returns the first speed (0.8608ms)
+✔ speedLabel shows seconds with a Hebrew suffix (0.1772ms)
+✔ the default 4s interval (M7) is one of the options (0.0849ms)
+✔ same-origin HTML navigation → network-first (0.8087ms)
+✔ same-origin JS / CSS → network-first (so code updates are never stale) (0.1383ms)
+✔ the manifest is always bypassed (must be fresh, never cache-served) (0.78ms)
+✔ cross-origin photo (lh3) → bypass (0.1188ms)
+✔ same-origin proxied photo (/img/...) → bypass (not in shell cache) (0.1238ms)
+✔ cross-origin font (gstatic) → bypass (0.1219ms)
+✔ localhost dev origin also resolves shell as network-first (0.149ms)
+✔ query strings on the manifest still bypass (0.0816ms)
+✔ query strings target the documented breakpoints (0.6498ms)
+✔ isPhone true when matchMedia matches PHONE_QUERY (0.1358ms)
+✔ isPhone false when only desktop matches (0.076ms)
+✔ isTablet true only at tablet breakpoint (0.1379ms)
+✔ isDesktop true only at desktop breakpoint (0.8739ms)
+✔ happy path: renders album name as title (13.766ms)
+✔ happy path: renders one img per photo (0.3022ms)
+✔ happy path: first 12 are eager, rest lazy (R5 first-paint budget) (0.2214ms)
+✔ happy path: photos are in lexicographic filename order (0.2024ms)
+✔ happy path: each photo links to its slide route (0.922ms)
+✔ happy path: includes a back link to the country (0.1481ms)
+✔ empty album shows a "no photos" message (0.1093ms)
+✔ loading state when manifest is null (0.121ms)
+✔ fetch-failed state renders errorHTML (0.143ms)
+✔ unknown album shows a not-found message + back link home (0.2506ms)
+✔ happy path: renders country name as title (13.6449ms)
+✔ happy path: one card per album with album name + photo count (0.2103ms)
+✔ happy path: photo counts are shown (0.2095ms)
+✔ happy path: each album card uses its first photo via the same-origin /img/ proxy (0.3125ms)
+✔ happy path: includes a back link to home (0.2077ms)
+✔ loading state when manifest is null (0.1652ms)
+✔ fetch-failed state renders errorHTML (0.1569ms)
+✔ unknown country shows a not-found message + back link (0.1376ms)
+✔ escapes album names to prevent XSS (0.2134ms)
+✔ happy path: renders header + grid with one card per country (14.5695ms)
+✔ happy path: each card has a same-origin /img/ card image (0.2716ms)
+✔ happy path: card image never emits a raw Google URL (0.1865ms)
+✔ happy path: image uses loading="lazy" (R5 budget) (0.1181ms)
+✔ happy path: image onerror shows the placeholder (no thumbnailLink hop) (0.1767ms)
+✔ happy path: DPR is passed through to image URL (0.1362ms)
+✔ fetch-failed state: renders errorHTML (0.2269ms)
+✔ loading state: renders loadingHTML when manifest is null + no error (0.1185ms)
+✔ empty-manifest state: renders empty message when countries=[] (0.1003ms)
+✔ empty-manifest state: also when countries is missing (0.168ms)
+✔ country with no thumb falls back to placeholder div (0.1405ms)
+✔ escapes country names to prevent XSS (0.1137ms)
+✔ renders the photo at the given index via slide intent (same-origin /img/) (1.7131ms)
+✔ desktop viewport requests the larger slide width (0.242ms)
+✔ shows a 1-based position counter (idx 2 of 5 → "3 / 5") (0.2139ms)
+✔ next link wraps last → first (0.1342ms)
+✔ prev link wraps first → last (0.138ms)
+✔ middle index links to both neighbours (0.9014ms)
+✔ exit/close link returns to the album grid (0.155ms)
+✔ out-of-range index is clamped (idx 99 → shows last photo p004) (0.141ms)
+✔ negative index clamps to first (0.1546ms)
+✔ loading state when manifest null (0.2633ms)
+✔ fetch-failed state renders errorHTML (0.1761ms)
+✔ unknown album → not-found + home link (0.0976ms)
+✔ empty album → message + back link, no crash (0.057ms)
+✔ carries data-slideshow hooks for keyboard/swipe wiring (0.1842ms)
+✔ renders a play button (data-autoplay-toggle) when autoplay is off (0.141ms)
+✔ shows pause affordance when autoplay is on (0.1225ms)
+✔ autoplay defaults to off when not specified (0.0761ms)
+✔ M9: speed button shows the current speed label + data-speed (0.0961ms)
+✔ M9: fullscreen toggle button present (0.0799ms)
+✔ M9: download link points at the same-origin original + has download attr (0.118ms)
+✔ M9: info panel shows Hebrew date, weekday, place, position (0.2126ms)
+✔ M9: info panel tolerates a photo with no capturedAt (omits date rows) (0.0761ms)
+ℹ tests 346
+ℹ suites 23
+ℹ pass 340
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 431.5175
+
+✖ failing tests:
+
+test at src\lib\date-fixes.test.mjs:5:1
+✖ sets capturedAt for the album-6 PNGs by id (2.401ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - '2011-03-29T21:11:37'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/date-fixes.test.mjs:7:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: '2011-03-29T21:11:37',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\date-fixes.test.mjs:12:1
+✖ shifts Chiang Mai (album 78) 2011-01-25 → 2012-01-25, keeping the time (0.5784ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - '2012-01-25T14:30:09'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/date-fixes.test.mjs:14:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: '2012-01-25T14:30:09',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\date-fixes.test.mjs:17:1
+✖ does NOT shift other dates in album 78 (0.4012ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - '2012-01-26T10:00:00'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/date-fixes.test.mjs:19:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: '2012-01-26T10:00:00',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\date-fixes.test.mjs:22:1
+✖ does NOT shift 2011-01-25 in OTHER albums (scoped to 78) (1.2927ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - '2011-01-25T09:00:00'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/date-fixes.test.mjs:24:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: '2011-01-25T09:00:00',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\date-fixes.test.mjs:27:1
+✖ returns the same object unchanged when nothing matches (1.0648ms)
+  AssertionError [ERR_ASSERTION]: Expected "actual" to be reference-equal to "expected":
+  + actual - expected
+  
+    {
+  +   id: '__STUB__'
+  -   capturedAt: '2011-07-23T10:00:00',
+  -   id: 'untouched',
+  -   name: 'a.jpg'
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/date-fixes.test.mjs:30:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: '__STUB__' },
+    expected: { id: 'untouched', name: 'a.jpg', capturedAt: '2011-07-23T10:00:00' },
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\date-fixes.test.mjs:33:1
+✖ non-matching id + no capturedAt is left as-is (0.5582ms)
+  AssertionError [ERR_ASSERTION]: Expected "actual" to be reference-equal to "expected":
+  + actual - expected
+  
+    {
+  +   id: '__STUB__'
+  -   id: 'plain',
+  -   name: 'a.jpg'
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/date-fixes.test.mjs:35:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: '__STUB__' },
+    expected: { id: 'plain', name: 'a.jpg' },
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
