@@ -1,0 +1,633 @@
+
+> hermantrip@0.0.0 test
+> node scripts/test.mjs
+
+✔ M0 sentinel — answer() returns 42 (2.1259ms)
+✔ empty input returns empty array (3.4418ms)
+✔ no collisions: one entry per folder, folderIds wraps the source (0.4592ms)
+✔ same id: photos concatenated, both folderIds tracked (0.1655ms)
+✔ same id: first folder name wins (lex order preserves "Bhagsu 1") (1.1829ms)
+✔ mixed: some collide, some do not (0.7957ms)
+✔ does not mutate input photos arrays (0.2402ms)
+▶ extractAlbumNumber — common patterns
+  ✔ "01" → 1 (1.1746ms)
+  ✔ "1" → 1 (0.2877ms)
+  ✔ "01 קטמנדו" → 1 (0.2284ms)
+  ✔ "1 - דהלי" → 1 (0.1618ms)
+  ✔ "1. דהלי" → 1 (0.157ms)
+  ✔ "1-עלייה לאוורסט" → 1 (0.1112ms)
+  ✔ "37 - יאנגשואו" → 37 (0.096ms)
+  ✔ "037 - sometext" → 37 (0.1561ms)
+  ✔ "88 פוקט" → 88 (0.2532ms)
+  ✔ "88" → 88 (0.2966ms)
+  ✔ "14a" → 14 (0.21ms)
+  ✔ "14a. הודו - באגסו 2" → 14 (0.1214ms)
+✔ extractAlbumNumber — common patterns (5.3855ms)
+▶ extractAlbumNumber — ignored folders return null
+  ✔ ".temp" → null (0.2384ms)
+  ✔ ".temp_1" → null (1.4771ms)
+  ✔ ".temp_2" → null (0.2093ms)
+  ✔ ".temp_3" → null (0.1164ms)
+  ✔ ".hidden" → null (0.1068ms)
+  ✔ "export" → null (0.0685ms)
+  ✔ "Export" → null (0.0603ms)
+  ✔ "EXPORT" → null (0.0505ms)
+  ✔ "exports" → null (0.0548ms)
+✔ extractAlbumNumber — ignored folders return null (2.8333ms)
+▶ extractAlbumNumber — names without leading digits return null
+  ✔ "תיאור בלי מספר" → null (0.2038ms)
+  ✔ "random folder" → null (0.0587ms)
+  ✔ "a01" → null (0.0484ms)
+  ✔ "_01" → null (0.0892ms)
+  ✔ "" → null (0.0576ms)
+✔ extractAlbumNumber — names without leading digits return null (0.6654ms)
+✔ extractAlbumNumber strips leading zeros (0.1647ms)
+✔ albumsForCountry returns albums where code is in countries[], sorted by id (2.0025ms)
+✔ albumsForCountry includes cross-country albums (0.2728ms)
+✔ albumsForCountry for thailand returns [1, 19] sorted (0.3132ms)
+✔ albumsForCountry unknown country returns empty array (0.3228ms)
+✔ albumsForCountry does not mutate manifest.albums order (0.3583ms)
+✔ albumById returns the matching album (0.3866ms)
+✔ albumById accepts string id (router params are strings) (0.229ms)
+✔ albumById unknown id returns null (0.2039ms)
+✔ albumById non-numeric string returns null (0.3293ms)
+✔ COUNTRY_ORDER lists the seven countries in trip order (2.0561ms)
+✔ COUNTRIES exposes Hebrew + English names for every code (0.2984ms)
+▶ assignAlbumToCountries — single-country
+  ✔ album 5 → only [np], primary np (0.4416ms)
+  ✔ album 12 → only [in], primary in (0.1214ms)
+  ✔ album 25 → only [vn], primary vn (0.1775ms)
+  ✔ album 34 → only [cn], primary cn (0.1601ms)
+  ✔ album 45 → only [au], primary au (0.1207ms)
+  ✔ album 65 → only [nz], primary nz (0.13ms)
+  ✔ album 80 → only [th], primary th (0.1619ms)
+  ✔ album 19 → only [th], primary th (0.351ms)
+✔ assignAlbumToCountries — single-country (2.4743ms)
+✔ album 1 is Nepal + Thailand, primary Nepal (0.3527ms)
+✔ album 37 is China + Australia + Thailand, primary China (0.1668ms)
+▶ assignAlbumToCountries — range boundaries
+  ✔ album 7 → [np] (0.3409ms)
+  ✔ album 8 → [in] (0.1929ms)
+  ✔ album 18 → [in] (0.0685ms)
+  ✔ album 20 → [vn] (0.1348ms)
+  ✔ album 29 → [vn] (0.0711ms)
+  ✔ album 30 → [cn] (0.0482ms)
+  ✔ album 38 → [au] (0.0392ms)
+  ✔ album 53 → [au] (0.0359ms)
+  ✔ album 54 → [nz] (0.0354ms)
+  ✔ album 76 → [nz] (0.054ms)
+  ✔ album 77 → [th] (0.0396ms)
+  ✔ album 88 → [th] (0.0341ms)
+✔ assignAlbumToCountries — range boundaries (2.6887ms)
+✔ album with no country range throws loudly (0.713ms)
+✔ non-positive album throws (0.1374ms)
+✔ returns first photo of lowest-id primary album (1.1564ms)
+✔ Thailand uses album 19 (its lowest primary), not album 1 (Nepal primary) (0.1936ms)
+✔ country with no primary albums returns null (0.1303ms)
+✔ unknown country returns null (0.2192ms)
+✔ country whose primary album has no photos falls through to next primary album (0.2266ms)
+✔ country with all-empty primary albums returns null (0.1544ms)
+✔ does not mutate manifest (0.1765ms)
+✔ thumb intent: /img/{id}/140 at DPR 1 (2.4421ms)
+✔ thumb intent: /280 at DPR 2 (0.4885ms)
+✔ thumb intent caps at 280 even at DPR 3 (0.3803ms)
+✔ card intent: /360 at DPR 1 (preview hero) (0.3034ms)
+✔ card intent: /720 at DPR 2 (0.3572ms)
+✔ card intent caps at 720 even at DPR 3 (0.3503ms)
+✔ pin intent: /120 default (0.4798ms)
+✔ pin intent caps at 240 at high DPR (0.2ms)
+✔ slide on phone: /520 at DPR 1 (0.1962ms)
+✔ slide on phone DPR 2: /1040 (0.4523ms)
+✔ slide on phone caps at 1080 at DPR 3 (0.2385ms)
+✔ slide on tablet: /760 baseline (0.1302ms)
+✔ slide on desktop: /920 baseline (0.1107ms)
+✔ slide on desktop DPR 2: /1840 (0.1789ms)
+✔ slide on desktop caps at 2000 at DPR 3 (0.2223ms)
+✔ original intent: /2400 regardless of DPR (0.2164ms)
+✔ download intent: /img/{id}/orig (full original, server adds attachment header) (0.1247ms)
+✔ emits NO raw Google URL (same-origin only) (0.5343ms)
+✔ unknown intent throws (1.8323ms)
+✔ missing fileId throws (0.3361ms)
+✔ fileId with special URL chars is rejected (0.9469ms)
+▶ parseImgPath
+  ✖ width path → { id, size } (5.1603ms)
+  ✖ orig path → { id, size: "orig" } (0.6476ms)
+  ✖ id with - and _ accepted (0.3819ms)
+  ✖ non-/img path → null (0.5887ms)
+  ✖ bad size (not digits/orig) → null (0.4237ms)
+  ✖ path traversal / extra segments → null (0.425ms)
+  ✖ id with illegal chars → null (no upstream injection) (0.2627ms)
+✖ parseImgPath (9.732ms)
+▶ lh3UrlFor
+  ✖ numeric size → =w{size} (0.513ms)
+  ✖ orig → =s0 (full original) (0.373ms)
+✖ lh3UrlFor (1.1327ms)
+▶ client URLs round-trip through the server parser
+  ✖ server parses client URL /img/FILE1/280 (0.8329ms)
+  ✖ server parses client URL /img/FILE2/720 (0.345ms)
+  ✖ server parses client URL /img/FILE3/1040 (0.1993ms)
+  ✖ server parses client URL /img/FILE4/orig (0.1978ms)
+✖ client URLs round-trip through the server parser (3.0853ms)
+✔ default loading text is Hebrew "טוען..." (2.1155ms)
+✔ default error text is Hebrew and not auto-translated (0.6644ms)
+✔ loadingHTML uses default text (0.5573ms)
+✔ loadingHTML uses custom text (0.3489ms)
+✔ loadingHTML includes role="status" for assistive tech (0.2361ms)
+✔ loadingHTML includes aria-live="polite" (0.1985ms)
+✔ errorHTML uses default text (0.2782ms)
+✔ errorHTML uses custom text (0.1683ms)
+✔ errorHTML includes role="alert" (0.2799ms)
+✔ escapes HTML special chars in custom text to prevent XSS (0.5607ms)
+✔ empty array returns empty (2.459ms)
+✔ already-sorted returns equivalent order (0.5033ms)
+✔ reverse-sorted gets sorted (0.2278ms)
+✔ numeric suffixes sort lexicographically (NOT numerically) (1.5466ms)
+✔ case-sensitive: uppercase comes before lowercase (0.4894ms)
+✔ does not mutate input array (0.4022ms)
+✔ returns a new array, not the original (0.3538ms)
+✔ builds an img with the same-origin /img/ thumb URL for the given intent (3.5912ms)
+✔ passes dpr through to the URL (0.5013ms)
+✔ passes viewport through for slide intent (0.2329ms)
+✔ never emits a raw Google URL (same-origin only) (0.3185ms)
+✔ includes loading="lazy" by default (R5) (0.2774ms)
+✔ eager loading when loading:"eager" passed (first paint above the fold) (0.1726ms)
+✔ no fetchpriority attribute by default (0.1536ms)
+✔ fetchpriority="high" emitted when priority:"high" passed (on-screen images) (0.1868ms)
+✔ onerror tags the element for the CSS placeholder (no thumbnailLink hop needed now) (0.2583ms)
+✔ applies a custom className (0.2995ms)
+✔ default className is "photo" (0.2323ms)
+✔ alt defaults to empty (decorative) and is escaped when provided (0.3232ms)
+✔ decoding="async" is set (0.2346ms)
+✔ rejects a malformed photo id (cannot break out of the attribute) (0.5675ms)
+✔ extractPhotoMeta — full record with EXIF (1.7823ms)
+✔ extractPhotoMeta — missing EXIF leaves capturedAt null (0.4052ms)
+✔ extractPhotoMeta — imageMediaMetadata present but no time (0.271ms)
+✔ extractPhotoMeta — malformed EXIF time string leaves capturedAt null (0.3498ms)
+✔ extractPhotoMeta — preserves thumbnailLink even when undefined-ish (0.3345ms)
+▶ parseHash
+  ✔ "" → "/" (1.3432ms)
+  ✔ "#" → "/" (0.2824ms)
+  ✔ "#/" → "/" (0.194ms)
+  ✔ "#/country/np" → "/country/np" (0.1961ms)
+  ✔ "#/album/5" → "/album/5" (0.2196ms)
+  ✔ "#/album/5/slide/12" → "/album/5/slide/12" (0.1136ms)
+  ✔ "/country/np" → "/country/np" (0.126ms)
+  ✔ "#country/np" → "/country/np" (0.1395ms)
+  ✔ "#/random" → "/random" (0.2501ms)
+✔ parseHash (4.8177ms)
+▶ createRouter — static routes
+  ✔ matches home route (1.7403ms)
+  ✔ matches map route (0.277ms)
+  ✔ unknown path returns null (0.1727ms)
+✔ createRouter — static routes (2.5126ms)
+▶ createRouter — param routes
+  ✔ single param (0.561ms)
+  ✔ two params (0.3542ms)
+  ✔ static segment after param (1.8475ms)
+  ✔ decodes URI components in params (0.3318ms)
+  ✔ extra segments do not match shorter pattern (0.2248ms)
+  ✔ first matching route wins (0.2174ms)
+✔ createRouter — param routes (4.0568ms)
+▶ clampIndex
+  ✔ in-range index unchanged (1.6509ms)
+  ✔ negative clamps to 0 (0.2997ms)
+  ✔ over-length clamps to last (0.2481ms)
+  ✔ non-integer string parses (0.1983ms)
+  ✔ garbage clamps to 0 (0.1395ms)
+  ✔ empty album → 0 (0.1084ms)
+✔ clampIndex (4.8841ms)
+▶ nextIndex (wraps by default)
+  ✔ advances by one (0.2274ms)
+  ✔ wraps last → first (0.1487ms)
+  ✔ no-wrap stays at last (0.1301ms)
+✔ nextIndex (wraps by default) (0.7761ms)
+▶ prevIndex (wraps by default)
+  ✔ goes back by one (0.2957ms)
+  ✔ wraps first → last (0.4422ms)
+  ✔ no-wrap stays at first (1.7137ms)
+✔ prevIndex (wraps by default) (2.774ms)
+▶ keyToAction (RTL: ArrowLeft = next)
+  ✔ ArrowLeft → next (0.4078ms)
+  ✔ ArrowRight → prev (0.1446ms)
+  ✔ Escape → exit (0.1468ms)
+  ✔ spacebar → next (0.1498ms)
+  ✔ unrelated key → null (0.1292ms)
+✔ keyToAction (RTL: ArrowLeft = next) (1.3459ms)
+▶ swipeToAction (RTL: rightward = next)
+  ✔ big rightward swipe → next (0.2754ms)
+  ✔ big leftward swipe → prev (0.1894ms)
+  ✔ tiny movement below threshold → null (0.1356ms)
+  ✔ custom threshold respected (0.1457ms)
+✔ swipeToAction (RTL: rightward = next) (1.0302ms)
+▶ preloadIndices (±2 neighbours, default radius 2)
+  ✔ middle of a large album → the 2 before + 2 after, current excluded (1.7578ms)
+  ✔ near the start wraps around to the end (0.1899ms)
+  ✔ near the end wraps to the start (0.1707ms)
+  ✔ never includes the current index (0.0757ms)
+  ✔ small album (3 photos) → the other 2, no dupes, no current (0.1171ms)
+  ✔ two-photo album → just the other one (0.0653ms)
+  ✔ single-photo album → nothing to preload (0.0485ms)
+  ✔ empty album → empty (0.0587ms)
+  ✔ custom radius 1 → just ±1 (0.0689ms)
+✔ preloadIndices (±2 neighbours, default radius 2) (2.8211ms)
+✔ same-origin HTML navigation → network-first (1.2244ms)
+✔ same-origin JS / CSS → network-first (so code updates are never stale) (0.2676ms)
+✔ the manifest is always bypassed (must be fresh, never cache-served) (1.3209ms)
+✔ cross-origin photo (lh3) → bypass (0.3034ms)
+✔ same-origin proxied photo (/img/...) → bypass (not in shell cache) (0.4357ms)
+✔ cross-origin font (gstatic) → bypass (0.3901ms)
+✔ localhost dev origin also resolves shell as network-first (0.3611ms)
+✔ query strings on the manifest still bypass (0.2835ms)
+✔ query strings target the documented breakpoints (1.0276ms)
+✔ isPhone true when matchMedia matches PHONE_QUERY (0.3263ms)
+✔ isPhone false when only desktop matches (0.24ms)
+✔ isTablet true only at tablet breakpoint (0.2861ms)
+✔ isDesktop true only at desktop breakpoint (1.493ms)
+✔ happy path: renders album name as title (100.7733ms)
+✔ happy path: renders one img per photo (0.4472ms)
+✔ happy path: first 12 are eager, rest lazy (R5 first-paint budget) (0.2733ms)
+✔ happy path: photos are in lexicographic filename order (0.3612ms)
+✔ happy path: each photo links to its slide route (0.271ms)
+✔ happy path: includes a back link to the country (0.276ms)
+✔ empty album shows a "no photos" message (0.4059ms)
+✔ loading state when manifest is null (0.2996ms)
+✔ fetch-failed state renders errorHTML (0.2259ms)
+✔ unknown album shows a not-found message + back link home (2.4793ms)
+✔ happy path: renders country name as title (84.595ms)
+✔ happy path: one card per album with album name + photo count (0.3319ms)
+✔ happy path: photo counts are shown (0.2348ms)
+✔ happy path: each album card uses its first photo via the same-origin /img/ proxy (0.3611ms)
+✔ happy path: includes a back link to home (0.2798ms)
+✔ loading state when manifest is null (0.3154ms)
+✔ fetch-failed state renders errorHTML (0.2058ms)
+✔ unknown country shows a not-found message + back link (0.2888ms)
+✔ escapes album names to prevent XSS (0.3051ms)
+✔ happy path: renders header + grid with one card per country (77.3625ms)
+✔ happy path: each card has a same-origin /img/ card image (0.3519ms)
+✔ happy path: card image never emits a raw Google URL (0.3161ms)
+✔ happy path: image uses loading="lazy" (R5 budget) (0.2273ms)
+✔ happy path: image onerror shows the placeholder (no thumbnailLink hop) (0.2084ms)
+✔ happy path: DPR is passed through to image URL (0.166ms)
+✔ fetch-failed state: renders errorHTML (0.2782ms)
+✔ loading state: renders loadingHTML when manifest is null + no error (0.1611ms)
+✔ empty-manifest state: renders empty message when countries=[] (0.3133ms)
+✔ empty-manifest state: also when countries is missing (0.2805ms)
+✔ country with no thumb falls back to placeholder div (0.1901ms)
+✔ escapes country names to prevent XSS (0.1979ms)
+✔ renders the photo at the given index via slide intent (same-origin /img/) (1.939ms)
+✔ desktop viewport requests the larger slide width (0.2679ms)
+✔ shows a 1-based position counter (idx 2 of 5 → "3 / 5") (0.2577ms)
+✔ next link wraps last → first (0.1628ms)
+✔ prev link wraps first → last (0.1743ms)
+✔ middle index links to both neighbours (0.1527ms)
+✔ exit/close link returns to the album grid (0.1831ms)
+✔ out-of-range index is clamped (idx 99 → shows last photo p004) (0.1855ms)
+✔ negative index clamps to first (0.2041ms)
+✔ loading state when manifest null (0.3446ms)
+✔ fetch-failed state renders errorHTML (0.3553ms)
+✔ unknown album → not-found + home link (0.2445ms)
+✔ empty album → message + back link, no crash (0.1245ms)
+✔ carries data-slideshow hooks for keyboard/swipe wiring (0.1389ms)
+✔ renders a play button (data-autoplay-toggle) when autoplay is off (0.2549ms)
+✔ shows pause affordance when autoplay is on (0.2488ms)
+✔ autoplay defaults to off when not specified (0.2231ms)
+ℹ tests 255
+ℹ suites 17
+ℹ pass 242
+ℹ fail 13
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 488.5695
+
+✖ failing tests:
+
+test at src\lib\img-proxy.test.mjs:7:3
+✖ width path → { id, size } (5.1603ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   id: '__STUB__',
+  +   size: '__STUB__'
+  -   id: 'ABC123',
+  -   size: '280'
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/img-proxy.test.mjs:8:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: '__STUB__', size: '__STUB__' },
+    expected: { id: 'ABC123', size: '280' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\img-proxy.test.mjs:10:3
+✖ orig path → { id, size: "orig" } (0.6476ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   id: '__STUB__',
+  +   size: '__STUB__'
+  -   id: 'ABC123',
+  -   size: 'orig'
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/img-proxy.test.mjs:11:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: '__STUB__', size: '__STUB__' },
+    expected: { id: 'ABC123', size: 'orig' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\img-proxy.test.mjs:13:3
+✖ id with - and _ accepted (0.3819ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   id: '__STUB__',
+  +   size: '__STUB__'
+  -   id: 'a-b_C9',
+  -   size: '720'
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/img-proxy.test.mjs:14:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: '__STUB__', size: '__STUB__' },
+    expected: { id: 'a-b_C9', size: '720' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\img-proxy.test.mjs:16:3
+✖ non-/img path → null (0.5887ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   id: '__STUB__',
+  +   size: '__STUB__'
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/img-proxy.test.mjs:17:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: '__STUB__', size: '__STUB__' },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\img-proxy.test.mjs:20:3
+✖ bad size (not digits/orig) → null (0.4237ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   id: '__STUB__',
+  +   size: '__STUB__'
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/img-proxy.test.mjs:21:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: '__STUB__', size: '__STUB__' },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\img-proxy.test.mjs:23:3
+✖ path traversal / extra segments → null (0.425ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   id: '__STUB__',
+  +   size: '__STUB__'
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/img-proxy.test.mjs:24:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: '__STUB__', size: '__STUB__' },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\img-proxy.test.mjs:27:3
+✖ id with illegal chars → null (no upstream injection) (0.2627ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   id: '__STUB__',
+  +   size: '__STUB__'
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/img-proxy.test.mjs:28:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: '__STUB__', size: '__STUB__' },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\img-proxy.test.mjs:34:3
+✖ numeric size → =w{size} (0.513ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - 'https://lh3.googleusercontent.com/d/ABC=w280'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/img-proxy.test.mjs:35:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'https://lh3.googleusercontent.com/d/ABC=w280',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\img-proxy.test.mjs:37:3
+✖ orig → =s0 (full original) (0.373ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '__STUB__'
+  - 'https://lh3.googleusercontent.com/d/ABC=s0'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/img-proxy.test.mjs:38:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: 'https://lh3.googleusercontent.com/d/ABC=s0',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\lib\img-proxy.test.mjs:53:5
+✖ server parses client URL /img/FILE1/280 (0.8329ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /^https:\/\/lh3\.googleusercontent\.com\/d\/FILE\d=(w\d+|s0)$/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/img-proxy.test.mjs:58:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at node:internal/test_runner/test:1769:71
+      at node:internal/per_context/primordials:466:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:435:3)
+      at node:internal/per_context/primordials:466:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /^https:\/\/lh3\.googleusercontent\.com\/d\/FILE\d=(w\d+|s0)$/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\img-proxy.test.mjs:53:5
+✖ server parses client URL /img/FILE2/720 (0.345ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /^https:\/\/lh3\.googleusercontent\.com\/d\/FILE\d=(w\d+|s0)$/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/img-proxy.test.mjs:58:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1771:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /^https:\/\/lh3\.googleusercontent\.com\/d\/FILE\d=(w\d+|s0)$/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\img-proxy.test.mjs:53:5
+✖ server parses client URL /img/FILE3/1040 (0.1993ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /^https:\/\/lh3\.googleusercontent\.com\/d\/FILE\d=(w\d+|s0)$/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/img-proxy.test.mjs:58:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /^https:\/\/lh3\.googleusercontent\.com\/d\/FILE\d=(w\d+|s0)$/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at src\lib\img-proxy.test.mjs:53:5
+✖ server parses client URL /img/FILE4/orig (0.1978ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /^https:\/\/lh3\.googleusercontent\.com\/d\/FILE\d=(w\d+|s0)$/. Input:
+  
+  '__STUB__'
+  
+      at TestContext.<anonymous> (file:///C:/Users/tomhe/Documents/hermantrip/src/lib/img-proxy.test.mjs:58:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '__STUB__',
+    expected: /^https:\/\/lh3\.googleusercontent\.com\/d\/FILE\d=(w\d+|s0)$/,
+    operator: 'match',
+    diff: 'simple'
+  }

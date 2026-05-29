@@ -16,6 +16,7 @@ import { createServer } from 'node:http';
 import { stat, readFile } from 'node:fs/promises';
 import { resolve, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseImgPath, lh3UrlFor } from '../src/lib/img-proxy.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -64,15 +65,8 @@ async function tryServe(reqPath) {
 // server-side and stream it back. In production Caddy does this with edge
 // caching via Cloudflare; here we keep a small in-memory cache so the dev
 // loop doesn't re-fetch (and re-trigger Google's per-IP throttle).
-const IMG_RE = /^\/img\/([A-Za-z0-9_-]+)\/(\d+|orig)$/;
 const imgCache = new Map(); // key `${id}/${size}` -> { buf, type }
 const IMG_CACHE_MAX = 400;
-
-function lh3UrlFor(id, size) {
-  return size === 'orig'
-    ? `https://lh3.googleusercontent.com/d/${id}=s0`
-    : `https://lh3.googleusercontent.com/d/${id}=w${size}`;
-}
 
 async function serveImg(id, size, res) {
   const key = `${id}/${size}`;
@@ -97,10 +91,10 @@ async function serveImg(id, size, res) {
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
 
-  const imgMatch = url.pathname.match(IMG_RE);
-  if (imgMatch) {
+  const img = parseImgPath(url.pathname);
+  if (img) {
     try {
-      await serveImg(imgMatch[1], imgMatch[2], res);
+      await serveImg(img.id, img.size, res);
       console.log(`img ${url.pathname}`);
     } catch (err) {
       res.writeHead(502, { 'Content-Type': 'text/plain' });
