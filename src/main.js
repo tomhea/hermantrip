@@ -14,6 +14,7 @@ import { codeFromSlug, slugFromCode } from './lib/countries.js';
 import { albumPath, countryPath } from './lib/paths.js';
 import { transformManifest } from './lib/album-transform.js';
 import { shuffle } from './lib/random.js';
+import { shouldReloadForController } from './lib/sw-update.js';
 import { allPhotos, countryPhotos } from './lib/photo-pool.js';
 import { renderCountryList } from './views/country-list.js';
 import { renderAlbumList } from './views/album-list.js';
@@ -485,9 +486,24 @@ function migrateOldHash() {
   render();
 
   if ('serviceWorker' in navigator) {
+    // Auto-update: when a NEW sw.js installs it activates immediately
+    // (skipWaiting + clients.claim) and fires controllerchange — reload once
+    // so the page runs the fresh assets. This stops users getting stuck on a
+    // stale build (the recurring cache gremlin). Not on first install.
+    const hadController = !!navigator.serviceWorker.controller;
+    let alreadyReloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (shouldReloadForController({ alreadyReloaded, hadController })) {
+        alreadyReloaded = true;
+        window.location.reload();
+      }
+    });
     // Module worker so sw.js can import the shared routing policy from
     // src/lib/sw-strategy.js (universally supported in modern browsers).
-    navigator.serviceWorker.register('/sw.js', { type: 'module' }).catch((err) => {
+    navigator.serviceWorker.register('/sw.js', { type: 'module' }).then((reg) => {
+      // Proactively check for an update on each load.
+      reg.update?.();
+    }).catch((err) => {
       console.warn('Service worker registration failed:', err);
     });
   }
