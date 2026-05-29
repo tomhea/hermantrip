@@ -1,9 +1,50 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { sortPhotosByFilename } from './ordering.js';
+import { sortPhotosByFilename, sortPhotosByDate } from './ordering.js';
 
 test('empty array returns empty', () => {
   assert.deepEqual(sortPhotosByFilename([]), []);
+});
+
+test.describe('sortPhotosByDate (M14)', () => {
+  test('orders by capturedAt ascending', () => {
+    const out = sortPhotosByDate([
+      { id: 'c', name: 'z.jpg', capturedAt: '2011-07-23T10:00:00' },
+      { id: 'a', name: 'a.jpg', capturedAt: '2011-07-21T10:00:00' },
+      { id: 'b', name: 'm.jpg', capturedAt: '2011-07-22T10:00:00' },
+    ]);
+    assert.deepEqual(out.map((p) => p.id), ['a', 'b', 'c']);
+  });
+  test('same instant → filename tiebreak', () => {
+    const out = sortPhotosByDate([
+      { id: 'y', name: 'y.jpg', capturedAt: '2011-07-23T10:00:00' },
+      { id: 'x', name: 'x.jpg', capturedAt: '2011-07-23T10:00:00' },
+    ]);
+    assert.deepEqual(out.map((p) => p.id), ['x', 'y']);
+  });
+  test('undated photos sort AFTER dated ones', () => {
+    const out = sortPhotosByDate([
+      { id: 'u', name: 'a.jpg' },
+      { id: 'd', name: 'z.jpg', capturedAt: '2011-07-23T10:00:00' },
+    ]);
+    assert.deepEqual(out.map((p) => p.id), ['d', 'u']);
+  });
+  test('all-undated falls back to filename order (preserves old behavior)', () => {
+    const out = sortPhotosByDate([
+      { id: 'b', name: 'IMG_0002.jpg' },
+      { id: 'a', name: 'IMG_0001.jpg' },
+    ]);
+    assert.deepEqual(out.map((p) => p.id), ['a', 'b']);
+  });
+  test('non-mutating', () => {
+    const input = [
+      { id: 'b', name: 'b', capturedAt: '2011-07-23T10:00:00' },
+      { id: 'a', name: 'a', capturedAt: '2011-07-21T10:00:00' },
+    ];
+    const snap = JSON.stringify(input);
+    sortPhotosByDate(input);
+    assert.equal(JSON.stringify(input), snap);
+  });
 });
 
 test('already-sorted returns equivalent order', () => {
