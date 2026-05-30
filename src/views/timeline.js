@@ -27,7 +27,8 @@ function photoThumb({ photo, album }, dpr) {
   const href = albumPath(album.primary, album.id);
   return `
     <a class="tl-thumb-link" href="${href}" title="${escapeHTML(album.title || album.name)}">
-      <img class="tl-thumb" src="${src}" alt="" loading="lazy" decoding="async">
+      <img class="tl-thumb" src="${src}" alt="" loading="lazy" decoding="async"
+           onerror="this.classList.add('tl-thumb-broken')">
     </a>
   `;
 }

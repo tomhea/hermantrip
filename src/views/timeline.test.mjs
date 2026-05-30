@@ -50,6 +50,11 @@ test('renderTimeline: renders photo thumbnails via /img/ proxy', () => {
   assert.match(html, /src="\/img\/p1\//);
 });
 
+test('renderTimeline: thumbnails have onerror fallback (R4)', () => {
+  const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
+  assert.match(html, /onerror=/);
+});
+
 test('renderTimeline: photos link to their album', () => {
   const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
   assert.match(html, /href="\/nepal\/2"/);
