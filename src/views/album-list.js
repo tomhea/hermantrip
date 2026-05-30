@@ -35,7 +35,7 @@ function albumCard(album, code, dpr) {
     : '<div class="album-thumb photo-broken" aria-hidden="true"></div>';
   return `
     <li class="album-card">
-      <a href="${albumPath(code, album.id)}">
+      <a href="${albumPath(code, album.slug)}">
         ${thumb}
         <div class="album-card-meta">
           <span class="album-name">${escapeHTML(album.title ?? album.name)}</span>

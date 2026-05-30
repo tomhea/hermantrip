@@ -24,7 +24,7 @@ function escapeHTML(s) {
 // Render a single photo thumbnail within a day bucket.
 function photoThumb({ photo, album }, dpr) {
   const src = imageUrl(photo.id, 'thumb', { dpr });
-  const href = albumPath(album.primary, album.id);
+  const href = albumPath(album.primary, album.slug);
   return `
     <a class="tl-thumb-link" href="${href}" title="${escapeHTML(album.title || album.name)}">
       <img class="tl-thumb" src="${src}" alt="" loading="lazy" decoding="async"

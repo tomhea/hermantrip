@@ -12,6 +12,7 @@
 
 import { albumPlace } from './album-place.js';
 import { correctPhotoDate } from './date-fixes.js';
+import { slugForAlbum } from './album-slugs.js';
 
 // Merge groups: the albums in `ids` collapse into `into` (kept id), photos
 // concatenated in id order, with the given title.
@@ -60,6 +61,9 @@ export function transformManifest(manifest) {
   for (const a of albums) {
     if (TITLES[a.id]) a.title = TITLES[a.id];
     else if (!a.title) a.title = albumPlace(a.name);
+    // Canonical URL slug (M23). Numeric-id fallback only if a slug is missing
+    // (should never happen for the 86 known albums; keeps URLs from breaking).
+    a.slug = slugForAlbum(a.id) ?? String(a.id);
   }
 
   // Drop absorbed ids from each country's primaryAlbums.

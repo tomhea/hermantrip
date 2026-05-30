@@ -7,11 +7,11 @@ import { createRouter } from './lib/router.js';
 import { keyToAction, swipeToAction, preloadIndices } from './lib/slideshow-nav.js';
 import { nextSpeed } from './lib/slideshow-speed.js';
 import { controlsVisible, CONTROLS_HIDE_MS } from './lib/controls-timer.js';
-import { albumById } from './lib/album-query.js';
+import { albumById, albumBySlug } from './lib/album-query.js';
 import { sortPhotosByDate } from './lib/ordering.js';
 import { imageUrl } from './lib/image-url.js';
-import { codeFromSlug, slugFromCode } from './lib/countries.js';
-import { albumPath, countryPath } from './lib/paths.js';
+import { codeFromSlug } from './lib/countries.js';
+import { albumPath, slidePath, countryPath } from './lib/paths.js';
 import { transformManifest } from './lib/album-transform.js';
 import { shuffle } from './lib/random.js';
 import { shouldReloadForController } from './lib/sw-update.js';
@@ -28,10 +28,10 @@ import { renderTimeline } from './views/timeline.js';
 import { buildTimeline, sliderValueToBucketIndex, scrollYToBucketIndex } from './lib/timeline.js';
 import { eligibleAlbums, albumChoices, scoreCountry, scoreAlbum, generateRounds, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
 
-// Clean-path routes (M12). Order matters: literal first segments are listed
-// before the /:country catch-all, and the more-specific /:country/random &
-// /:country/:id/:idx before /:country/:id, so first-match-wins resolves
-// correctly.
+// Clean-path routes (M12; album NAME slugs since M23). Order matters: literal
+// first segments are listed before the /:country catch-all, and the more
+// specific /:country/random & /:country/:album/:idx before /:country/:album,
+// so first-match-wins resolves correctly.
 const ROUTES = [
   { pattern: '/', name: 'home' },
   { pattern: '/random', name: 'random' },
@@ -41,27 +41,12 @@ const ROUTES = [
   { pattern: '/day', name: 'day' },
   { pattern: '/day/:date', name: 'day-date' },
   { pattern: '/:country/random', name: 'country-random' },
-  { pattern: '/:country/:id/:idx', name: 'slide' },
-  { pattern: '/:country/:id', name: 'album' },
+  { pattern: '/:country/:album/:idx', name: 'slide' },
+  { pattern: '/:country/:album', name: 'album' },
   { pattern: '/:country', name: 'country' },
 ];
 
-// Old hash routes (pre-M12) — parsed only to redirect shared old links to
-// the new clean paths.
-const OLD_ROUTES = [
-  { pattern: '/', name: 'home' },
-  { pattern: '/country/:code', name: 'country' },
-  { pattern: '/album/:id/slide/:idx', name: 'slide' },
-  { pattern: '/album/:id', name: 'album' },
-  { pattern: '/country/:code/random', name: 'country-random' },
-  { pattern: '/random', name: 'random' },
-  { pattern: '/map', name: 'map' },
-  { pattern: '/game', name: 'game' },
-  { pattern: '/timeline', name: 'timeline' },
-];
-
 const router = createRouter(ROUTES);
-const oldRouter = createRouter(OLD_ROUTES);
 const app = document.getElementById('app');
 
 let manifest = null;
@@ -101,8 +86,14 @@ function renderCountry(params) {
 
 function renderAlbum(params) {
   const code = codeFromSlug(params.country);
+  const res = manifest ? albumBySlug(manifest, code, params.album) : null;
+  if (manifest && !res) { renderNotFound(currentPath()); return; }
+  if (res && res.isAlias) {
+    window.history.replaceState({}, '', albumPath(code, res.album.slug));
+  }
   app.innerHTML = renderAlbumGrid({
-    manifest, error: manifestError, code, id: params.id, dpr: dpr(),
+    manifest, error: manifestError, code,
+    id: res ? res.album.id : params.album, dpr: dpr(),
   });
   window.scrollTo(0, 0);
 }
@@ -156,13 +147,19 @@ function stopAutoplayTimer() {
 
 function renderSlide(params) {
   const code = codeFromSlug(params.country);
+  const res = manifest ? albumBySlug(manifest, code, params.album) : null;
+  if (manifest && !res) { renderNotFound(currentPath()); return; }
+  if (res && res.isAlias) {
+    window.history.replaceState({}, '', slidePath(code, res.album.slug, params.idx));
+  }
+  const id = res ? res.album.id : params.album;
   app.innerHTML = renderSlideshow({
-    manifest, error: manifestError, code, id: params.id, idx: params.idx,
+    manifest, error: manifestError, code, id, idx: params.idx,
     dpr: dpr(), viewport: viewportClass(), autoplay: autoplayOn, speed: autoplaySpeed,
   });
   window.scrollTo(0, 0);
   wireSlideshow();
-  preloadNeighbours(params);
+  preloadNeighbours({ id, idx: params.idx });
 }
 
 // Warm ±2 neighbour slide images into the browser cache so navigation
@@ -409,7 +406,7 @@ function loadGlobe() {
 // Build clustered popup HTML for multiple albums at one pin.
 function clusterPopupHTML(albums) {
   const links = albums.map((a) => {
-    const href = albumPath(a.primary, a.id);
+    const href = albumPath(a.primary, a.slug);
     return `<a href="${href}" class="map-popup-link" data-href="${href}">${escapeHTML(a.title || a.name)}</a>`;
   }).join('');
   return `<div class="map-popup">${links}</div>`;
@@ -512,12 +509,8 @@ async function initGlobeView() {
       d.albums.map(a => `<span class="map-popup-link">${escapeHTML(a.title || a.name)}</span>`).join('<br>')
     }</div>`)
     .onPointClick((d) => {
-      if (d.albums.length === 1) {
-        go(albumPath(d.albums[0].primary, d.albums[0].id));
-      } else {
-        // Multi-album: cycle to first album (user can click again for others)
-        go(albumPath(d.albums[0].primary, d.albums[0].id));
-      }
+      const a = d.albums[0];
+      go(albumPath(a.primary, a.slug));
     });
 
   window._hermanGlobe = globe;
@@ -849,39 +842,10 @@ window.addEventListener('popstate', render);
 // Migrate old hash URLs (pre-M12) so shared links keep working:
 // '#/album/1/slide/0' → '/nepal/1/0', etc. Album→country uses the album's
 // primary country (manifest must be loaded first).
-function migrateOldHash() {
-  const hash = window.location.hash;
-  if (!hash.startsWith('#/')) return false;
-  const oldPath = hash.slice(1); // '/album/1/slide/0'
-  const m = oldRouter.match(oldPath);
-  if (!m) return false;
-  let newPath = '/';
-  const albumCode = (id) => {
-    const al = albumById(manifest, id);
-    return al ? al.primary : null;
-  };
-  if (m.name === 'home') newPath = '/';
-  else if (m.name === 'random') newPath = '/random';
-  else if (['map', 'game', 'timeline'].includes(m.name)) newPath = `/${m.name}`;
-  else if (m.name === 'country' || m.name === 'country-random') {
-    const slug = slugFromCode(m.params.code);
-    newPath = slug ? `/${slug}${m.name === 'country-random' ? '/random' : ''}` : '/';
-  } else if (m.name === 'album' || m.name === 'slide') {
-    const code = manifest ? albumCode(m.params.id) : null;
-    if (code) {
-      newPath = m.name === 'slide'
-        ? `${albumPath(code, m.params.id)}/${m.params.idx}`
-        : albumPath(code, m.params.id);
-    }
-  }
-  window.history.replaceState({}, '', newPath);
-  return true;
-}
 
 (async function boot() {
   render(); // shows loading state
   await loadManifest();
-  migrateOldHash(); // needs the manifest for album→country
   render();
 
   if ('serviceWorker' in navigator) {

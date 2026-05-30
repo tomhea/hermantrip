@@ -82,7 +82,7 @@ export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
         loading: eager ? 'eager' : 'lazy',
         priority: eager ? 'high' : null,
       });
-      const tile = `<li class="photo-tile"><a href="${slidePath(backCode, album.id, i)}">${img}</a></li>`;
+      const tile = `<li class="photo-tile"><a href="${slidePath(backCode, album.slug, i)}">${img}</a></li>`;
       i += 1;
       return tile;
     }).join('');

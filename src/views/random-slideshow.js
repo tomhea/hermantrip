@@ -72,7 +72,7 @@ export function renderRandomShow({
   // The bar shows the source album (links to it) since a random photo's
   // position has no meaning.
   const albumTitle = album.title ?? albumPlace(album.name);
-  const albumHref = albumPath(album.primary, album.id);
+  const albumHref = albumPath(album.primary, album.slug);
 
   return `
     <div class="slideshow-shell" data-slideshow data-random="${escapeHTML(scope)}"

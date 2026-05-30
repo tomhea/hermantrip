@@ -13,7 +13,7 @@ function photos(n) {
 const manifest = {
   countries: [{ code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [1] }],
   albums: [
-    { id: 1, name: '01. נפאל - קטמנדו', primary: 'np', countries: ['np', 'th'],
+    { id: 1, name: '01. נפאל - קטמנדו', slug: 'bangkok-kathmandu', primary: 'np', countries: ['np', 'th'],
       photos: photos(20) },
     { id: 2, name: '02. ריק', primary: 'np', countries: ['np'], photos: [] },
   ],
@@ -47,8 +47,8 @@ test('happy path: photos are in lexicographic filename order', () => {
 
 test('happy path: each photo links to its slide route', () => {
   const html = renderAlbumGrid({ manifest, id: '1' });
-  assert.match(html, /href="\/nepal\/1\/0"/);
-  assert.match(html, /href="\/nepal\/1\/19"/);
+  assert.match(html, /href="\/nepal\/bangkok-kathmandu\/0"/);
+  assert.match(html, /href="\/nepal\/bangkok-kathmandu\/19"/);
 });
 
 test('happy path: includes a back link to the country', () => {

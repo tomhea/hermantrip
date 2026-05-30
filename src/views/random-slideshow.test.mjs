@@ -5,7 +5,7 @@ import { renderRandomShow } from './random-slideshow.js';
 const manifest = { countries: [], albums: [] };
 const item = {
   photo: { id: 'p1', name: 'a.jpg', capturedAt: '2011-07-23T14:32:00' },
-  album: { id: 3, name: '03. נפאל - טרק', title: 'טרק פון היל', primary: 'np', countries: ['np'] },
+  album: { id: 3, name: '03. נפאל - טרק', title: 'טרק פון היל', slug: 'poon-hill-trek', primary: 'np', countries: ['np'] },
 };
 
 test('renders the photo via slide intent', () => {
@@ -34,7 +34,7 @@ test('info panel shows the source album, country, date', () => {
 
 test('bar links to the source album', () => {
   const html = renderRandomShow({ manifest, item, scope: 'all' });
-  assert.match(html, /class="slideshow-title" href="\/nepal\/3"/);
+  assert.match(html, /class="slideshow-title" href="\/nepal\/poon-hill-trek"/);
 });
 
 test('download link → original', () => {
