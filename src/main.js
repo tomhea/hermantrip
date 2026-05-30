@@ -394,18 +394,15 @@ function loadLeaflet() {
   return leafletPromise;
 }
 
-// Lazy-load Globe.gl (sets window.Globe).
+// Lazy-load Globe.gl via dynamic import() — R5 compliant.
+// The ESM module build exports the Globe factory as default.
 let globePromise = null;
 function loadGlobe() {
   if (globePromise) return globePromise;
-  globePromise = new Promise((resolve, reject) => {
-    if (window.Globe) { resolve(window.Globe); return; }
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/globe.gl@2.31.2/dist/globe.gl.min.js';
-    script.onload = () => resolve(window.Globe);
-    script.onerror = () => reject(new Error('Globe.gl failed to load'));
-    document.head.appendChild(script);
-  });
+  // eslint-disable-next-line no-undef
+  globePromise = import('https://unpkg.com/globe.gl@2.31.2/dist/globe.gl.module.js')
+    .then((mod) => mod.default || mod)
+    .catch(() => { throw new Error('Globe.gl failed to load'); });
   return globePromise;
 }
 
@@ -481,7 +478,7 @@ async function initLeafletMap() {
   if (bounds.length) map.fitBounds(bounds, { padding: [40, 40] });
 }
 
-// Init Globe.gl with album location points.
+// Init Globe.gl with album location points (loaded via dynamic import — R5).
 async function initGlobeView() {
   let GlobeFn;
   try { GlobeFn = await loadGlobe(); } catch {
