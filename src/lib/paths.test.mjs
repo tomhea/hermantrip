@@ -19,18 +19,14 @@ test('countryRandomPath', () => {
   assert.equal(countryRandomPath('np'), '/nepal/random');
 });
 
-test('albumPath (global album id under the country slug)', () => {
-  assert.equal(albumPath('np', 1), '/nepal/1');
-  assert.equal(albumPath('th', 19), '/thailand/19');
+test('albumPath uses the album name slug under the country slug (M23)', () => {
+  assert.equal(albumPath('np', 'nagarkot-bhaktapur'), '/nepal/nagarkot-bhaktapur');
+  assert.equal(albumPath('th', 'bangkok'), '/thailand/bangkok');
 });
 
-test('albumPath accepts string id', () => {
-  assert.equal(albumPath('np', '5'), '/nepal/5');
-});
-
-test('slidePath', () => {
-  assert.equal(slidePath('np', 1, 0), '/nepal/1/0');
-  assert.equal(slidePath('nz', 70, 12), '/new-zealand/70/12');
+test('slidePath appends the photo index to the album slug (M23)', () => {
+  assert.equal(slidePath('np', 'poon-hill-trek', 0), '/nepal/poon-hill-trek/0');
+  assert.equal(slidePath('nz', 'milford-sound', 12), '/new-zealand/milford-sound/12');
 });
 
 test('all-countries random + feature pages', () => {

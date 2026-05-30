@@ -1,18 +1,20 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { albumsForCountry, albumById } from './album-query.js';
+import { albumsForCountry, albumById, albumBySlug } from './album-query.js';
 
 const manifest = {
   countries: [
     { code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [2, 3] },
     { code: 'th', he: 'תאילנד', en: 'Thailand', primaryAlbums: [19] },
   ],
+  // slugs match the real canonical slugs in album-slugs.js (albumBySlug uses
+  // the real aliasesForAlbum keyed by album id).
   albums: [
-    { id: 3, name: 'c', primary: 'np', countries: ['np'], photos: [{ id: 'p3' }] },
-    { id: 2, name: 'b', primary: 'np', countries: ['np'], photos: [{ id: 'p2' }] },
+    { id: 3, name: 'c', slug: 'poon-hill-trek', primary: 'np', countries: ['np'], photos: [{ id: 'p3' }] },
+    { id: 2, name: 'b', slug: 'nagarkot-bhaktapur', primary: 'np', countries: ['np'], photos: [{ id: 'p2' }] },
     // album 1 is cross-country (np + th)
-    { id: 1, name: 'a', primary: 'np', countries: ['np', 'th'], photos: [{ id: 'p1' }] },
-    { id: 19, name: 'th', primary: 'th', countries: ['th'], photos: [{ id: 'p19' }] },
+    { id: 1, name: 'a', slug: 'bangkok-kathmandu', primary: 'np', countries: ['np', 'th'], photos: [{ id: 'p1' }] },
+    { id: 19, name: 'th', slug: 'bangkok', primary: 'th', countries: ['th'], photos: [{ id: 'p19' }] },
   ],
 };
 
@@ -57,4 +59,34 @@ test('albumById unknown id returns null', () => {
 
 test('albumById non-numeric string returns null', () => {
   assert.equal(albumById(manifest, 'abc'), null);
+});
+
+// ── albumBySlug (M23) ────────────────────────────────────────────
+test('albumBySlug: canonical slug under its primary country → {album, isAlias:false}', () => {
+  const r = albumBySlug(manifest, 'np', 'nagarkot-bhaktapur');
+  assert.equal(r.album.id, 2);
+  assert.equal(r.isAlias, false);
+});
+
+test('albumBySlug: an alias resolves to the album and flags isAlias:true', () => {
+  // album 2 alias "nagarkot" → canonical nagarkot-bhaktapur
+  const r = albumBySlug(manifest, 'np', 'nagarkot');
+  assert.equal(r.album.id, 2);
+  assert.equal(r.isAlias, true);
+});
+
+test('albumBySlug: only matches under the album primary country', () => {
+  // album 1 is np-primary; its slug is NOT reachable under thailand
+  assert.equal(albumBySlug(manifest, 'th', 'bangkok-kathmandu'), null);
+});
+
+test('albumBySlug: unknown slug → null (numeric / bad slug → 404 path)', () => {
+  assert.equal(albumBySlug(manifest, 'np', '2'), null);
+  assert.equal(albumBySlug(manifest, 'np', 'atlantis'), null);
+});
+
+test('albumBySlug: null-guards (missing manifest / code / slug) → null', () => {
+  assert.equal(albumBySlug(null, 'np', 'bangkok'), null);
+  assert.equal(albumBySlug(manifest, null, 'bangkok'), null);
+  assert.equal(albumBySlug(manifest, 'np', null), null);
 });
