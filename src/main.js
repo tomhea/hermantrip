@@ -578,6 +578,24 @@ async function initGlobeView() {
       go(albumPath(a.primary, a.slug));
     });
 
+  // Size the globe canvas to the container so it's centred in its own area
+  // (#5 — without explicit width/height globe.gl can render offset, esp. in
+  // an RTL page). Re-apply on viewport resize while the globe is mounted.
+  const sizeGlobe = () => {
+    globe.width(container.clientWidth);
+    globe.height(container.clientHeight);
+  };
+  sizeGlobe();
+  // A second pass next frame, after layout settles (the container was just
+  // un-hidden by the toggle), avoids a 0-width first measurement.
+  requestAnimationFrame(sizeGlobe);
+  if (globeResizeHandler) window.removeEventListener('resize', globeResizeHandler);
+  globeResizeHandler = sizeGlobe;
+  window.addEventListener('resize', globeResizeHandler);
+
+  // Centre the initial point of view on מוי נה, Vietnam (#6).
+  globe.pointOfView({ lat: 10.9332, lng: 108.2867, altitude: 2.2 }, 0);
+
   window._hermanGlobe = globe;
 }
 
@@ -859,6 +877,11 @@ function render() {
     try { leafletMapInstance.remove(); } catch { /* ignore */ }
     leafletMapInstance = null;
     mapMode = 'map';
+  }
+  // Leaving the map also tears down the globe resize listener (M28).
+  if (leavingMap && globeResizeHandler) {
+    window.removeEventListener('resize', globeResizeHandler);
+    globeResizeHandler = null;
   }
   // Leaving the timeline: disconnect its observer + scroll listener (M26).
   if (match && match.name !== 'timeline') teardownTimeline();
