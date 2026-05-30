@@ -25,8 +25,7 @@ test('the boot IIFE is actually invoked (ends with })();, not });)', () => {
   assert.match(main, /\}\)\(\);/, "main.js never invokes its boot IIFE — found no '})();'");
 });
 
-test('main.js does not end with a bare un-invoked function expression', () => {
-  const tail = main.trimEnd().slice(-8);
-  assert.notEqual(tail.endsWith('});'), main.trimEnd().endsWith('})();') ? false : true,
-    `main.js ends with "${tail}" — boot IIFE looks un-invoked`);
+test('main.js ends with the invoked IIFE (})();), not a bare });', () => {
+  assert.ok(main.trimEnd().endsWith('})();'),
+    `main.js ends with "${main.trimEnd().slice(-8)}" — boot IIFE looks un-invoked`);
 });
