@@ -23,6 +23,7 @@ import { renderSlideshow } from './views/slideshow.js';
 import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
 import { coordsForAlbum, groupAlbumsByLocation } from './lib/album-coords.js';
+import { orderedTrailPoints, trailSegments } from './lib/trail.js';
 import { globeModuleUrl } from './lib/globe-loader.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline, dayStripHTML } from './views/timeline.js';
