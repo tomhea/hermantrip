@@ -386,6 +386,7 @@ const MAP_COUNTRY_COLORS = {
 
 let mapMode = 'map'; // 'map' | 'globe'
 let leafletMapInstance = null; // reuse across mode-switches
+let globeResizeHandler = null; // window resize listener while globe mounted (M28)
 
 // Lazy-load Leaflet CSS+JS once.
 let leafletPromise = null;
