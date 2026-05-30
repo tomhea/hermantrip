@@ -21,6 +21,8 @@ import { renderAlbumList } from './views/album-list.js';
 import { renderAlbumGrid } from './views/album-grid.js';
 import { renderSlideshow } from './views/slideshow.js';
 import { renderRandomShow } from './views/random-slideshow.js';
+import { renderMap } from './views/map.js';
+import { coordsForAlbum } from './lib/album-coords.js';
 
 // Clean-path routes (M12). Order matters: literal first segments are listed
 // before the /:country catch-all, and the more-specific /:country/random &
@@ -357,6 +359,96 @@ window.addEventListener('keydown', (e) => {
   else slideAdvance(shell, action === 'next' ? 1 : -1);
 });
 
+// ── Map (M18) ────────────────────────────────────────────────────
+// Country colors for map pins — match the design token palette.
+const MAP_COUNTRY_COLORS = {
+  np: '#5d7593', // earth-slate
+  in: '#c8943d', // earth-ochre
+  vn: '#6b8459', // earth-sage
+  cn: '#5d7593', // earth-slate
+  au: '#b56439', // accent (terra-cotta)
+  nz: '#6b8459', // earth-sage
+  th: '#c8943d', // earth-ochre
+};
+
+// Lazy-load Leaflet CSS+JS once, then resolve window.L.
+let leafletPromise = null;
+function loadLeaflet() {
+  if (leafletPromise) return leafletPromise;
+  leafletPromise = new Promise((resolve, reject) => {
+    if (window.L) { resolve(window.L); return; }
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload = () => resolve(window.L);
+    script.onerror = () => reject(new Error('Leaflet failed to load'));
+    document.head.appendChild(script);
+  });
+  return leafletPromise;
+}
+
+async function renderMapView() {
+  app.innerHTML = renderMap({ manifest, error: manifestError });
+  window.scrollTo(0, 0);
+  if (!manifest) return;
+
+  let L;
+  try { L = await loadLeaflet(); } catch {
+    const c = document.getElementById('map-container');
+    if (c) c.innerHTML = '<p class="muted" style="padding:1rem">לא הצלחנו לטעון את המפה.</p>';
+    return;
+  }
+  const container = document.getElementById('map-container');
+  if (!container) return; // user navigated away while loading
+
+  const map = L.map(container, { zoomControl: false });
+  // Expose for DevTools / screenshot helpers (harmless in production).
+  window._hermanMap = map;
+  L.control.zoom({ position: 'topleft' }).addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+    maxZoom: 19,
+  }).addTo(map);
+
+  const bounds = [];
+  for (const album of manifest.albums) {
+    const coords = coordsForAlbum(album.id);
+    if (!coords) continue;
+    const [lat, lng] = coords;
+    bounds.push([lat, lng]);
+    const color = MAP_COUNTRY_COLORS[album.primary] || '#888';
+    const icon = L.divIcon({
+      html: `<div class="map-pin" style="background:${color}"></div>`,
+      className: 'map-pin-wrapper',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+      popupAnchor: [0, -10],
+    });
+    const marker = L.marker([lat, lng], { icon });
+    const href = albumPath(album.primary, album.id);
+    const title = escapeHTML(album.title || album.name);
+    marker.bindPopup(
+      `<div class="map-popup"><a href="${href}" class="map-popup-link">${title}</a></div>`,
+      { maxWidth: 220 },
+    );
+    marker.on('popupopen', () => {
+      const el = marker.getPopup().getElement();
+      const link = el && el.querySelector('.map-popup-link');
+      if (link) {
+        link.addEventListener('click', (e) => { e.preventDefault(); go(href); });
+      }
+    });
+    marker.addTo(map);
+  }
+  if (bounds.length) map.fitBounds(bounds, { padding: [40, 40] });
+}
+
 function renderNotFound(path) {
   app.innerHTML = `
     <div class="notfound">
@@ -418,6 +510,9 @@ function render() {
       renderRandom(code, countryPath(code));
       break;
     }
+    case 'map':
+      renderMapView();
+      break;
     default:
       // Placeholder for routes whose views ship in later milestones
       // (random / map / game / timeline / day).

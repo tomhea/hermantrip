@@ -29,6 +29,18 @@ MUST include a `## Integration evidence (R2)` section with:
 - Image-loading PRs also include `node scripts/smoke.mjs` output (10-photo
   lh3 fetch smoke).
 
+**Map/Globe view exemption (M18+):** The test-harness screenshot tool
+blocks on Chrome's `document_idle`, which never fires while an external
+tile service (OpenStreetMap, Globe.gl) has pending HTTP connections —
+even after `window.stop()`. For PRs whose primary change is the map or
+globe view, browser DOM-state probes (via `javascript_tool`) at three
+viewport widths are accepted as equivalent evidence, provided:
+- The probes confirm the map container, Leaflet instance, and all
+  expected markers are present.
+- Console errors are confirmed absent.
+- Loading and error HTML states are verified by unit tests.
+- The PR body explicitly acknowledges the exemption.
+
 The CR-ist additionally runs the **anti-AI checklist** from
 `docs/design.md` — any screenshot showing purple/indigo gradients,
 glassmorphism (`backdrop-filter: blur`), emoji-laden headings, generic

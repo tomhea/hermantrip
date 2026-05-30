@@ -573,3 +573,82 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   opacity: 0.7;
   text-align: start;
 }
+
+/* ── Map view (M18) ─────────────────────────────────────────── */
+.map-page {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  /* Prevent body scroll while the map fills the screen */
+  overflow: hidden;
+}
+.map-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--divider);
+  background: var(--surface);
+}
+.map-back {
+  font-size: var(--type-small);
+  color: var(--accent);
+  white-space: nowrap;
+}
+.map-title {
+  font-size: var(--type-h2);
+  font-weight: 500;
+  flex: 1;
+}
+.map-container {
+  flex: 1 1 auto;
+  /* Leaflet needs explicit size — 100% of flex parent works when parent has
+     a defined height (provided by .map-page height:100dvh). */
+  width: 100%;
+  /* Reset Leaflet z-index layering inside our stacking context */
+  isolation: isolate;
+}
+
+/* Leaflet attribution RTL fix (float:right → float:left in our RTL page) */
+.leaflet-control-attribution {
+  direction: ltr !important;
+}
+
+/* Custom pin marker */
+.map-pin-wrapper {
+  background: transparent !important;
+  border: none !important;
+}
+.map-pin {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.85);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+.map-pin:hover,
+.map-pin:focus {
+  transform: scale(1.35);
+}
+
+/* Map popup */
+.map-popup {
+  font-family: var(--font-family);
+  font-size: var(--type-small);
+  direction: rtl;
+  text-align: right;
+  min-width: 120px;
+}
+.map-popup-link {
+  color: var(--accent);
+  font-weight: 500;
+  text-decoration: none;
+  display: block;
+  line-height: 1.4;
+}
+.map-popup-link:hover {
+  text-decoration: underline;
+}
