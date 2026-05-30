@@ -1,19 +1,19 @@
-// Timeline view (M20).
+// Timeline view (M20; lazy-hydrated in M25).
 //
-// Renders a chronological feed of all trip photos grouped by day.
-// Virtual rendering: only the first PAGE_SIZE day-buckets are rendered;
-// a "load more" button appends the next batch (no IntersectionObserver
-// complexity — simple and accessible).
+// Renders a chronological feed of ALL trip photos grouped by day. Every day
+// is rendered up front as a lightweight SHELL (date heading + count + an
+// empty, min-height photo-strip placeholder). main.js attaches an
+// IntersectionObserver that hydrates a day's photos (via dayStripHTML) once
+// it has been on screen for ~0.5s. This keeps the whole timeline scrollable
+// and slider-addressable end-to-end without rendering thousands of <img> at
+// once (replaces the old PAGE_SIZE "load more" pagination, which stopped the
+// slider past the first page).
 //
-// Pure HTML-string builder; main.js mounts it and wires the load-more
-// button after rendering.
+// Pure HTML-string builder.
 
 import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { imageUrl } from '../lib/image-url.js';
 import { albumPath } from '../lib/paths.js';
-import { COUNTRIES } from '../lib/countries.js';
-
-const PAGE_SIZE = 10; // day-buckets per page
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -33,12 +33,11 @@ function photoThumb({ photo, album }, dpr) {
   `;
 }
 
-// Render one day-bucket (the heading + photo strip).
-function dayBucket(bucket, dpr) {
-  const label = escapeHTML(bucket.label || 'תאריך לא ידוע');
-  // Show album name changes within the day.
+// Inner HTML of a day's photo strip (album tags + thumbnails). Called by
+// main.js to HYDRATE a shell when it scrolls into view.
+export function dayStripHTML(bucket, dpr) {
   let lastAlbumId = null;
-  const items = bucket.photos.map(({ photo, album }) => {
+  return bucket.photos.map(({ photo, album }) => {
     let albumTag = '';
     if (album.id !== lastAlbumId) {
       lastAlbumId = album.id;
@@ -46,29 +45,33 @@ function dayBucket(bucket, dpr) {
     }
     return albumTag + photoThumb({ photo, album }, dpr);
   }).join('');
+}
 
+// One day SHELL: heading + count + EMPTY strip placeholder carrying its
+// bucket index (so the observer + slider can address it). The strip is
+// hydrated lazily; its CSS min-height keeps page height roughly stable.
+function dayShell(bucket, index) {
+  const label = escapeHTML(bucket.label || 'תאריך לא ידוע');
   return `
-    <section class="tl-day" aria-label="${label}">
+    <section class="tl-day" data-bucket-index="${index}" aria-label="${label}">
       <h2 class="tl-day-heading">${label}
         <span class="tl-day-count">${bucket.photos.length} תמונות</span>
       </h2>
-      <div class="tl-photo-strip">${items}</div>
+      <div class="tl-photo-strip" data-bucket-index="${index}"></div>
     </section>
   `;
 }
 
-export function renderTimeline({ manifest, error, timeline, page, dpr }) {
+export function renderTimeline({ manifest, error, timeline, dpr }) {
   if (error) return errorHTML('לא הצלחנו לטעון את האלבום. נסו לרענן.');
   if (!manifest || !timeline) return loadingHTML();
   if (timeline.length === 0) {
     return `<p class="muted" style="padding:2rem;text-align:center">אין תמונות להצגה.</p>`;
   }
 
-  const shown = timeline.slice(0, (page || 1) * PAGE_SIZE);
-  const remaining = timeline.length - shown.length;
   const total = timeline.length;
   const firstLabel = escapeHTML(timeline[0].label || '');
-  const lastLabel  = escapeHTML(timeline[total - 1].label || '');
+  const lastLabel = escapeHTML(timeline[total - 1].label || '');
 
   return `
     <div class="tl-page">
@@ -76,7 +79,8 @@ export function renderTimeline({ manifest, error, timeline, page, dpr }) {
         <a class="tl-back" href="/">← חזרה</a>
         <h1 class="tl-title">ציר זמן</h1>
       </header>
-      <!-- Date slider — lets users jump to any day directly (M22) -->
+      <!-- Date slider — jump to any day. Visually reversed (RTL) so the
+           trip START (value 0) sits on the RIGHT (M25). -->
       <div class="tl-slider-wrap" aria-label="ניווט מהיר בציר הזמן">
         <span class="tl-slider-edge tl-slider-start" aria-hidden="true">${firstLabel}</span>
         <input type="range" id="tl-slider" class="tl-slider"
@@ -86,17 +90,8 @@ export function renderTimeline({ manifest, error, timeline, page, dpr }) {
         <output for="tl-slider" id="tl-slider-label" class="tl-slider-label">${firstLabel}</output>
       </div>
       <div class="tl-feed" id="tl-feed">
-        ${shown.map((b) => dayBucket(b, dpr)).join('')}
+        ${timeline.map((b, i) => dayShell(b, i)).join('')}
       </div>
-      ${remaining > 0
-        ? `<div class="tl-more-wrap">
-            <button class="tl-more-btn" data-tl-more="${shown.length}" aria-label="טען עוד ימים">
-              עוד ${remaining} ימים
-            </button>
-           </div>`
-        : ''}
     </div>
   `;
 }
-
-export { PAGE_SIZE };

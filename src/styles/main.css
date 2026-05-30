@@ -1014,3 +1014,15 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   text-shadow: 0 0 2px rgba(255,255,255,0.9);
   pointer-events: none;
 }
+
+/* ── Timeline overhaul (M25) ────────────────────────────────────── */
+/* Day headings land clear of the sticky header (~48px) + slider (~52px),
+   so slider-jump / scrollIntoView don't hide the heading behind them. */
+.tl-day { scroll-margin-top: 108px; }
+/* Empty strip keeps page height ~stable before a day hydrates. */
+.tl-photo-strip { min-height: 64px; }
+@media (min-width: 600px)  { .tl-photo-strip { min-height: 84px; } }
+@media (min-width: 1200px) { .tl-photo-strip { min-height: 109px; } }
+/* Reverse the range slider so the trip START (value 0) sits on the RIGHT,
+   matching the right-side start label and RTL reading direction. */
+.tl-slider { direction: rtl; }
