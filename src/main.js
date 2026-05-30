@@ -25,7 +25,7 @@ import { renderMap } from './views/map.js';
 import { coordsForAlbum, groupAlbumsByLocation } from './lib/album-coords.js';
 import { globeModuleUrl } from './lib/globe-loader.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
-import { renderTimeline } from './views/timeline.js';
+import { renderTimeline, dayStripHTML } from './views/timeline.js';
 import { buildTimeline, sliderValueToBucketIndex, scrollYToBucketIndex } from './lib/timeline.js';
 import { eligibleAlbums, albumChoices, scoreCountry, scoreAlbum, generateRounds, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
 
@@ -856,8 +856,6 @@ function render() {
       renderGameView();
       break;
     case 'timeline':
-      timelinePage = 1; // reset on fresh entry
-      timelineData = null;
       renderTimelineView();
       break;
     default:
