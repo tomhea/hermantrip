@@ -23,7 +23,8 @@ import { renderSlideshow } from './views/slideshow.js';
 import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
 import { coordsForAlbum, groupAlbumsByLocation } from './lib/album-coords.js';
-import { orderedTrailPoints, trailSegments } from './lib/trail.js';
+import { trailSegments } from './lib/trail.js';
+import { tripStopGroups, tripTrailPoints } from './lib/map-stops.js';
 import { globeModuleUrl } from './lib/globe-loader.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline, dayStripHTML } from './views/timeline.js';
@@ -412,13 +413,25 @@ function loadGlobe() {
   return globePromise;
 }
 
-// Build clustered popup HTML for multiple albums at one pin.
-function clusterPopupHTML(albums) {
-  const links = albums.map((a) => {
-    const href = albumPath(a.primary, a.slug);
-    return `<a href="${href}" class="map-popup-link" data-href="${href}">${escapeHTML(a.title || a.name)}</a>`;
-  }).join('');
-  return `<div class="map-popup">${links}</div>`;
+// Build popup HTML for a pin's stop(s). Album stops are SPA links; empty
+// stops (albumId null, e.g. גבעת שמואל) render as plain labels (no link).
+// De-dupes repeated album links at the same pin.
+function stopPopupHTML(stops) {
+  const seen = new Set();
+  const rows = stops.map((s) => {
+    const label = escapeHTML(s.label);
+    if (!s.albumId) return `<span class="map-popup-label">${label}</span>`;
+    const href = albumPath(s.primary, s.slug);
+    if (seen.has(href)) return '';
+    seen.add(href);
+    return `<a href="${href}" class="map-popup-link" data-href="${href}">${label}</a>`;
+  }).filter(Boolean).join('');
+  return `<div class="map-popup">${rows}</div>`;
+}
+
+// Plain-text label(s) for a pin's hover tooltip (#3) — city name(s).
+function stopTooltipText(stops) {
+  return [...new Set(stops.map((s) => s.label))].join(' · ');
 }
 
 // Wire SPA navigation for all popup links (called on popupopen).
@@ -433,7 +446,7 @@ function wirePopupLinks(marker) {
 // Init / update Leaflet map with clustered location markers.
 // Draw the gradient trip trail + direction arrowheads onto a Leaflet map.
 function drawTrail(L, map) {
-  const points = orderedTrailPoints(manifest);
+  const points = tripTrailPoints(manifest);
   const segs = trailSegments(points);
   if (segs.length === 0) return;
 
@@ -494,33 +507,34 @@ async function initLeafletMap() {
   }).addTo(map);
 
   const bounds = [];
-  const locationGroups = groupAlbumsByLocation(manifest);
+  const stopGroups = tripStopGroups(manifest);
 
-  // Trip trail (M24): a thin gradient polyline following album order
+  // Trip trail (M24): a thin gradient polyline following the trip stop order
   // (green → red) with sparse arrowheads showing direction. Added BEFORE the
   // markers so pins sit on top.
   drawTrail(L, map);
 
-  for (const { lat, lng, albums } of locationGroups) {
+  for (const { lat, lng, stops } of stopGroups) {
     bounds.push([lat, lng]);
-    const color = MAP_COUNTRY_COLORS[albums[0].primary] || '#888';
-    const isCluster = albums.length > 1;
+    // Colour by the pin's country (per-city override for multi-city albums).
+    const color = MAP_COUNTRY_COLORS[stops[0].country] || '#888';
+    const hasAlbum = stops.some((s) => s.albumId);
+    // Empty opening stops (no album) render as a hollow pin.
+    const pinClass = hasAlbum ? 'map-pin' : 'map-pin map-pin-empty';
 
-    const icon = isCluster
-      ? L.divIcon({
-          html: `<div class="map-pin-cluster" style="background:${color}">${albums.length}</div>`,
-          className: 'map-pin-wrapper',
-          iconSize: [24, 24], iconAnchor: [12, 12], popupAnchor: [0, -14],
-        })
-      : L.divIcon({
-          html: `<div class="map-pin" style="background:${color}"></div>`,
-          className: 'map-pin-wrapper',
-          iconSize: [14, 14], iconAnchor: [7, 7], popupAnchor: [0, -10],
-        });
+    const icon = L.divIcon({
+      html: `<div class="${pinClass}" style="background:${color}"></div>`,
+      className: 'map-pin-wrapper',
+      iconSize: [14, 14], iconAnchor: [7, 7], popupAnchor: [0, -10],
+    });
 
-    const marker = L.marker([lat, lng], { icon });
-    marker.bindPopup(clusterPopupHTML(albums), { maxWidth: 240 });
-    marker.on('popupopen', () => wirePopupLinks(marker));
+    const marker = L.marker([lat, lng], { icon, title: stopTooltipText(stops) });
+    // Hover tooltip (#3): city name(s).
+    marker.bindTooltip(stopTooltipText(stops), { direction: 'top', offset: [0, -8] });
+    if (hasAlbum) {
+      marker.bindPopup(stopPopupHTML(stops), { maxWidth: 240 });
+      marker.on('popupopen', () => wirePopupLinks(marker));
+    }
     marker.addTo(map);
   }
   if (bounds.length) map.fitBounds(bounds, { padding: [40, 40] });

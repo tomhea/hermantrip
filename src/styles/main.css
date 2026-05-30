@@ -633,6 +633,18 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .map-pin:focus {
   transform: scale(1.35);
 }
+/* Empty opening stop (e.g. גבעת שמואל) — hollow pin, no album link (M27). */
+.map-pin-empty {
+  background: transparent !important;
+  border: 2px solid var(--text-muted);
+  box-shadow: none;
+}
+/* Non-link label inside a popup (empty stop) */
+.map-popup-label {
+  display: block;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
 
 /* Map popup */
 .map-popup {
