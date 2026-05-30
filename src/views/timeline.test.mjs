@@ -6,11 +6,11 @@ const manifest = { albums: [{ id: 2, primary: 'np', countries: ['np'], name: 'נ
 const timeline = [
   { key: '2011-03-15', label: '15 במרץ 2011', photos: [
     { photo: { id: 'p1', capturedAt: '2011-03-15T08:00:00' },
-      album: { id: 2, primary: 'np', name: 'נגארקוט', title: 'נגארקוט' } },
+      album: { id: 2, primary: 'np', slug: 'nagarkot-bhaktapur', name: 'נגארקוט', title: 'נגארקוט' } },
   ]},
   { key: '2011-03-16', label: '16 במרץ 2011', photos: [
     { photo: { id: 'p2', capturedAt: '2011-03-16T09:00:00' },
-      album: { id: 2, primary: 'np', name: 'נגארקוט', title: 'נגארקוט' } },
+      album: { id: 2, primary: 'np', slug: 'nagarkot-bhaktapur', name: 'נגארקוט', title: 'נגארקוט' } },
   ]},
 ];
 

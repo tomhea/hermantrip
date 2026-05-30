@@ -24,7 +24,7 @@ test('happy path: one card per album with album name + photo count', () => {
   assert.match(html, /01\. נפאל - קטמנדו/);
   assert.match(html, /02\. נפאל - פוקרה/);
   assert.match(html, /href="\/nepal\/1"/);
-  assert.match(html, /href="\/nepal\/2"/);
+  assert.match(html, /href="\/nepal\/nagarkot-bhaktapur"/);
 });
 
 test('happy path: photo counts are shown', () => {

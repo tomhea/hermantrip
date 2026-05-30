@@ -5,7 +5,7 @@ import { renderRandomShow } from './random-slideshow.js';
 const manifest = { countries: [], albums: [] };
 const item = {
   photo: { id: 'p1', name: 'a.jpg', capturedAt: '2011-07-23T14:32:00' },
-  album: { id: 3, name: '03. נפאל - טרק', title: 'טרק פון היל', primary: 'np', countries: ['np'] },
+  album: { id: 3, name: '03. נפאל - טרק', title: 'טרק פון היל', slug: 'poon-hill-trek', primary: 'np', countries: ['np'] },
 };
 
 test('renders the photo via slide intent', () => {
