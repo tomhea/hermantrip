@@ -23,6 +23,7 @@ import { renderSlideshow } from './views/slideshow.js';
 import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
 import { coordsForAlbum, groupAlbumsByLocation } from './lib/album-coords.js';
+import { globeModuleUrl } from './lib/globe-loader.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline } from './views/timeline.js';
 import { buildTimeline, sliderValueToBucketIndex, scrollYToBucketIndex } from './lib/timeline.js';
@@ -396,10 +397,17 @@ function loadLeaflet() {
 let globePromise = null;
 function loadGlobe() {
   if (globePromise) return globePromise;
+  // esm.sh resolves Globe.gl's bare dependency specifiers (three, three-globe)
+  // and serves browser-ready ESM — the unpkg .module.js build does NOT, so it
+  // throws "Failed to resolve module specifier 'three'" with no import-map.
+  // Still a dynamic import() on user toggle → R5-compliant.
   // eslint-disable-next-line no-undef
-  globePromise = import('https://unpkg.com/globe.gl@2.31.2/dist/globe.gl.module.js')
+  globePromise = import(/* @vite-ignore */ globeModuleUrl())
     .then((mod) => mod.default || mod)
-    .catch(() => { throw new Error('Globe.gl failed to load'); });
+    .catch((err) => {
+      console.error('Globe.gl failed to load:', err);
+      throw new Error('Globe.gl failed to load');
+    });
   return globePromise;
 }
 
