@@ -73,3 +73,25 @@ export function buildTimeline(manifest) {
 export function timelinePhotoCount(timeline) {
   return timeline.reduce((s, b) => s + b.photos.length, 0);
 }
+
+// ── Slider helpers (M22) ─────────────────────────────────────────
+// Map a slider value (0 … timeline.length-1) to the bucket index to
+// jump to. Clamps to valid range. Pure — no DOM.
+export function sliderValueToBucketIndex(value, total) {
+  if (!total || total === 0) return 0;
+  return Math.max(0, Math.min(total - 1, Math.round(Number(value))));
+}
+
+// Given the IDs of all rendered .tl-day sections and their offsetTop values,
+// return the bucket index (slider value) for the one whose top is closest to
+// or just above a scrollY position.
+// bucketOffsets: [{index, top}] sorted ascending by top.
+export function scrollYToBucketIndex(scrollY, bucketOffsets) {
+  if (!bucketOffsets || bucketOffsets.length === 0) return 0;
+  let last = bucketOffsets[0].index;
+  for (const { index, top } of bucketOffsets) {
+    if (top > scrollY + 80) break; // 80px header clearance
+    last = index;
+  }
+  return last;
+}

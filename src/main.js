@@ -25,7 +25,7 @@ import { renderMap } from './views/map.js';
 import { coordsForAlbum, groupAlbumsByLocation } from './lib/album-coords.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline } from './views/timeline.js';
-import { buildTimeline } from './lib/timeline.js';
+import { buildTimeline, sliderValueToBucketIndex, scrollYToBucketIndex } from './lib/timeline.js';
 import { eligibleAlbums, albumChoices, scoreCountry, scoreAlbum, generateRounds, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
 
 // Clean-path routes (M12). Order matters: literal first segments are listed
@@ -681,6 +681,60 @@ function renderTimelineView() {
       renderTimelineView();
     });
   }
+
+  // Wire the date slider (M22).
+  const slider = app.querySelector('#tl-slider');
+  const sliderLabel = app.querySelector('#tl-slider-label');
+  if (!slider || !timelineData || timelineData.length === 0) return;
+
+  // Ensure ALL buckets are rendered before building the offsetTop map so
+  // the slider can jump to any day — render all pages if more remain.
+  const totalBuckets = timelineData.length;
+  let allRendered = app.querySelectorAll('.tl-day').length >= totalBuckets;
+
+  function getBucketOffsets() {
+    return [...app.querySelectorAll('.tl-day')].map((el, i) => ({
+      index: i,
+      top: el.offsetTop,
+    }));
+  }
+
+  // Slider → jump to that day section.
+  slider.addEventListener('input', () => {
+    const idx = sliderValueToBucketIndex(slider.value, totalBuckets);
+    const label = timelineData[idx]?.label || '';
+    if (sliderLabel) { sliderLabel.textContent = label; sliderLabel.value = label; }
+    slider.setAttribute('aria-valuetext', label);
+
+    // If this bucket hasn't been rendered yet, expand the page first.
+    const renderedCount = app.querySelectorAll('.tl-day').length;
+    if (idx >= renderedCount) {
+      timelinePage = Math.ceil((idx + 1) / PAGE_SIZE);
+      renderTimelineView();
+      // After re-render, scroll to the bucket.
+      setTimeout(() => {
+        const days = app.querySelectorAll('.tl-day');
+        if (days[idx]) days[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    } else {
+      const days = app.querySelectorAll('.tl-day');
+      if (days[idx]) days[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  // Scroll → update slider position.
+  let scrollRaf = null;
+  window.addEventListener('scroll', () => {
+    if (scrollRaf) return;
+    scrollRaf = requestAnimationFrame(() => {
+      scrollRaf = null;
+      const offsets = getBucketOffsets();
+      const idx = scrollYToBucketIndex(window.scrollY, offsets);
+      slider.value = idx;
+      const label = timelineData[idx]?.label || '';
+      if (sliderLabel) { sliderLabel.textContent = label; sliderLabel.value = label; }
+    });
+  }, { passive: true });
 }
 
 function renderNotFound(path) {

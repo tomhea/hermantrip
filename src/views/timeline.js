@@ -66,6 +66,9 @@ export function renderTimeline({ manifest, error, timeline, page, dpr }) {
 
   const shown = timeline.slice(0, (page || 1) * PAGE_SIZE);
   const remaining = timeline.length - shown.length;
+  const total = timeline.length;
+  const firstLabel = escapeHTML(timeline[0].label || '');
+  const lastLabel  = escapeHTML(timeline[total - 1].label || '');
 
   return `
     <div class="tl-page">
@@ -73,6 +76,15 @@ export function renderTimeline({ manifest, error, timeline, page, dpr }) {
         <a class="tl-back" href="/">← חזרה</a>
         <h1 class="tl-title">ציר זמן</h1>
       </header>
+      <!-- Date slider — lets users jump to any day directly (M22) -->
+      <div class="tl-slider-wrap" aria-label="ניווט מהיר בציר הזמן">
+        <span class="tl-slider-edge tl-slider-start" aria-hidden="true">${firstLabel}</span>
+        <input type="range" id="tl-slider" class="tl-slider"
+               min="0" max="${total - 1}" value="0" step="1"
+               aria-label="בחר תאריך" aria-valuetext="${firstLabel}">
+        <span class="tl-slider-edge tl-slider-end" aria-hidden="true">${lastLabel}</span>
+        <output for="tl-slider" id="tl-slider-label" class="tl-slider-label">${firstLabel}</output>
+      </div>
       <div class="tl-feed" id="tl-feed">
         ${shown.map((b) => dayBucket(b, dpr)).join('')}
       </div>
