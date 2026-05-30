@@ -705,80 +705,101 @@ function wireGame() {
   }
 }
 
-// ── Timeline (M20) ───────────────────────────────────────────────
-let timelineData = null;  // built once from manifest
-let timelinePage = 1;     // which "page" of buckets to show
+// ── Timeline (M20; lazy-hydrated M26) ────────────────────────────
+let timelineData = null;          // built once from manifest
+let timelineObserver = null;      // IntersectionObserver over the day shells
+let timelineScrollHandler = null; // window scroll listener (removed on leave)
+
+// Disconnect the timeline observer + scroll listener (called from render()
+// when leaving the route so re-entry doesn't stack listeners/observers).
+function teardownTimeline() {
+  if (timelineObserver) { timelineObserver.disconnect(); timelineObserver = null; }
+  if (timelineScrollHandler) {
+    window.removeEventListener('scroll', timelineScrollHandler);
+    timelineScrollHandler = null;
+  }
+}
 
 function renderTimelineView() {
   if (manifest && !timelineData) timelineData = buildTimeline(manifest);
+  teardownTimeline(); // fresh wiring for this render
   app.innerHTML = renderTimeline({
-    manifest, error: manifestError, timeline: timelineData,
-    page: timelinePage, dpr: dpr(),
+    manifest, error: manifestError, timeline: timelineData, dpr: dpr(),
   });
   window.scrollTo(0, 0);
 
-  // Wire the load-more button.
-  const moreBtn = app.querySelector('[data-tl-more]');
-  if (moreBtn) {
-    moreBtn.addEventListener('click', () => {
-      timelinePage += 1;
-      renderTimelineView();
-    });
+  if (!timelineData || timelineData.length === 0) return;
+  const totalBuckets = timelineData.length;
+
+  // Fill one day shell's photo strip with its thumbnails (idempotent).
+  const hydrate = (strip) => {
+    const idx = Number(strip.dataset.bucketIndex);
+    if (strip.dataset.hydrated || Number.isNaN(idx)) return;
+    strip.dataset.hydrated = '1';
+    strip.innerHTML = dayStripHTML(timelineData[idx], dpr());
+  };
+
+  // Lazy hydration: a day must stay on screen ~0.5s before its photos load
+  // (empty date+blank strip first, photos after the dwell). Cancel the timer
+  // if it scrolls away before firing. rootMargin pre-loads just-off-screen
+  // days so slow scrolling stays ahead of the viewport.
+  const pending = new Map(); // strip → timeout id
+  timelineObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      const strip = entry.target;
+      if (entry.isIntersecting) {
+        if (!pending.has(strip) && !strip.dataset.hydrated) {
+          pending.set(strip, setTimeout(() => {
+            pending.delete(strip);
+            hydrate(strip);
+            timelineObserver.unobserve(strip);
+          }, 500));
+        }
+      } else {
+        const id = pending.get(strip);
+        if (id) { clearTimeout(id); pending.delete(strip); }
+      }
+    }
+  }, { rootMargin: '300px 0px' });
+
+  for (const strip of app.querySelectorAll('.tl-photo-strip')) {
+    timelineObserver.observe(strip);
   }
 
-  // Wire the date slider (M22).
+  // Slider → jump to a day. All shells exist up front, so any index is
+  // addressable; hydrate the target immediately so it isn't blank on arrival.
   const slider = app.querySelector('#tl-slider');
   const sliderLabel = app.querySelector('#tl-slider-label');
-  if (!slider || !timelineData || timelineData.length === 0) return;
+  if (!slider) return;
 
-  // Ensure ALL buckets are rendered before building the offsetTop map so
-  // the slider can jump to any day — render all pages if more remain.
-  const totalBuckets = timelineData.length;
-  let allRendered = app.querySelectorAll('.tl-day').length >= totalBuckets;
-
-  function getBucketOffsets() {
-    return [...app.querySelectorAll('.tl-day')].map((el, i) => ({
-      index: i,
-      top: el.offsetTop,
-    }));
-  }
-
-  // Slider → jump to that day section.
   slider.addEventListener('input', () => {
     const idx = sliderValueToBucketIndex(slider.value, totalBuckets);
     const label = timelineData[idx]?.label || '';
     if (sliderLabel) { sliderLabel.textContent = label; sliderLabel.value = label; }
     slider.setAttribute('aria-valuetext', label);
-
-    // If this bucket hasn't been rendered yet, expand the page first.
-    const renderedCount = app.querySelectorAll('.tl-day').length;
-    if (idx >= renderedCount) {
-      timelinePage = Math.ceil((idx + 1) / PAGE_SIZE);
-      renderTimelineView();
-      // After re-render, scroll to the bucket.
-      setTimeout(() => {
-        const days = app.querySelectorAll('.tl-day');
-        if (days[idx]) days[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 50);
-    } else {
-      const days = app.querySelectorAll('.tl-day');
-      if (days[idx]) days[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    const day = app.querySelector(`.tl-day[data-bucket-index="${idx}"]`);
+    const strip = app.querySelector(`.tl-photo-strip[data-bucket-index="${idx}"]`);
+    if (strip) hydrate(strip);
+    if (day) day.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
-  // Scroll → update slider position.
+  // Scroll → update the slider position to the day nearest the top.
   let scrollRaf = null;
-  window.addEventListener('scroll', () => {
+  timelineScrollHandler = () => {
     if (scrollRaf) return;
     scrollRaf = requestAnimationFrame(() => {
       scrollRaf = null;
-      const offsets = getBucketOffsets();
+      const offsets = [...app.querySelectorAll('.tl-day')].map((el) => ({
+        index: Number(el.dataset.bucketIndex),
+        top: el.offsetTop,
+      }));
       const idx = scrollYToBucketIndex(window.scrollY, offsets);
       slider.value = idx;
       const label = timelineData[idx]?.label || '';
       if (sliderLabel) { sliderLabel.textContent = label; sliderLabel.value = label; }
     });
-  }, { passive: true });
+  };
+  window.addEventListener('scroll', timelineScrollHandler, { passive: true });
 }
 
 function renderNotFound(path) {
@@ -825,6 +846,8 @@ function render() {
     leafletMapInstance = null;
     mapMode = 'map';
   }
+  // Leaving the timeline: disconnect its observer + scroll listener (M26).
+  if (match && match.name !== 'timeline') teardownTimeline();
   if (!match) {
     renderNotFound(path);
     return;
