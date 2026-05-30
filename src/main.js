@@ -23,6 +23,8 @@ import { renderSlideshow } from './views/slideshow.js';
 import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
 import { coordsForAlbum } from './lib/album-coords.js';
+import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
+import { eligibleAlbums, albumChoices, scoreCountry, scoreAlbum, generateRounds, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
 
 // Clean-path routes (M12). Order matters: literal first segments are listed
 // before the /:country catch-all, and the more-specific /:country/random &
@@ -449,6 +451,114 @@ async function renderMapView() {
   if (bounds.length) map.fitBounds(bounds, { padding: [40, 40] });
 }
 
+// ── Game (M19) ───────────────────────────────────────────────────
+// Game state (persists across the re-renders within a game session).
+let gameRounds = null;   // [{ photo, album }] — 10 items
+let gameStep = 'country'; // 'country' | 'album' | 'result' | 'done'
+let gameRoundIdx = 0;
+let gameScore = 0;
+let gameCountryCorrect = false;
+let gameAlbumCorrect = false;
+let gameAlbumChoices = null;
+
+function startGame() {
+  if (!manifest) return;
+  gameRounds = generateRounds(manifest);
+  gameRoundIdx = 0;
+  gameScore = 0;
+  gameStep = 'country';
+  gameCountryCorrect = false;
+  gameAlbumCorrect = false;
+  gameAlbumChoices = null;
+}
+
+function renderGameView() {
+  if (!manifest) {
+    app.innerHTML = renderGame({ manifest: null, error: manifestError });
+    return;
+  }
+  if (manifestError) {
+    app.innerHTML = renderGame({ manifest: null, error: manifestError });
+    return;
+  }
+  if (!gameRounds) startGame();
+
+  const round = gameRounds[gameRoundIdx];
+  const roundNum = gameRoundIdx + 1;
+  const base = { round, roundNum, totalRounds: TOTAL_ROUNDS, score: gameScore, dpr: dpr(), viewport: viewportClass() };
+
+  if (gameStep === 'country') {
+    app.innerHTML = renderGameCountry(base);
+    wireGame();
+  } else if (gameStep === 'album') {
+    if (!gameAlbumChoices) {
+      gameAlbumChoices = albumChoices(eligibleAlbums(manifest), round.album);
+    }
+    app.innerHTML = renderGameAlbum({ ...base, choices: gameAlbumChoices, countryCorrect: gameCountryCorrect });
+    wireGame();
+  } else if (gameStep === 'result') {
+    const isLast = gameRoundIdx >= TOTAL_ROUNDS - 1;
+    app.innerHTML = renderGameResult({ ...base, countryCorrect: gameCountryCorrect, albumCorrect: gameAlbumCorrect, isLast });
+    wireGame();
+  } else if (gameStep === 'done') {
+    app.innerHTML = renderGameDone({ score: gameScore, maxScore: MAX_SCORE });
+    wireGame();
+  }
+  window.scrollTo(0, 0);
+}
+
+function wireGame() {
+  // Country buttons
+  for (const btn of app.querySelectorAll('[data-country]')) {
+    btn.addEventListener('click', () => {
+      const guessed = btn.dataset.country;
+      const correct = gameRounds[gameRoundIdx].album.primary;
+      gameCountryCorrect = scoreCountry(guessed, correct) === 1;
+      if (gameCountryCorrect) gameScore += 1;
+      gameStep = 'album';
+      gameAlbumChoices = null;
+      renderGameView();
+    });
+  }
+  // Album buttons
+  for (const btn of app.querySelectorAll('[data-album-id]')) {
+    btn.addEventListener('click', () => {
+      const guessedId = Number(btn.dataset.albumId);
+      const correctId = gameRounds[gameRoundIdx].album.id;
+      gameAlbumCorrect = scoreAlbum(guessedId, correctId) === 1;
+      if (gameAlbumCorrect) gameScore += 1;
+      // Briefly highlight the correct answer before advancing.
+      btn.classList.add(gameAlbumCorrect ? 'correct' : 'wrong');
+      const correctBtn = app.querySelector(`[data-album-id="${correctId}"]`);
+      if (correctBtn && !gameAlbumCorrect) correctBtn.classList.add('correct');
+      setTimeout(() => {
+        gameStep = 'result';
+        renderGameView();
+      }, 600);
+    });
+  }
+  // Next / finish / replay
+  for (const btn of app.querySelectorAll('[data-game-action]')) {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.gameAction;
+      if (action === 'next') {
+        gameRoundIdx += 1;
+        gameStep = 'country';
+        gameCountryCorrect = false;
+        gameAlbumCorrect = false;
+        gameAlbumChoices = null;
+        renderGameView();
+      } else if (action === 'finish') {
+        gameStep = 'done';
+        renderGameView();
+      } else if (action === 'replay') {
+        startGame();
+        renderGameView();
+      }
+    });
+  }
+}
+
 function renderNotFound(path) {
   app.innerHTML = `
     <div class="notfound">
@@ -512,6 +622,9 @@ function render() {
     }
     case 'map':
       renderMapView();
+      break;
+    case 'game':
+      renderGameView();
       break;
     default:
       // Placeholder for routes whose views ship in later milestones

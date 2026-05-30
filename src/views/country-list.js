@@ -96,6 +96,7 @@ export function renderCountryList({ manifest, error, dpr = 1 }) {
     <nav class="home-actions">
       <a class="action-link" href="${randomPath()}">▷ מצגת אקראית מכל המדינות</a>
       <a class="action-link" href="/map">◎ מפה</a>
+      <a class="action-link" href="/game">? משחק ניחושים</a>
     </nav>
     <ul class="country-grid" aria-label="מדינות">
       ${manifest.countries.map((c) => renderCountryCard(c, manifest, dpr)).join('')}
