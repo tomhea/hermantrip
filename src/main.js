@@ -24,6 +24,8 @@ import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
 import { coordsForAlbum } from './lib/album-coords.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
+import { renderTimeline } from './views/timeline.js';
+import { buildTimeline } from './lib/timeline.js';
 import { eligibleAlbums, albumChoices, scoreCountry, scoreAlbum, generateRounds, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
 
 // Clean-path routes (M12). Order matters: literal first segments are listed
@@ -559,6 +561,28 @@ function wireGame() {
   }
 }
 
+// ── Timeline (M20) ───────────────────────────────────────────────
+let timelineData = null;  // built once from manifest
+let timelinePage = 1;     // which "page" of buckets to show
+
+function renderTimelineView() {
+  if (manifest && !timelineData) timelineData = buildTimeline(manifest);
+  app.innerHTML = renderTimeline({
+    manifest, error: manifestError, timeline: timelineData,
+    page: timelinePage, dpr: dpr(),
+  });
+  window.scrollTo(0, 0);
+
+  // Wire the load-more button.
+  const moreBtn = app.querySelector('[data-tl-more]');
+  if (moreBtn) {
+    moreBtn.addEventListener('click', () => {
+      timelinePage += 1;
+      renderTimelineView();
+    });
+  }
+}
+
 function renderNotFound(path) {
   app.innerHTML = `
     <div class="notfound">
@@ -625,6 +649,11 @@ function render() {
       break;
     case 'game':
       renderGameView();
+      break;
+    case 'timeline':
+      timelinePage = 1; // reset on fresh entry
+      timelineData = null;
+      renderTimelineView();
       break;
     default:
       // Placeholder for routes whose views ship in later milestones
