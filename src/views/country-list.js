@@ -95,13 +95,13 @@ export function renderCountryList({ manifest, error, dpr = 1 }) {
     ${renderHeader()}
     <nav class="home-actions">
       <a class="action-link" href="${randomPath()}">▷ מצגת אקראית מכל המדינות</a>
+      <a class="action-link" href="/map">◎ מפה</a>
     </nav>
     <ul class="country-grid" aria-label="מדינות">
       ${manifest.countries.map((c) => renderCountryCard(c, manifest, dpr)).join('')}
     </ul>
     <p class="home-coming-soon">
       בחרו מדינה כדי לדפדף באלבומים שלה.
-      מפה, משחק ניחושים וציר זמן יגיעו במילסטונים הבאים.
     </p>
   `;
 }
