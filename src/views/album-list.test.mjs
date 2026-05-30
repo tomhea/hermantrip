@@ -7,9 +7,9 @@ const manifest = {
     { code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [1, 2] },
   ],
   albums: [
-    { id: 1, name: '01. נפאל - קטמנדו', primary: 'np', countries: ['np', 'th'],
+    { id: 1, name: '01. נפאל - קטמנדו', slug: 'bangkok-kathmandu', primary: 'np', countries: ['np', 'th'],
       photos: [{ id: 'p1', name: 'a.jpg', thumbnailLink: 'https://lh3.googleusercontent.com/drive-storage/a=s220' }] },
-    { id: 2, name: '02. נפאל - פוקרה', primary: 'np', countries: ['np'],
+    { id: 2, name: '02. נפאל - פוקרה', slug: 'nagarkot-bhaktapur', primary: 'np', countries: ['np'],
       photos: [{ id: 'p2a', name: 'a.jpg' }, { id: 'p2b', name: 'b.jpg' }] },
   ],
 };
@@ -23,7 +23,7 @@ test('happy path: one card per album with album name + photo count', () => {
   const html = renderAlbumList({ manifest, code: 'np' });
   assert.match(html, /01\. נפאל - קטמנדו/);
   assert.match(html, /02\. נפאל - פוקרה/);
-  assert.match(html, /href="\/nepal\/1"/);
+  assert.match(html, /href="\/nepal\/bangkok-kathmandu"/);
   assert.match(html, /href="\/nepal\/nagarkot-bhaktapur"/);
 });
 

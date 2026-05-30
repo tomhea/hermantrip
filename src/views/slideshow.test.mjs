@@ -12,8 +12,8 @@ function photos(n) {
 const manifest = {
   countries: [{ code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [1] }],
   albums: [
-    { id: 1, name: '01. נפאל - קטמנדו', primary: 'np', countries: ['np'], photos: photos(5) },
-    { id: 2, name: '02. ריק', primary: 'np', countries: ['np'], photos: [] },
+    { id: 1, name: '01. נפאל - קטמנדו', slug: 'bangkok-kathmandu', primary: 'np', countries: ['np'], photos: photos(5) },
+    { id: 2, name: '02. ריק', slug: 'chitwan', primary: 'np', countries: ['np'], photos: [] },
   ],
 };
 
@@ -34,23 +34,23 @@ test('shows a 1-based position counter (idx 2 of 5 → "3 / 5")', () => {
 
 test('next link wraps last → first', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '4' });
-  assert.match(html, /href="\/nepal\/1\/0"/);
+  assert.match(html, /href="\/nepal\/bangkok-kathmandu\/0"/);
 });
 
 test('prev link wraps first → last', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '0' });
-  assert.match(html, /href="\/nepal\/1\/4"/);
+  assert.match(html, /href="\/nepal\/bangkok-kathmandu\/4"/);
 });
 
 test('middle index links to both neighbours', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '2' });
-  assert.match(html, /href="\/nepal\/1\/3"/); // next
-  assert.match(html, /href="\/nepal\/1\/1"/); // prev
+  assert.match(html, /href="\/nepal\/bangkok-kathmandu\/3"/); // next
+  assert.match(html, /href="\/nepal\/bangkok-kathmandu\/1"/); // prev
 });
 
 test('exit/close link returns to the album grid', () => {
   const html = renderSlideshow({ manifest, id: '1', idx: '2' });
-  assert.match(html, /href="\/nepal\/1"/);
+  assert.match(html, /href="\/nepal\/bangkok-kathmandu"/);
 });
 
 test('out-of-range index is clamped (idx 99 → shows last photo p004)', () => {
@@ -82,16 +82,16 @@ test('unknown album → not-found + home link', () => {
 test('empty album → message + back link, no crash', () => {
   const html = renderSlideshow({ manifest, id: '2', idx: '0' });
   assert.match(html, /אין תמונות/);
-  assert.match(html, /href="\/nepal\/2"/);
+  assert.match(html, /href="\/nepal\/chitwan"/);
 });
 
 test('carries data-slideshow hooks for keyboard/swipe wiring', () => {
   // main.js looks for these to attach listeners
   const html = renderSlideshow({ manifest, id: '1', idx: '2' });
   assert.match(html, /data-slideshow/);
-  assert.match(html, /data-next="\/nepal\/1\/3"/);
-  assert.match(html, /data-prev="\/nepal\/1\/1"/);
-  assert.match(html, /data-exit="\/nepal\/1"/);
+  assert.match(html, /data-next="\/nepal\/bangkok-kathmandu\/3"/);
+  assert.match(html, /data-prev="\/nepal\/bangkok-kathmandu\/1"/);
+  assert.match(html, /data-exit="\/nepal\/bangkok-kathmandu"/);
 });
 
 test('renders a play button (data-autoplay-toggle) when autoplay is off', () => {

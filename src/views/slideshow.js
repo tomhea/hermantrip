@@ -72,7 +72,7 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
   // Keep navigation in the country we came from (URL context); fall back to
   // the album's primary country.
   const navCode = code || album.primary;
-  const exitHref = albumPath(navCode, album.id);
+  const exitHref = albumPath(navCode, album.slug);
   const photos = sortPhotosByDate(album.photos);
   if (photos.length === 0) {
     return `
@@ -84,8 +84,8 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
 
   const i = clampIndex(idx, photos.length);
   const photo = photos[i];
-  const nextHref = slidePath(navCode, album.id, nextIndex(i, photos.length));
-  const prevHref = slidePath(navCode, album.id, prevIndex(i, photos.length));
+  const nextHref = slidePath(navCode, album.slug, nextIndex(i, photos.length));
+  const prevHref = slidePath(navCode, album.slug, prevIndex(i, photos.length));
   const src = imageUrl(photo.id, 'slide', { dpr, viewport });
   // Same-origin /img/ proxy can't be ORB-blocked; onerror just shows the
   // placeholder on a genuine miss.

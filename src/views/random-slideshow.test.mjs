@@ -34,7 +34,7 @@ test('info panel shows the source album, country, date', () => {
 
 test('bar links to the source album', () => {
   const html = renderRandomShow({ manifest, item, scope: 'all' });
-  assert.match(html, /class="slideshow-title" href="\/nepal\/3"/);
+  assert.match(html, /class="slideshow-title" href="\/nepal\/poon-hill-trek"/);
 });
 
 test('download link → original', () => {

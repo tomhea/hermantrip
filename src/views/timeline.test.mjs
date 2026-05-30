@@ -75,7 +75,7 @@ test('renderTimeline: slider label shows first day label', () => {
 
 test('renderTimeline: photos link to their album', () => {
   const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
-  assert.match(html, /href="\/nepal\/2"/);
+  assert.match(html, /href="\/nepal\/nagarkot-bhaktapur"/);
 });
 
 test('renderTimeline: PAGE_SIZE is exported', () => {
