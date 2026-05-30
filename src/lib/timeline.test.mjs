@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { parseDate, formatDayHe, dayKey, buildTimeline, timelinePhotoCount } from './timeline.js';
+import { parseDate, formatDayHe, dayKey, buildTimeline, timelinePhotoCount,
+         sliderValueToBucketIndex, scrollYToBucketIndex } from './timeline.js';
 
 // ── parseDate ─────────────────────────────────────────────────────
 test('parseDate: valid capturedAt → Date', () => {
@@ -93,7 +94,42 @@ test('buildTimeline: each photo entry has { photo, album }', () => {
 // ── timelinePhotoCount ────────────────────────────────────────────
 test('timelinePhotoCount: sums all photos', () => {
   const t = buildTimeline(manifest);
-  // 2+1+1 = 4 dated + 1 undated = 5 (album 1: 3 photos, album 2: 3 photos → total 6... but 1 null)
-  // Actually: album1=[2011-03-15,2011-03-15,2011-03-16] (3) + album2=[2011-03-14,null,2011-03-15] (3) = 6 total
+  // album1=[2011-03-15,2011-03-15,2011-03-16] (3) + album2=[2011-03-14,null,2011-03-15] (3) = 6 total
   assert.equal(timelinePhotoCount(t), 6);
+});
+
+// ── sliderValueToBucketIndex ──────────────────────────────────────
+test('sliderValueToBucketIndex: value 0 returns 0', () => {
+  assert.equal(sliderValueToBucketIndex(0, 10), 0);
+});
+test('sliderValueToBucketIndex: clamps above total-1', () => {
+  assert.equal(sliderValueToBucketIndex(99, 10), 9);
+});
+test('sliderValueToBucketIndex: clamps below 0', () => {
+  assert.equal(sliderValueToBucketIndex(-5, 10), 0);
+});
+test('sliderValueToBucketIndex: rounds float', () => {
+  assert.equal(sliderValueToBucketIndex(3.7, 10), 4);
+});
+test('sliderValueToBucketIndex: total 0 returns 0 (guard)', () => {
+  assert.equal(sliderValueToBucketIndex(5, 0), 0);
+});
+
+// ── scrollYToBucketIndex ──────────────────────────────────────────
+const offsets = [
+  { index: 0, top: 100 },
+  { index: 1, top: 400 },
+  { index: 2, top: 800 },
+];
+test('scrollYToBucketIndex: scrollY before first section returns 0', () => {
+  assert.equal(scrollYToBucketIndex(0, offsets), 0);
+});
+test('scrollYToBucketIndex: scrollY in second section returns 1', () => {
+  assert.equal(scrollYToBucketIndex(450, offsets), 1);
+});
+test('scrollYToBucketIndex: scrollY past last section returns 2', () => {
+  assert.equal(scrollYToBucketIndex(1200, offsets), 2);
+});
+test('scrollYToBucketIndex: empty offsets returns 0', () => {
+  assert.equal(scrollYToBucketIndex(500, []), 0);
 });

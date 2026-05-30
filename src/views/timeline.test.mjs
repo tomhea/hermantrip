@@ -55,6 +55,24 @@ test('renderTimeline: thumbnails have onerror fallback (R4)', () => {
   assert.match(html, /onerror=/);
 });
 
+// ── Slider (M22) ─────────────────────────────────────────────────
+test('renderTimeline: renders the range slider input', () => {
+  const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
+  assert.match(html, /id="tl-slider"/);
+  assert.match(html, /type="range"/);
+});
+
+test('renderTimeline: slider max equals timeline.length - 1', () => {
+  const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
+  assert.match(html, /max="1"/); // timeline has 2 entries → max=1
+});
+
+test('renderTimeline: slider label shows first day label', () => {
+  const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
+  assert.match(html, /id="tl-slider-label"/);
+  assert.match(html, /15 במרץ 2011/); // first bucket label
+});
+
 test('renderTimeline: photos link to their album', () => {
   const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
   assert.match(html, /href="\/nepal\/2"/);

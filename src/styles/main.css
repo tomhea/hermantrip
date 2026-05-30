@@ -940,3 +940,67 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   cursor: pointer;
 }
 .tl-more-btn:hover { background: #f0e8df; }
+
+/* ── Timeline date slider (M22) ─────────────────────────────────── */
+.tl-slider-wrap {
+  position: sticky;
+  top: 48px;          /* just below the .tl-header */
+  z-index: 9;
+  background: var(--surface);
+  border-bottom: 1px solid var(--divider);
+  padding: var(--space-2) var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.tl-slider-edge {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex: 0 0 auto;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tl-slider {
+  flex: 1 1 auto;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--divider);
+  outline: none;
+  cursor: pointer;
+  direction: ltr; /* range inputs always LTR: left=min, right=max */
+}
+.tl-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.tl-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+.tl-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  cursor: pointer;
+}
+.tl-slider-label {
+  display: block;
+  text-align: center;
+  font-size: var(--type-small);
+  color: var(--accent);
+  font-weight: 500;
+  min-width: 120px;
+  white-space: nowrap;
+}
