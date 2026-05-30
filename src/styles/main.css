@@ -653,6 +653,55 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   text-decoration: underline;
 }
 
+/* Cluster marker (M21) — multiple albums at one location */
+.map-pin-cluster {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.9);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+.map-pin-cluster:hover { transform: scale(1.25); }
+
+/* Map/Globe toggle (M21) */
+.map-toggle {
+  display: flex;
+  border: 1px solid var(--divider);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-inline-start: auto;
+}
+.map-toggle-btn {
+  padding: var(--space-1) var(--space-3);
+  border: none;
+  background: var(--surface);
+  font-family: var(--font-family);
+  font-size: var(--type-small);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.map-toggle-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+.map-toggle-btn:not(.active):hover { background: var(--bg); }
+
+/* Globe container (M21) */
+.globe-container {
+  flex: 1 1 auto;
+  width: 100%;
+  background: #0a0a12;   /* deep space */
+  isolation: isolate;
+}
+
 /* ── Game view (M19) ────────────────────────────────────────────── */
 .game-shell {
   display: flex;

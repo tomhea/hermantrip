@@ -108,3 +108,21 @@ export function allMapMarkers() {
     label,
   }));
 }
+
+// Group albums (from the transformed manifest) by shared coordinates.
+// Returns [{lat, lng, albums:[{id,primary,title,name}]}] — one entry per
+// distinct location, albums array length ≥ 1.
+// Albums without coords are silently skipped.
+export function groupAlbumsByLocation(manifest) {
+  if (!manifest || !Array.isArray(manifest.albums)) return [];
+  const groups = new Map(); // key "lat,lng" → {lat, lng, albums:[]}
+  for (const album of manifest.albums) {
+    const c = coordsForAlbum(album.id);
+    if (!c) continue;
+    const [lat, lng] = c;
+    const key = `${lat},${lng}`;
+    if (!groups.has(key)) groups.set(key, { lat, lng, albums: [] });
+    groups.get(key).albums.push(album);
+  }
+  return [...groups.values()];
+}

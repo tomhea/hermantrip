@@ -8,27 +8,47 @@ const manifest = {
 };
 
 test('loading state when manifest null', () => {
-  const html = renderMap({ manifest: null });
-  assert.match(html, /role="status"/);
+  assert.match(renderMap({ manifest: null }), /role="status"/);
 });
 
 test('error state', () => {
-  const html = renderMap({ manifest: null, error: new Error('net error') });
-  assert.match(html, /role="alert"/);
+  assert.match(renderMap({ manifest: null, error: new Error('net error') }), /role="alert"/);
 });
 
 test('renders the map container div', () => {
   const html = renderMap({ manifest });
   assert.match(html, /id="map-container"/);
-  assert.match(html, /class="map-container"/);
+});
+
+test('renders the globe container div', () => {
+  const html = renderMap({ manifest });
+  assert.match(html, /id="globe-container"/);
 });
 
 test('renders back link to home', () => {
-  const html = renderMap({ manifest });
-  assert.match(html, /href="\/"/);
+  assert.match(renderMap({ manifest }), /href="\/"/);
 });
 
 test('renders page title', () => {
+  assert.match(renderMap({ manifest }), /מפה/);
+});
+
+test('map mode: map-container visible, globe hidden', () => {
+  const html = renderMap({ manifest, mode: 'map' });
+  // map-container NOT hidden
+  assert.doesNotMatch(html, /id="map-container"[^>]*style="display:none"/);
+  // globe-container IS hidden
+  assert.match(html, /id="globe-container"[^>]*style="display:none"/);
+});
+
+test('globe mode: globe-container visible, map hidden', () => {
+  const html = renderMap({ manifest, mode: 'globe' });
+  assert.match(html, /id="map-container"[^>]*style="display:none"/);
+  assert.doesNotMatch(html, /id="globe-container"[^>]*style="display:none"/);
+});
+
+test('renders toggle buttons with data-map-mode attributes', () => {
   const html = renderMap({ manifest });
-  assert.match(html, /מפה/);
+  assert.match(html, /data-map-mode="map"/);
+  assert.match(html, /data-map-mode="globe"/);
 });

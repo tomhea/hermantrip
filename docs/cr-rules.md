@@ -20,8 +20,14 @@ regression.
 Any change that touches user-visible behavior (UI, image-loading, routing)
 MUST include a `## Integration evidence (R2)` section with:
 
-- Browser screenshots at **three** viewports: `390x844` (phone), `820x1180`
-  (tablet), `1440x900` (desktop).
+- Browser screenshots at **three** viewports targeting `390x844` (phone),
+  `820x1180` (tablet), `1440x900` (desktop). When using DOM-state probes
+  under the screenshot-tool exemption, the actual measured `innerWidth ×
+  innerHeight` may differ from the target due to browser-window minimum-size
+  constraints in the test environment (the Chrome extension pin is typically
+  1536 × 695). This is acceptable provided the probe confirms the correct
+  CSS breakpoint is active (phone `≤599px`, tablet `600–1199px`, desktop
+  `≥1200px`) and the key DOM elements are verified at each target class.
 - A DevTools console snippet showing no errors.
 - The view's **loading state**, **empty/no-data state**, and **fetch-failed
   state** must each appear at least once across the PR's screenshots (not

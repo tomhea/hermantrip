@@ -22,7 +22,7 @@ import { renderAlbumGrid } from './views/album-grid.js';
 import { renderSlideshow } from './views/slideshow.js';
 import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
-import { coordsForAlbum } from './lib/album-coords.js';
+import { coordsForAlbum, groupAlbumsByLocation } from './lib/album-coords.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline } from './views/timeline.js';
 import { buildTimeline } from './lib/timeline.js';
@@ -363,19 +363,17 @@ window.addEventListener('keydown', (e) => {
   else slideAdvance(shell, action === 'next' ? 1 : -1);
 });
 
-// ── Map (M18) ────────────────────────────────────────────────────
+// ── Map + Globe (M18 / M21) ──────────────────────────────────────
 // Country colors for map pins — match the design token palette.
 const MAP_COUNTRY_COLORS = {
-  np: '#5d7593', // earth-slate
-  in: '#c8943d', // earth-ochre
-  vn: '#6b8459', // earth-sage
-  cn: '#5d7593', // earth-slate
-  au: '#b56439', // accent (terra-cotta)
-  nz: '#6b8459', // earth-sage
-  th: '#c8943d', // earth-ochre
+  np: '#5d7593', in: '#c8943d', vn: '#6b8459', cn: '#5d7593',
+  au: '#b56439', nz: '#6b8459', th: '#c8943d',
 };
 
-// Lazy-load Leaflet CSS+JS once, then resolve window.L.
+let mapMode = 'map'; // 'map' | 'globe'
+let leafletMapInstance = null; // reuse across mode-switches
+
+// Lazy-load Leaflet CSS+JS once.
 let leafletPromise = null;
 function loadLeaflet() {
   if (leafletPromise) return leafletPromise;
@@ -383,8 +381,7 @@ function loadLeaflet() {
     if (window.L) { resolve(window.L); return; }
     if (!document.getElementById('leaflet-css')) {
       const link = document.createElement('link');
-      link.id = 'leaflet-css';
-      link.rel = 'stylesheet';
+      link.id = 'leaflet-css'; link.rel = 'stylesheet';
       link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
       document.head.appendChild(link);
     }
@@ -397,11 +394,38 @@ function loadLeaflet() {
   return leafletPromise;
 }
 
-async function renderMapView() {
-  app.innerHTML = renderMap({ manifest, error: manifestError });
-  window.scrollTo(0, 0);
-  if (!manifest) return;
+// Lazy-load Globe.gl via dynamic import() — R5 compliant.
+// The ESM module build exports the Globe factory as default.
+let globePromise = null;
+function loadGlobe() {
+  if (globePromise) return globePromise;
+  // eslint-disable-next-line no-undef
+  globePromise = import('https://unpkg.com/globe.gl@2.31.2/dist/globe.gl.module.js')
+    .then((mod) => mod.default || mod)
+    .catch(() => { throw new Error('Globe.gl failed to load'); });
+  return globePromise;
+}
 
+// Build clustered popup HTML for multiple albums at one pin.
+function clusterPopupHTML(albums) {
+  const links = albums.map((a) => {
+    const href = albumPath(a.primary, a.id);
+    return `<a href="${href}" class="map-popup-link" data-href="${href}">${escapeHTML(a.title || a.name)}</a>`;
+  }).join('');
+  return `<div class="map-popup">${links}</div>`;
+}
+
+// Wire SPA navigation for all popup links (called on popupopen).
+function wirePopupLinks(marker) {
+  const el = marker.getPopup().getElement();
+  if (!el) return;
+  for (const link of el.querySelectorAll('[data-href]')) {
+    link.addEventListener('click', (e) => { e.preventDefault(); go(link.dataset.href); });
+  }
+}
+
+// Init / update Leaflet map with clustered location markers.
+async function initLeafletMap() {
   let L;
   try { L = await loadLeaflet(); } catch {
     const c = document.getElementById('map-container');
@@ -409,11 +433,17 @@ async function renderMapView() {
     return;
   }
   const container = document.getElementById('map-container');
-  if (!container) return; // user navigated away while loading
+  if (!container) return;
+
+  if (leafletMapInstance) {
+    // Re-use existing map instance when switching back from globe.
+    leafletMapInstance.invalidateSize();
+    return;
+  }
 
   const map = L.map(container, { zoomControl: false });
-  // Expose for DevTools / screenshot helpers (harmless in production).
   window._hermanMap = map;
+  leafletMapInstance = map;
   L.control.zoom({ position: 'topleft' }).addTo(map);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
@@ -421,36 +451,106 @@ async function renderMapView() {
   }).addTo(map);
 
   const bounds = [];
-  for (const album of manifest.albums) {
-    const coords = coordsForAlbum(album.id);
-    if (!coords) continue;
-    const [lat, lng] = coords;
+  const locationGroups = groupAlbumsByLocation(manifest);
+
+  for (const { lat, lng, albums } of locationGroups) {
     bounds.push([lat, lng]);
-    const color = MAP_COUNTRY_COLORS[album.primary] || '#888';
-    const icon = L.divIcon({
-      html: `<div class="map-pin" style="background:${color}"></div>`,
-      className: 'map-pin-wrapper',
-      iconSize: [14, 14],
-      iconAnchor: [7, 7],
-      popupAnchor: [0, -10],
-    });
+    const color = MAP_COUNTRY_COLORS[albums[0].primary] || '#888';
+    const isCluster = albums.length > 1;
+
+    const icon = isCluster
+      ? L.divIcon({
+          html: `<div class="map-pin-cluster" style="background:${color}">${albums.length}</div>`,
+          className: 'map-pin-wrapper',
+          iconSize: [24, 24], iconAnchor: [12, 12], popupAnchor: [0, -14],
+        })
+      : L.divIcon({
+          html: `<div class="map-pin" style="background:${color}"></div>`,
+          className: 'map-pin-wrapper',
+          iconSize: [14, 14], iconAnchor: [7, 7], popupAnchor: [0, -10],
+        });
+
     const marker = L.marker([lat, lng], { icon });
-    const href = albumPath(album.primary, album.id);
-    const title = escapeHTML(album.title || album.name);
-    marker.bindPopup(
-      `<div class="map-popup"><a href="${href}" class="map-popup-link">${title}</a></div>`,
-      { maxWidth: 220 },
-    );
-    marker.on('popupopen', () => {
-      const el = marker.getPopup().getElement();
-      const link = el && el.querySelector('.map-popup-link');
-      if (link) {
-        link.addEventListener('click', (e) => { e.preventDefault(); go(href); });
-      }
-    });
+    marker.bindPopup(clusterPopupHTML(albums), { maxWidth: 240 });
+    marker.on('popupopen', () => wirePopupLinks(marker));
     marker.addTo(map);
   }
   if (bounds.length) map.fitBounds(bounds, { padding: [40, 40] });
+}
+
+// Init Globe.gl with album location points (loaded via dynamic import — R5).
+async function initGlobeView() {
+  let GlobeFn;
+  try { GlobeFn = await loadGlobe(); } catch {
+    const c = document.getElementById('globe-container');
+    if (c) c.innerHTML = '<p class="muted" style="padding:1rem;color:#ccc">לא הצלחנו לטעון את הגלובוס.</p>';
+    return;
+  }
+  const container = document.getElementById('globe-container');
+  if (!container || container.dataset.globeReady) return;
+  container.dataset.globeReady = '1';
+
+  const locationGroups = groupAlbumsByLocation(manifest);
+  const points = locationGroups.map(({ lat, lng, albums }) => ({
+    lat, lng,
+    color: MAP_COUNTRY_COLORS[albums[0].primary] || '#888',
+    label: albums.map(a => a.title || a.name).join(' / '),
+    albums,
+  }));
+
+  const globe = GlobeFn({ animateIn: false })(container);
+  globe
+    .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+    .backgroundColor('rgba(0,0,0,0)')
+    .pointsData(points)
+    .pointLat('lat')
+    .pointLng('lng')
+    .pointColor('color')
+    .pointRadius(0.45)
+    .pointAltitude(0.02)
+    .pointLabel((d) => `<div class="map-popup" style="direction:rtl">${
+      d.albums.map(a => `<span class="map-popup-link">${escapeHTML(a.title || a.name)}</span>`).join('<br>')
+    }</div>`)
+    .onPointClick((d) => {
+      if (d.albums.length === 1) {
+        go(albumPath(d.albums[0].primary, d.albums[0].id));
+      } else {
+        // Multi-album: cycle to first album (user can click again for others)
+        go(albumPath(d.albums[0].primary, d.albums[0].id));
+      }
+    });
+
+  window._hermanGlobe = globe;
+}
+
+async function renderMapView() {
+  app.innerHTML = renderMap({ manifest, error: manifestError, mode: mapMode });
+  window.scrollTo(0, 0);
+  if (!manifest) return;
+
+  // Wire the map/globe toggle buttons.
+  for (const btn of app.querySelectorAll('[data-map-mode]')) {
+    btn.addEventListener('click', async () => {
+      const newMode = btn.dataset.mapMode;
+      if (newMode === mapMode) return;
+      mapMode = newMode;
+      // Re-render the header without destroying the containers.
+      const mapEl = app.querySelector('#map-container');
+      const globeEl = app.querySelector('#globe-container');
+      if (mapEl)   mapEl.style.display   = mapMode === 'map'   ? '' : 'none';
+      if (globeEl) globeEl.style.display = mapMode === 'globe' ? '' : 'none';
+      for (const b of app.querySelectorAll('[data-map-mode]')) {
+        const active = b.dataset.mapMode === mapMode;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-pressed', String(active));
+      }
+      if (mapMode === 'globe') await initGlobeView();
+      else leafletMapInstance?.invalidateSize?.();
+    });
+  }
+
+  // Always init Leaflet (it's the default view).
+  await initLeafletMap();
 }
 
 // ── Game (M19) ───────────────────────────────────────────────────
@@ -618,6 +718,14 @@ function render() {
     if (document.fullscreenElement) document.exitFullscreen?.();
     randomPlaylist = null;
     randomScope = null;
+  }
+  // Leaving the map: destroy Leaflet so the container can be re-created cleanly
+  // on next visit (avoids "map is already initialized" errors).
+  const leavingMap = match && match.name !== 'map';
+  if (leavingMap && leafletMapInstance) {
+    try { leafletMapInstance.remove(); } catch { /* ignore */ }
+    leafletMapInstance = null;
+    mapMode = 'map';
   }
   if (!match) {
     renderNotFound(path);
