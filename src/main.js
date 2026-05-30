@@ -408,6 +408,8 @@ async function renderMapView() {
   if (!container) return; // user navigated away while loading
 
   const map = L.map(container, { zoomControl: false });
+  // Expose for DevTools / screenshot helpers (harmless in production).
+  window._hermanMap = map;
   L.control.zoom({ position: 'topleft' }).addTo(map);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
