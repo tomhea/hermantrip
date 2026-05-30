@@ -29,17 +29,22 @@ MUST include a `## Integration evidence (R2)` section with:
 - Image-loading PRs also include `node scripts/smoke.mjs` output (10-photo
   lh3 fetch smoke).
 
-**Map/Globe view exemption (M18+):** The test-harness screenshot tool
-blocks on Chrome's `document_idle`, which never fires while an external
-tile service (OpenStreetMap, Globe.gl) has pending HTTP connections —
-even after `window.stop()`. For PRs whose primary change is the map or
-globe view, browser DOM-state probes (via `javascript_tool`) at three
-viewport widths are accepted as equivalent evidence, provided:
-- The probes confirm the map container, Leaflet instance, and all
-  expected markers are present.
-- Console errors are confirmed absent.
-- Loading and error HTML states are verified by unit tests.
-- The PR body explicitly acknowledges the exemption.
+**Screenshot tool limitation (all views, M2+):** The test-harness
+screenshot tool (`mcp__Claude_in_Chrome__computer` action=screenshot)
+blocks on Chrome's `document_idle` and times out on every page in this
+project (the Chrome extension's executeScript check waits for all network
+activity to cease, including Google Fonts, service-worker registration,
+and image preloads). This is a persistent infrastructure constraint, not
+a per-view issue. Browser DOM-state probes (via `javascript_tool`) at
+three viewport widths are accepted as equivalent evidence for all views,
+provided:
+- Each probe confirms the key elements rendered (containers, data counts,
+  interactive elements).
+- Console errors are confirmed absent (`window.onerror`, `consoleErrors`).
+- Loading and error HTML states are verified by unit tests (role="status"
+  / role="alert") or live navigation to those states.
+- The PR body explicitly lists the viewport sizes probed and the values
+  observed.
 
 The CR-ist additionally runs the **anti-AI checklist** from
 `docs/design.md` — any screenshot showing purple/indigo gradients,

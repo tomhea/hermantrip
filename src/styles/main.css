@@ -652,3 +652,155 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .map-popup-link:hover {
   text-decoration: underline;
 }
+
+/* ── Game view (M19) ────────────────────────────────────────────── */
+.game-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--bg);
+}
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--divider);
+  background: var(--surface);
+  font-size: var(--type-small);
+  color: var(--text-muted);
+}
+.game-score { font-weight: 700; color: var(--accent); }
+.game-stage {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #14110e;
+  max-height: 45dvh;
+  overflow: hidden;
+}
+.game-photo {
+  width: 100%;
+  height: 45dvh;
+  object-fit: contain;
+}
+.game-prompt {
+  padding: var(--space-3);
+  font-size: var(--type-body);
+  font-weight: 500;
+  text-align: center;
+}
+.game-correct { color: #2e7d32; }
+.game-wrong   { color: var(--error); }
+
+/* Country pick grid: 4×2 on phone, 7 in a row on wider */
+.game-country-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) var(--space-3);
+}
+@media (min-width: 600px) {
+  .game-country-grid { grid-template-columns: repeat(7, 1fr); }
+}
+.game-country-btn {
+  padding: var(--space-2) var(--space-1);
+  border: 1px solid var(--divider);
+  border-radius: 6px;
+  background: var(--surface);
+  font-family: var(--font-family);
+  font-size: var(--type-small);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.game-country-btn:hover,
+.game-country-btn:focus {
+  border-color: var(--accent);
+  background: #f0e8df;
+}
+
+/* Album pick: 2×2 on phone, 4 in a row wider */
+.game-album-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) var(--space-3);
+}
+@media (min-width: 769px) {
+  .game-album-grid { grid-template-columns: repeat(4, 1fr); }
+}
+.game-album-btn {
+  padding: var(--space-2);
+  border: 1px solid var(--divider);
+  border-radius: 6px;
+  background: var(--surface);
+  font-family: var(--font-family);
+  font-size: var(--type-small);
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.game-album-btn:hover,
+.game-album-btn:focus {
+  border-color: var(--accent);
+  background: #f0e8df;
+}
+.game-album-btn.correct { background: #e8f5e9; border-color: #2e7d32; }
+.game-album-btn.wrong   { background: #ffebee; border-color: var(--error); }
+
+/* Result */
+.game-result-info {
+  padding: var(--space-3);
+  text-align: center;
+}
+.game-result-album { font-size: var(--type-body); margin-bottom: var(--space-1); }
+.game-result-points { font-size: var(--type-small); color: var(--text-muted); }
+.game-result-actions { display: flex; justify-content: center; padding: var(--space-3); }
+.game-next-btn {
+  padding: var(--space-2) var(--space-4, 2rem);
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-family);
+  font-size: var(--type-body);
+  font-weight: 500;
+  cursor: pointer;
+}
+.game-next-btn:hover { background: var(--accent-dim); }
+
+/* Done screen */
+.game-done-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-4, 2rem) var(--space-3);
+  text-align: center;
+}
+.game-done-title { font-size: var(--type-display); font-weight: 700; }
+.game-done-score { font-size: 2rem; font-weight: 700; color: var(--accent); }
+.game-done-pct   { font-size: var(--type-body); color: var(--text-muted); }
+.game-done-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; justify-content: center; }
+.game-replay-btn {
+  padding: var(--space-2) var(--space-4, 2rem);
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-family);
+  font-size: var(--type-body);
+  font-weight: 500;
+  cursor: pointer;
+}
+.game-home-btn {
+  padding: var(--space-2) var(--space-4, 2rem);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: var(--accent);
+  font-size: var(--type-body);
+  font-weight: 500;
+}
