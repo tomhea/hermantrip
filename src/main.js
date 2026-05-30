@@ -430,6 +430,43 @@ function wirePopupLinks(marker) {
 }
 
 // Init / update Leaflet map with clustered location markers.
+// Draw the gradient trip trail + direction arrowheads onto a Leaflet map.
+function drawTrail(L, map) {
+  const points = orderedTrailPoints(manifest);
+  const segs = trailSegments(points);
+  if (segs.length === 0) return;
+
+  // Thin gradient polyline, one Leaflet polyline per segment so each carries
+  // its own colour. Rendered under the markers (non-interactive).
+  for (const seg of segs) {
+    L.polyline([seg.from, seg.to], {
+      color: seg.color,
+      weight: 2.5,
+      opacity: 0.85,
+      interactive: false,
+    }).addTo(map);
+  }
+
+  // Sparse arrowheads: ~12 across the route, rotated to travel bearing,
+  // coloured to match. A rotated "➤" glyph keeps it dependency-free.
+  const ARROWS = Math.min(12, segs.length);
+  const step = Math.max(1, Math.floor(segs.length / ARROWS));
+  for (let i = step; i < segs.length; i += step) {
+    const seg = segs[i];
+    const midLat = (seg.from[0] + seg.to[0]) / 2;
+    const midLng = (seg.from[1] + seg.to[1]) / 2;
+    // 0° glyph points east(→); map bearing 90°=east, so rotate by (bearing-90).
+    const rot = seg.bearing - 90;
+    const icon = L.divIcon({
+      className: 'trail-arrow-wrapper',
+      html: `<div class="trail-arrow" style="color:${seg.color};transform:rotate(${rot}deg)">➤</div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+    });
+    L.marker([midLat, midLng], { icon, interactive: false, keyboard: false }).addTo(map);
+  }
+}
+
 async function initLeafletMap() {
   let L;
   try { L = await loadLeaflet(); } catch {
@@ -457,6 +494,11 @@ async function initLeafletMap() {
 
   const bounds = [];
   const locationGroups = groupAlbumsByLocation(manifest);
+
+  // Trip trail (M24): a thin gradient polyline following album order
+  // (green → red) with sparse arrowheads showing direction. Added BEFORE the
+  // markers so pins sit on top.
+  drawTrail(L, map);
 
   for (const { lat, lng, albums } of locationGroups) {
     bounds.push([lat, lng]);
