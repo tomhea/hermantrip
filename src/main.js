@@ -57,7 +57,21 @@ let manifestError = null;
 
 async function loadManifest() {
   try {
-    const res = await fetch('/data/manifest.json', { cache: 'force-cache' });
+    // NOTE: no `cache: 'force-cache'`. Combined with the service worker's
+    // fetch handler that flag could stall the very first page-load fetch
+    // indefinitely (the SW bypasses the manifest, but force-cache during SW
+    // activation raced and never resolved → the boot await hung and the app
+    // stayed stuck on the "loading…" shell). A plain fetch with an explicit
+    // timeout can never wedge boot. The SW already keeps the manifest fresh
+    // (it's a bypass route) and Caddy sends `Cache-Control: no-cache`.
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
+    let res;
+    try {
+      res = await fetch('/data/manifest.json', { signal: ctrl.signal });
+    } finally {
+      clearTimeout(timer);
+    }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     // Apply the presentation transform (clean titles + album merges) once;
     // every view then works with the merged albums + display titles.
