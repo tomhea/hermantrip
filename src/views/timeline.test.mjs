@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { renderTimeline, PAGE_SIZE } from './timeline.js';
+import { renderTimeline, dayStripHTML } from './timeline.js';
 
 const manifest = { albums: [{ id: 2, primary: 'np', countries: ['np'], name: 'נגארקוט', title: 'נגארקוט', photos: [] }] };
 const timeline = [
@@ -14,7 +14,7 @@ const timeline = [
   ]},
 ];
 
-// Loading / error states (R3)
+// ── Loading / error / empty states (R3) ──────────────────────────
 test('renderTimeline: loading state when manifest null', () => {
   assert.match(renderTimeline({ manifest: null, timeline: null }), /role="status"/);
 });
@@ -24,86 +24,82 @@ test('renderTimeline: error state', () => {
 });
 
 test('renderTimeline: empty timeline shows no-photos message', () => {
-  const html = renderTimeline({ manifest, timeline: [] });
-  assert.match(html, /אין תמונות/);
+  assert.match(renderTimeline({ manifest, timeline: [] }), /אין תמונות/);
 });
 
-// Loaded state
+// ── Loaded shell ─────────────────────────────────────────────────
 test('renderTimeline: renders tl-page container', () => {
-  const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
-  assert.match(html, /class="tl-page"/);
+  assert.match(renderTimeline({ manifest, timeline, dpr: 1 }), /class="tl-page"/);
 });
 
 test('renderTimeline: renders back link', () => {
-  const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
-  assert.match(html, /href="\/"/);
+  assert.match(renderTimeline({ manifest, timeline, dpr: 1 }), /href="\/"/);
 });
 
-test('renderTimeline: renders day headings', () => {
-  const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
+test('renderTimeline: renders every day heading (no pagination)', () => {
+  const html = renderTimeline({ manifest, timeline, dpr: 1 });
   assert.match(html, /15 במרץ 2011/);
   assert.match(html, /16 במרץ 2011/);
 });
 
-test('renderTimeline: renders photo thumbnails via /img/ proxy', () => {
-  const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
-  assert.match(html, /src="\/img\/p1\//);
+// ── Lazy shells (M25) ────────────────────────────────────────────
+test('renderTimeline: renders ALL buckets as shells (no PAGE_SIZE cap)', () => {
+  const big = Array.from({ length: 25 }, (_, i) => ({
+    key: `2011-01-${String(i + 1).padStart(2, '0')}`,
+    label: `${i + 1} בינואר 2011`,
+    photos: [{ photo: { id: `p${i}` }, album: { id: 2, primary: 'np', slug: 'nagarkot-bhaktapur', name: 'x', title: 'x' } }],
+  }));
+  const html = renderTimeline({ manifest, timeline: big, dpr: 1 });
+  const days = html.match(/class="tl-day"/g) || [];
+  assert.equal(days.length, 25);
 });
 
-test('renderTimeline: thumbnails have onerror fallback (R4)', () => {
-  const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
-  assert.match(html, /onerror=/);
+test('renderTimeline: shells carry data-bucket-index', () => {
+  const html = renderTimeline({ manifest, timeline, dpr: 1 });
+  assert.match(html, /data-bucket-index="0"/);
+  assert.match(html, /data-bucket-index="1"/);
+});
+
+test('renderTimeline: photo strips start EMPTY (hydrated lazily)', () => {
+  const html = renderTimeline({ manifest, timeline, dpr: 1 });
+  assert.match(html, /<div class="tl-photo-strip" data-bucket-index="0"><\/div>/);
+  assert.doesNotMatch(html, /tl-thumb/);
+});
+
+test('renderTimeline: no load-more button (pagination removed)', () => {
+  assert.doesNotMatch(renderTimeline({ manifest, timeline, dpr: 1 }), /data-tl-more/);
 });
 
 // ── Slider (M22) ─────────────────────────────────────────────────
 test('renderTimeline: renders the range slider input', () => {
-  const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
+  const html = renderTimeline({ manifest, timeline, dpr: 1 });
   assert.match(html, /id="tl-slider"/);
   assert.match(html, /type="range"/);
 });
 
 test('renderTimeline: slider max equals timeline.length - 1', () => {
-  const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
-  assert.match(html, /max="1"/); // timeline has 2 entries → max=1
+  assert.match(renderTimeline({ manifest, timeline, dpr: 1 }), /max="1"/);
 });
 
 test('renderTimeline: slider label shows first day label', () => {
-  const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
+  const html = renderTimeline({ manifest, timeline, dpr: 1 });
   assert.match(html, /id="tl-slider-label"/);
-  assert.match(html, /15 במרץ 2011/); // first bucket label
+  assert.match(html, /15 במרץ 2011/);
 });
 
-test('renderTimeline: photos link to their album', () => {
-  const html = renderTimeline({ manifest, timeline, page: 1, dpr: 1 });
-  assert.match(html, /href="\/nepal\/nagarkot-bhaktapur"/);
+// ── dayStripHTML (hydration payload) ─────────────────────────────
+test('dayStripHTML: renders photo thumbnails via /img/ proxy', () => {
+  assert.match(dayStripHTML(timeline[0], 1), /src="\/img\/p1\//);
 });
 
-test('renderTimeline: PAGE_SIZE is exported', () => {
-  assert.ok(typeof PAGE_SIZE === 'number' && PAGE_SIZE > 0);
+test('dayStripHTML: thumbnails have onerror fallback (R4)', () => {
+  assert.match(dayStripHTML(timeline[0], 1), /onerror=/);
 });
 
-// Load-more pagination
-const bigTimeline = Array.from({ length: 25 }, (_, i) => ({
-  key: `2011-01-${String(i + 1).padStart(2, '0')}`,
-  label: `${i + 1} בינואר 2011`,
-  photos: [{ photo: { id: `p${i}`, capturedAt: `2011-01-${String(i + 1).padStart(2, '0')}T00:00:00` },
-              album: { id: 2, primary: 'np', name: 'נגארקוט', title: 'נגארקוט' } }],
-}));
-
-test('renderTimeline: page 1 shows only PAGE_SIZE buckets', () => {
-  const html = renderTimeline({ manifest, timeline: bigTimeline, page: 1, dpr: 1 });
-  const days = html.match(/class="tl-day"/g) || [];
-  assert.equal(days.length, PAGE_SIZE);
+test('dayStripHTML: photos link to their album slug', () => {
+  assert.match(dayStripHTML(timeline[0], 1), /href="\/nepal\/nagarkot-bhaktapur"/);
 });
 
-test('renderTimeline: shows load-more button when more remain', () => {
-  const html = renderTimeline({ manifest, timeline: bigTimeline, page: 1, dpr: 1 });
-  assert.match(html, /data-tl-more/);
-});
-
-test('renderTimeline: page 3 shows all 25 buckets (no load-more)', () => {
-  const html = renderTimeline({ manifest, timeline: bigTimeline, page: 3, dpr: 1 });
-  const days = html.match(/class="tl-day"/g) || [];
-  assert.equal(days.length, 25);
-  assert.doesNotMatch(html, /data-tl-more/);
+test('dayStripHTML: shows the album tag', () => {
+  assert.match(dayStripHTML(timeline[0], 1), /tl-album-tag/);
 });
