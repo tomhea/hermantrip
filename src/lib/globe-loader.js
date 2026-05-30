@@ -11,7 +11,10 @@
 // Keeping the URL here (a) documents the contract and (b) lets a unit test
 // guard against regressing to a bare-specifier build.
 
-export const GLOBE_VERSION = '2.31.2';
+// Pinned to a version that exists on esm.sh and serves a real (error-free)
+// ESM shim. NOTE: 2.31.2 was an unpkg-only dist label and is NOT an npm
+// release, so esm.sh 404s on it — verified 2.34.0 returns a valid module.
+export const GLOBE_VERSION = '2.34.0';
 
 export function globeModuleUrl() {
   return `https://esm.sh/globe.gl@${GLOBE_VERSION}`;
