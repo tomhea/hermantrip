@@ -626,20 +626,21 @@ function loadThree() {
 
 const GLOBE_RADIUS = 100; // globe.gl's world-unit globe radius
 
-// One reusable wall texture: a gray facade with a 2-window row per tile, lit
-// glass. Cloned per building with a per-height vertical repeat (floors).
+// One reusable wall texture: a gray facade with WINDOWS_PER_FLOOR windows per
+// tile (M56 / #0: two per floor), lit glass with a darker frame. Cloned per
+// building with a per-height vertical repeat (floors).
 function buildingWallTexture(THREE) {
   const c = document.createElement('canvas');
   c.width = 64; c.height = 32;
   const ctx = c.getContext('2d');
   ctx.fillStyle = '#9aa1a8'; ctx.fillRect(0, 0, 64, 32);           // wall
-  // WINDOWS_PER_FLOOR evenly-spaced windows per tile (M50: one per floor).
-  for (const { x, w } of windowColumns(WINDOWS_PER_FLOOR, 64, 22)) {
-    ctx.fillStyle = '#2f3946'; ctx.fillRect(x - 1, 6, w + 2, 20);  // frame
+  // WINDOWS_PER_FLOOR evenly-spaced windows per tile (M56: two per floor).
+  for (const { x, w } of windowColumns(WINDOWS_PER_FLOOR, 64, 18)) {
+    ctx.fillStyle = '#141a22'; ctx.fillRect(x - 2, 6, w + 4, 20);  // darker frame (#0)
     ctx.fillStyle = '#86b0d6'; ctx.fillRect(x, 7, w, 18);          // glass
     ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(x, 7, w, 5); // sky glint
   }
-  ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fillRect(0, 30, 64, 2); // floor line
+  ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.fillRect(0, 30, 64, 2); // floor line
   const tex = new THREE.CanvasTexture(c);
   tex.wrapS = THREE.RepeatWrapping;
   tex.wrapT = THREE.RepeatWrapping;
@@ -855,11 +856,14 @@ async function initGlobeView() {
 
   const globe = GlobeFn({ animateIn: false })(container);
   window._hermanGlobe = globe; // test/debug handle (parallels window._hermanMap)
-  // The points layer stays as the hover + click target (reusing onPointClick /
-  // the picker). When THREE is available it's made INVISIBLE (transparent, flat)
-  // and the visible markers become the 3D box buildings below; the click ray
-  // still passes through the boxes to the underlying point. Without THREE we
-  // fall back to visible day-height point markers.
+  // The points layer is the hover + click target (reusing onPointClick / the
+  // picker). When THREE is available the point is an INVISIBLE (transparent)
+  // bar that rises the FULL building height so a click or hover anywhere from
+  // the base to the roof selects that album (#0 — the old flat base disk only
+  // caught clicks at the footprint). globe.gl renders each point as a cylinder
+  // from the surface up to pointAltitude; matching that to the building height
+  // makes the whole tower interactive. Without THREE we fall back to visible
+  // day-height point markers.
   globe
     .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
     .backgroundColor('rgba(0,0,0,0)')
@@ -867,8 +871,10 @@ async function initGlobeView() {
     .pointLat('lat')
     .pointLng('lng')
     .pointColor(THREE ? () => 'rgba(0,0,0,0)' : 'color')
-    .pointRadius(THREE ? 0.6 : 0.28)
-    .pointAltitude(THREE ? 0 : (d) => 0.02 + (d.days / maxDays) * 0.45)
+    .pointRadius(THREE ? 0.7 : 0.28)
+    .pointAltitude(THREE
+      ? (d) => buildingHeightFraction(d.days, maxDays) // full-height invisible hit bar (#0)
+      : (d) => 0.02 + (d.days / maxDays) * 0.45)
     .pointLabel((d) => `<div class="map-popup" style="direction:rtl">${
       d.albums.map(a => `<span class="map-popup-link">${escapeHTML(a.title || a.name)}</span>`).join('<br>')
     }</div>`)
