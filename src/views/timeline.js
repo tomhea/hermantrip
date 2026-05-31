@@ -75,12 +75,10 @@ export function renderTimeline({ manifest, error, timeline, dpr }) {
 
   return `
     <div class="tl-page">
-      <header class="tl-header">
-        <a class="tl-back" href="/">← חזרה</a>
-        <h1 class="tl-title">ציר זמן</h1>
-      </header>
-      <!-- Date slider — jump to any day. Visually reversed (RTL) so the
-           trip START (value 0) sits on the RIGHT (M25). -->
+      <!-- Date slider FIRST so it's pinned at the very top (top:0) from scroll
+           0 and never shifts (#1a). The back/title header sits below it and
+           scrolls away. Slider is visually reversed (RTL) so the trip START
+           (value 0) sits on the RIGHT (M25). -->
       <div class="tl-slider-wrap" aria-label="ניווט מהיר בציר הזמן">
         <span class="tl-slider-edge tl-slider-start" aria-hidden="true">${firstLabel}</span>
         <input type="range" id="tl-slider" class="tl-slider"
@@ -89,6 +87,10 @@ export function renderTimeline({ manifest, error, timeline, dpr }) {
         <span class="tl-slider-edge tl-slider-end" aria-hidden="true">${lastLabel}</span>
         <output for="tl-slider" id="tl-slider-label" class="tl-slider-label">${firstLabel}</output>
       </div>
+      <header class="tl-header">
+        <a class="tl-back" href="/">← חזרה</a>
+        <h1 class="tl-title">ציר זמן</h1>
+      </header>
       <div class="tl-feed" id="tl-feed">
         ${timeline.map((b, i) => dayShell(b, i)).join('')}
       </div>

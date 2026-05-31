@@ -36,6 +36,14 @@ test('renderTimeline: renders back link', () => {
   assert.match(renderTimeline({ manifest, timeline, dpr: 1 }), /href="\/"/);
 });
 
+test('renderTimeline: slider comes BEFORE the header so it stays pinned at top (#1a)', () => {
+  const html = renderTimeline({ manifest, timeline, dpr: 1 });
+  const sliderAt = html.indexOf('tl-slider-wrap');
+  const headerAt = html.indexOf('tl-header');
+  assert.ok(sliderAt !== -1 && headerAt !== -1, 'both slider and header present');
+  assert.ok(sliderAt < headerAt, 'slider-wrap must render before the header');
+});
+
 test('renderTimeline: renders every day heading (no pagination)', () => {
   const html = renderTimeline({ manifest, timeline, dpr: 1 });
   assert.match(html, /15 במרץ 2011/);

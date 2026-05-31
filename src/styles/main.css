@@ -1032,8 +1032,13 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 /* ── Timeline view (M20) ────────────────────────────────────────── */
 .tl-page {
   max-width: 860px;
-  margin: 0 auto;
+  /* Cancel main#app's top padding so the (first-child) slider pins at y=0 from
+     scroll 0 and never shifts as you scroll (#1a). */
+  margin: calc(-1 * var(--space-5)) auto 0;
   padding-bottom: var(--space-4, 2rem);
+}
+@media (min-width: 769px) {
+  .tl-page { margin-top: calc(-1 * var(--space-6)); }
 }
 .tl-header {
   display: flex;
