@@ -82,7 +82,11 @@ history is in the task list / git tags.
 
 ## ⚠️ Outstanding / not yet done — READ THIS
 
-### 1. CR debt (process) — HIGHEST PRIORITY to clean up
+### 1. CR debt (process) — ✅ RESOLVED (user signed off 2026-05-31)
+The user reviewed the outage-recovery commits themselves and confirmed they're
+good — there is **no CR debt**. No retroactive CR pass needed. The historical
+record below is kept as a cautionary tale, not an open task.
+
 The site was **fully down** for a stretch this session (every route stuck on
 the static "loading…" shell). Root cause: **M28 added 6 references to
 `globeResizeHandler` but never declared it** — `render()` (boot's first line)
