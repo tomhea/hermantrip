@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { stopPopupHTML } from './map-popup.js';
+import { stopPopupHTML, albumHrefsForStops } from './map-popup.js';
 
 // A Bangkok-like pin: 5 album stops (all city-labelled "בנגקוק") + 1 linkless
 // closing trail marker. (slugs are real canonical slugs so albumPath resolves.)
@@ -69,4 +69,34 @@ test('#8: link falls back to primary when a stop has no country', () => {
 test('escapes album titles', () => {
   const html = stopPopupHTML([{ albumId: 1, albumTitle: '<b>x</b>', label: 'l', primary: 'np', slug: 's' }]);
   assert.equal(html.includes('<b>x</b>'), false);
+});
+
+// ── albumHrefsForStops (M52 / #3) ────────────────────────────────
+test('#3: a single-album pin → exactly one distinct href (→ direct nav)', () => {
+  const hrefs = albumHrefsForStops([
+    { albumId: 1, albumTitle: 'A', label: 'קטמנדו', primary: 'np', country: 'np', slug: 'bangkok-kathmandu' },
+  ]);
+  assert.deepEqual(hrefs, ['/nepal/bangkok-kathmandu']);
+});
+
+test('#3: a multi-visited pin (Bangkok ×5) → many distinct hrefs (→ popup)', () => {
+  const hrefs = albumHrefsForStops([
+    { albumId: 1, albumTitle: 'A', label: 'בנגקוק', country: 'th', slug: 'bangkok-kathmandu' },
+    { albumId: 37, albumTitle: 'B', label: 'בנגקוק', country: 'th', slug: 'kunming-bangkok-perth' },
+    { albumId: 19, albumTitle: 'C', label: 'בנגקוק', country: 'th', slug: 'bangkok' },
+    { albumId: null, label: 'בנגקוק', country: null, slug: null }, // trail marker
+  ]);
+  assert.equal(hrefs.length, 3);
+});
+
+test('#3: a label-only pin (no albums) → no hrefs', () => {
+  assert.deepEqual(albumHrefsForStops([{ albumId: null, label: 'גבעת שמואל', slug: null }]), []);
+});
+
+test('#3: de-dupes repeated hrefs (same album at one coord) → one', () => {
+  const hrefs = albumHrefsForStops([
+    { albumId: 2, label: 'x', country: 'np', slug: 'nagarkot-bhaktapur' },
+    { albumId: 2, label: 'y', country: 'np', slug: 'nagarkot-bhaktapur' },
+  ]);
+  assert.equal(hrefs.length, 1);
 });

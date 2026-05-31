@@ -33,7 +33,7 @@ import { trailSegments, arcPoints, trailArcs } from './lib/trail.js';
 import { tripStopGroups, tripTrailPoints, ISRAEL, BANGKOK } from './lib/map-stops.js';
 import { globeModuleUrl, threeModuleUrl } from './lib/globe-loader.js';
 import { globePickerHTML } from './lib/globe-picker.js';
-import { stopPopupHTML } from './lib/map-popup.js';
+import { stopPopupHTML, albumHrefsForStops } from './lib/map-popup.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline, dayStripHTML } from './views/timeline.js';
 import { buildTimeline, sliderValueToBucketIndex, scrollYToBucketIndex } from './lib/timeline.js';
@@ -767,11 +767,19 @@ async function initLeafletMap() {
     });
 
     const marker = L.marker([lat, lng], { icon, title: stopTooltipText(stops) });
-    // Hover tooltip (#3): city name(s).
+    // Hover tooltip: city name(s).
     marker.bindTooltip(stopTooltipText(stops), { direction: 'top', offset: [0, -8] });
     if (hasAlbum) {
-      marker.bindPopup(stopPopupHTML(stops), { maxWidth: 240 });
-      marker.on('popupopen', () => wirePopupLinks(marker));
+      const hrefs = albumHrefsForStops(stops);
+      if (hrefs.length === 1) {
+        // Single-album pin → navigate DIRECTLY on click, no "pick 1 of 1"
+        // popup (M52 / #3). The hover tooltip still names the city.
+        marker.on('click', () => go(hrefs[0]));
+      } else {
+        // Multi-visited coordinate (2+ albums) → popup lists them.
+        marker.bindPopup(stopPopupHTML(stops), { maxWidth: 240 });
+        marker.on('popupopen', () => wirePopupLinks(marker));
+      }
     }
     marker.addTo(map);
   }

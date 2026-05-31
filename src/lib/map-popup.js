@@ -15,6 +15,24 @@ function escapeHTML(s) {
   }[c]));
 }
 
+// Distinct album hrefs at a pin, in first-seen order (M52 / #3). The map uses
+// the count to decide: exactly one → click navigates DIRECTLY (no "pick 1 of 1"
+// popup); two or more → the popup lists them. Linkless trail markers contribute
+// no href. URL follows the pin's per-city country (#8), like the popup links.
+export function albumHrefsForStops(stops) {
+  const list = Array.isArray(stops) ? stops : [];
+  const seen = new Set();
+  const hrefs = [];
+  for (const s of list) {
+    if (!s.albumId) continue;
+    const href = albumPath(s.country || s.primary, s.slug);
+    if (seen.has(href)) continue;
+    seen.add(href);
+    hrefs.push(href);
+  }
+  return hrefs;
+}
+
 export function stopPopupHTML(stops) {
   const list = Array.isArray(stops) ? stops : [];
   const hasAlbum = list.some((s) => s.albumId);
