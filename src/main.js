@@ -418,7 +418,6 @@ function loadGlobe() {
   // and serves browser-ready ESM — the unpkg .module.js build does NOT, so it
   // throws "Failed to resolve module specifier 'three'" with no import-map.
   // Still a dynamic import() on user toggle → R5-compliant.
-  // eslint-disable-next-line no-undef
   globePromise = import(/* @vite-ignore */ globeModuleUrl())
     .then((mod) => mod.default || mod)
     .catch((err) => {
