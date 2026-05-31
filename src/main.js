@@ -872,14 +872,19 @@ function wireGame() {
 let timelineData = null;          // built once from manifest
 let timelineObserver = null;      // IntersectionObserver over the day shells
 let timelineScrollHandler = null; // window scroll listener (removed on leave)
+let timelineResizeHandler = null; // window resize listener (removed on leave)
 
-// Disconnect the timeline observer + scroll listener (called from render()
-// when leaving the route so re-entry doesn't stack listeners/observers).
+// Disconnect the timeline observer + scroll/resize listeners (called from
+// render() when leaving the route so re-entry doesn't stack them).
 function teardownTimeline() {
   if (timelineObserver) { timelineObserver.disconnect(); timelineObserver = null; }
   if (timelineScrollHandler) {
     window.removeEventListener('scroll', timelineScrollHandler);
     timelineScrollHandler = null;
+  }
+  if (timelineResizeHandler) {
+    window.removeEventListener('resize', timelineResizeHandler);
+    timelineResizeHandler = null;
   }
 }
 
@@ -894,12 +899,30 @@ function renderTimelineView() {
   if (!timelineData || timelineData.length === 0) return;
   const totalBuckets = timelineData.length;
 
+  // Cached day-top offsets so the scroll handler does ZERO layout reads in its
+  // hot path (#1b — it used to read offsetTop on all ~325 .tl-day every scroll
+  // frame, forcing hundreds of reflows → jank). Recomputed only when heights
+  // actually change: after first layout, after a strip hydrates, and on resize.
+  let dayOffsets = [];
+  let recomputeRaf = null;
+  const recomputeOffsets = () => {
+    dayOffsets = [...app.querySelectorAll('.tl-day')].map((el) => ({
+      index: Number(el.dataset.bucketIndex),
+      top: el.offsetTop,
+    }));
+  };
+  const scheduleRecompute = () => {
+    if (recomputeRaf) return;
+    recomputeRaf = requestAnimationFrame(() => { recomputeRaf = null; recomputeOffsets(); });
+  };
+
   // Fill one day shell's photo strip with its thumbnails (idempotent).
   const hydrate = (strip) => {
     const idx = Number(strip.dataset.bucketIndex);
     if (strip.dataset.hydrated || Number.isNaN(idx)) return;
     strip.dataset.hydrated = '1';
     strip.innerHTML = dayStripHTML(timelineData[idx], dpr());
+    scheduleRecompute(); // hydrating changes heights → offsets below shift
   };
 
   // Lazy hydration: a day must stay on screen ~0.5s before its photos load
@@ -928,6 +951,11 @@ function renderTimelineView() {
   for (const strip of app.querySelectorAll('.tl-photo-strip')) {
     timelineObserver.observe(strip);
   }
+  // Initial offset cache once layout has settled.
+  requestAnimationFrame(recomputeOffsets);
+  // Recompute on resize (debounced to a frame) — widths change strip wrapping.
+  timelineResizeHandler = scheduleRecompute;
+  window.addEventListener('resize', timelineResizeHandler, { passive: true });
 
   // Slider → jump to a day. All shells exist up front, so any index is
   // addressable; hydrate the target immediately so it isn't blank on arrival.
@@ -946,17 +974,15 @@ function renderTimelineView() {
     if (day) day.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
-  // Scroll → update the slider position to the day nearest the top.
+  // Scroll → update the slider position to the day nearest the top. Uses the
+  // CACHED dayOffsets (no offsetTop reads here), so scrolling stays smooth.
   let scrollRaf = null;
   timelineScrollHandler = () => {
     if (scrollRaf) return;
     scrollRaf = requestAnimationFrame(() => {
       scrollRaf = null;
-      const offsets = [...app.querySelectorAll('.tl-day')].map((el) => ({
-        index: Number(el.dataset.bucketIndex),
-        top: el.offsetTop,
-      }));
-      const idx = scrollYToBucketIndex(window.scrollY, offsets);
+      if (dayOffsets.length === 0) return;
+      const idx = scrollYToBucketIndex(window.scrollY, dayOffsets);
       slider.value = idx;
       const label = timelineData[idx]?.label || '';
       if (sliderLabel) { sliderLabel.textContent = label; sliderLabel.value = label; }
