@@ -72,6 +72,38 @@ export function bearing(a, b) {
   return (toDeg(Math.atan2(y, x)) + 360) % 360;
 }
 
+// A gently bowed arc between two [lat,lng] points, as an array of [lat,lng]
+// samples (M37 / ask #12). Used for the גבעת שמואל↔Bangkok long-haul legs:
+// drawing the outbound and the (reversed) return leg with the SAME bend makes
+// them bow to opposite geographic sides — a clear round-trip lens where the
+// green outbound and the red return are both visible instead of overlapping.
+// `bend` is the bow depth as a fraction of the chord length (0 = straight).
+export function arcPoints(from, to, bend = 0.18, samples = 24) {
+  const [aLat, aLng] = from;
+  const [bLat, bLng] = to;
+  const dLat = bLat - aLat;
+  const dLng = bLng - aLng;
+  const len = Math.hypot(dLat, dLng) || 1;
+  // Unit perpendicular to the chord (lat,lng): perp of (dLat,dLng) is
+  // (dLng,-dLat). Control point is offset along it by `bend × chord length`.
+  const perpLat = dLng / len;
+  const perpLng = -dLat / len;
+  const off = bend * len;
+  const cLat = (aLat + bLat) / 2 + perpLat * off;
+  const cLng = (aLng + bLng) / 2 + perpLng * off;
+  const pts = [];
+  for (let i = 0; i <= samples; i += 1) {
+    const t = i / samples;
+    const u = 1 - t;
+    // Quadratic Bézier: (1-t)²A + 2(1-t)t·C + t²B
+    pts.push([
+      u * u * aLat + 2 * u * t * cLat + t * t * bLat,
+      u * u * aLng + 2 * u * t * cLng + t * t * bLng,
+    ]);
+  }
+  return pts;
+}
+
 // Segments connecting consecutive points, each coloured by its position in
 // the sequence and carrying its bearing (for arrowheads).
 // → [{ from:[lat,lng], to:[lat,lng], color, bearing, t }]
