@@ -62,6 +62,18 @@ test('empty album shows a "no photos" message', () => {
   assert.match(html, /אין תמונות/);
 });
 
+test('M40: album page has a "הצג את האלבום" play button → slide 0', () => {
+  const html = renderAlbumGrid({ manifest, id: '1' });
+  assert.match(html, /data-album-play/);
+  assert.match(html, /הצג את האלבום/);
+  assert.match(html, /data-slide-href="\/nepal\/bangkok-kathmandu\/0"/);
+});
+
+test('M40: empty album shows no play button', () => {
+  const html = renderAlbumGrid({ manifest, id: '2' });
+  assert.equal(/data-album-play/.test(html), false);
+});
+
 test('loading state when manifest is null', () => {
   const html = renderAlbumGrid({ manifest: null, id: '1' });
   assert.match(html, /role="status"/);
