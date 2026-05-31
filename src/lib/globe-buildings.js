@@ -45,6 +45,17 @@ function spreadOverlaps(buildings) {
   return out;
 }
 
+// Building height as a fraction of the globe radius, scaled by days (M49).
+// The M48 cylinders rose to (0.02 + days/maxDays·0.45) of the radius; the boxes
+// are a QUARTER of that height (#1 "a quarter of what they are now"). main.js
+// multiplies by the globe radius to get world units.
+export const HEIGHT_SCALE = 0.25;
+export function buildingHeightFraction(days, maxDays) {
+  const m = maxDays > 0 ? maxDays : 1;
+  const ratio = Math.max(0, Math.min(1, days / m));
+  return (0.02 + ratio * 0.45) * HEIGHT_SCALE;
+}
+
 export function buildingsForGlobe(manifest) {
   if (!manifest || !Array.isArray(manifest.albums)) return [];
   const raw = [];
