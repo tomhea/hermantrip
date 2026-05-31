@@ -25,6 +25,18 @@ test('happy path: renders header + grid with one card per country', () => {
   assert.match(html, /תאילנד/);
 });
 
+test('M41: each country card has a random-play button → that country random show', () => {
+  const html = renderCountryList({ manifest });
+  assert.match(html, /data-random-play/);
+  assert.match(html, /data-href="\/nepal\/random"/);
+  assert.match(html, /data-href="\/thailand\/random"/);
+});
+
+test('M41: the all-countries random link triggers random-play (fullscreen+autostart)', () => {
+  const html = renderCountryList({ manifest });
+  assert.match(html, /href="\/random"[^>]*data-random-play/);
+});
+
 test('happy path: each card has a same-origin /img/ card image', () => {
   const html = renderCountryList({ manifest });
   assert.match(html, /<img class="country-thumb"[^>]*src="\/img\/photo-np\/360"/);

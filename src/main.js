@@ -1106,6 +1106,20 @@ document.addEventListener('click', (e) => {
   go(playBtn.dataset.slideHref);
 });
 
+// M41 / ask #3 — random-slideshow entry points (country-card play buttons +
+// the "מצגת אקראית" links) start the random show autoplaying + fullscreen,
+// like the album play button. Runs before the <a> handler below; preventDefault
+// makes that handler bail (it checks defaultPrevented).
+document.addEventListener('click', (e) => {
+  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const el = e.target.closest('[data-random-play]');
+  if (!el) return;
+  e.preventDefault();
+  autoplayOn = true;
+  document.documentElement.requestFullscreen?.().catch(() => { /* not fatal */ });
+  go(el.dataset.href || el.getAttribute('href'));
+});
+
 document.addEventListener('click', (e) => {
   if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   const a = e.target.closest('a');
