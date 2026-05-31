@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { albumDayCount, buildingsForGlobe, buildingHeightFraction, HEIGHT_SCALE, BUILDING_WIDTH, M49_BUILDING_WIDTH, WINDOWS_PER_FLOOR } from './globe-buildings.js';
+import { albumDayCount, buildingsForGlobe, buildingHeightFraction, HEIGHT_SCALE, BUILDING_WIDTH, M49_BUILDING_WIDTH, WINDOWS_PER_FLOOR, windowColumns } from './globe-buildings.js';
 
 test('albumDayCount counts DISTINCT calendar days (≥1)', () => {
   assert.equal(albumDayCount({ photos: [
@@ -85,4 +85,15 @@ test('M50: building footprint is a THIRD of the M49 width; one window per floor'
   assert.ok(Math.abs(BUILDING_WIDTH - M49_BUILDING_WIDTH / 3) < 1e-9);
   assert.ok(BUILDING_WIDTH < M49_BUILDING_WIDTH); // slimmer
   assert.equal(WINDOWS_PER_FLOOR, 1);
+});
+
+test('M50: windowColumns drives the window count (1 per floor → 1 centred window)', () => {
+  const one = windowColumns(WINDOWS_PER_FLOOR, 64, 22);
+  assert.equal(one.length, 1);
+  assert.deepEqual(one[0], { x: 21, w: 22 });          // centred in a 64-wide tile
+  // parameterised: asking for 2 gives 2 evenly-spaced windows (proves it's not hardcoded)
+  const two = windowColumns(2, 64, 16);
+  assert.equal(two.length, 2);
+  assert.deepEqual(two.map((r) => r.x), [8, 40]);
+  assert.equal(windowColumns(0, 64, 22).length, 1);    // floor at 1
 });

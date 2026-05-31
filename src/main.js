@@ -26,7 +26,9 @@ import { renderSlideshow } from './views/slideshow.js';
 import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
 import { coordsForAlbum } from './lib/album-coords.js';
-import { buildingsForGlobe, buildingHeightFraction, BUILDING_WIDTH } from './lib/globe-buildings.js';
+import {
+  buildingsForGlobe, buildingHeightFraction, BUILDING_WIDTH, WINDOWS_PER_FLOOR, windowColumns,
+} from './lib/globe-buildings.js';
 import { trailSegments, arcPoints, trailArcs } from './lib/trail.js';
 import { tripStopGroups, tripTrailPoints, ISRAEL, BANGKOK } from './lib/map-stops.js';
 import { globeModuleUrl, threeModuleUrl } from './lib/globe-loader.js';
@@ -618,11 +620,12 @@ function buildingWallTexture(THREE) {
   c.width = 64; c.height = 32;
   const ctx = c.getContext('2d');
   ctx.fillStyle = '#9aa1a8'; ctx.fillRect(0, 0, 64, 32);           // wall
-  // One centred window per floor (M50).
-  const wx = 21;
-  ctx.fillStyle = '#2f3946'; ctx.fillRect(wx - 1, 6, 24, 20);      // frame
-  ctx.fillStyle = '#86b0d6'; ctx.fillRect(wx, 7, 22, 18);         // glass
-  ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(wx, 7, 22, 5); // sky glint
+  // WINDOWS_PER_FLOOR evenly-spaced windows per tile (M50: one per floor).
+  for (const { x, w } of windowColumns(WINDOWS_PER_FLOOR, 64, 22)) {
+    ctx.fillStyle = '#2f3946'; ctx.fillRect(x - 1, 6, w + 2, 20);  // frame
+    ctx.fillStyle = '#86b0d6'; ctx.fillRect(x, 7, w, 18);          // glass
+    ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(x, 7, w, 5); // sky glint
+  }
   ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fillRect(0, 30, 64, 2); // floor line
   const tex = new THREE.CanvasTexture(c);
   tex.wrapS = THREE.RepeatWrapping;
