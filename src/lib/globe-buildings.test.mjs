@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { albumDayCount, buildingsForGlobe, buildingHeightFraction, HEIGHT_SCALE } from './globe-buildings.js';
+import { albumDayCount, buildingsForGlobe, buildingHeightFraction, HEIGHT_SCALE, BUILDING_WIDTH, M49_BUILDING_WIDTH, WINDOWS_PER_FLOOR } from './globe-buildings.js';
 
 test('albumDayCount counts DISTINCT calendar days (≥1)', () => {
   assert.equal(albumDayCount({ photos: [
@@ -79,4 +79,10 @@ test('M49: buildingHeightFraction is a QUARTER of the old cylinder height', () =
 test('M49: buildingHeightFraction clamps + tolerates maxDays 0', () => {
   assert.ok(buildingHeightFraction(99, 10) <= (0.02 + 0.45) * 0.25 + 1e-9); // clamped at ratio 1
   assert.equal(typeof buildingHeightFraction(3, 0), 'number'); // no divide-by-zero
+});
+
+test('M50: building footprint is a THIRD of the M49 width; one window per floor', () => {
+  assert.ok(Math.abs(BUILDING_WIDTH - M49_BUILDING_WIDTH / 3) < 1e-9);
+  assert.ok(BUILDING_WIDTH < M49_BUILDING_WIDTH); // slimmer
+  assert.equal(WINDOWS_PER_FLOOR, 1);
 });

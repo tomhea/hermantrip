@@ -45,6 +45,13 @@ function spreadOverlaps(buildings) {
   return out;
 }
 
+// Building footprint (M50). The box body's width AND depth are a THIRD of the
+// M49 size (1.3 → ~0.433), so the buildings read as slimmer towers; one window
+// per floor (the wall texture draws WINDOWS_PER_FLOOR windows per tile).
+export const M49_BUILDING_WIDTH = 1.3;
+export const BUILDING_WIDTH = M49_BUILDING_WIDTH / 3;
+export const WINDOWS_PER_FLOOR = 1;
+
 // Building height as a fraction of the globe radius, scaled by days (M49).
 // The M48 cylinders rose to (0.02 + days/maxDays·0.45) of the radius; the boxes
 // are a QUARTER of that height (#1 "a quarter of what they are now"). main.js
