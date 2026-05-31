@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { tripStops, tripStopGroups, tripTrailPoints, OPENING_STOPS, ALBUM_CITIES } from './map-stops.js';
+import { tripStops, tripStopGroups, tripTrailPoints, OPENING_STOPS, ALBUM_CITIES, CLOSING_STOPS, ISRAEL, BANGKOK } from './map-stops.js';
 
 // Minimal manifest: album 1 (multi: Bangkok+Kathmandu), 2 (multi), 6 (single).
 const manifest = {
@@ -89,4 +89,35 @@ test('album 37 places three pins (Kunming/Bangkok/Perth) in country order', () =
 
 test('tripStops returns [] for null manifest', () => {
   assert.deepEqual(tripStops(null), []);
+});
+
+// ── Closing leg / flight home (M37 / #12) ─────────────────────────
+test('tripStops ends with the flight home: … → Bangkok → גבעת שמואל', () => {
+  const stops = tripStops(manifest);
+  const n = stops.length;
+  assert.equal(stops[n - 2].label, 'בנגקוק');
+  assert.equal(stops[n - 2].albumId, null);
+  assert.equal(stops[n - 1].label, 'גבעת שמואל');
+  assert.equal(stops[n - 1].albumId, null);
+});
+
+test('the trail closes back to גבעת שמואל (last trail point == ISRAEL)', () => {
+  const pts = tripTrailPoints(manifest);
+  const last = pts[pts.length - 1];
+  assert.equal(last.lat, ISRAEL[0]);
+  assert.equal(last.lng, ISRAEL[1]);
+});
+
+test('closing Bangkok reuses the existing coord (no new pin group)', () => {
+  // The closing Bangkok stop shares album 1 Bangkok coords, so grouping by
+  // coordinate must NOT create an extra Bangkok pin.
+  const groups = tripStopGroups(manifest);
+  const bkkGroups = groups.filter((g) => g.lat === BANGKOK[0] && g.lng === BANGKOK[1]);
+  assert.equal(bkkGroups.length, 1, 'Bangkok should remain a single pin group');
+});
+
+test('CLOSING_STOPS / ISRAEL / BANGKOK constants are exported and consistent', () => {
+  assert.equal(CLOSING_STOPS[CLOSING_STOPS.length - 1].label, 'גבעת שמואל');
+  assert.deepEqual(ISRAEL, [32.0778, 34.8483]);
+  assert.deepEqual(BANGKOK, [13.7563, 100.5018]);
 });

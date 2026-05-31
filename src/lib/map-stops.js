@@ -17,6 +17,23 @@ export const OPENING_STOPS = [
   { lat: 32.0778, lng: 34.8483, label: 'גבעת שמואל', albumId: null },
 ];
 
+// Closing stops, AFTER the last album: the flight home (M37 / ask #12).
+// The trip ends in Thailand and flies back via Bangkok to גבעת שמואל, so the
+// trail closes the loop. These reuse the existing Bangkok / גבעת שמואל coords,
+// so tripStopGroups merges them into the existing pins (no new pins) — they
+// only add the two return TRAIL segments (… → Bangkok → גבעת שמואל).
+export const CLOSING_STOPS = [
+  { lat: 13.7563, lng: 100.5018, label: 'בנגקוק', albumId: null },
+  { lat: 32.0778, lng: 34.8483, label: 'גבעת שמואל', albumId: null },
+];
+
+// The long-haul leg that is flown in BOTH directions: גבעת שמואל ↔ Bangkok
+// (outbound at the very start, return at the very end). drawTrail arcs these
+// two segments to opposite sides so the green outbound and red return are both
+// visible instead of one hiding the other.
+export const ISRAEL = [32.0778, 34.8483];
+export const BANGKOK = [13.7563, 100.5018];
+
 // Albums that place MULTIPLE pins. albumId → ordered [lat, lng, label, country?]
 // city list (country overrides the per-stop colour; defaults to album.primary).
 // Coordinates hand-curated from the Hebrew place names in the album titles.
@@ -64,6 +81,11 @@ export function tripStops(manifest) {
         primary: album.primary, slug: album.slug, country: album.primary,
       });
     }
+  }
+
+  // Flight home (#12): … → Bangkok → גבעת שמואל.
+  for (const s of CLOSING_STOPS) {
+    stops.push({ ...s, primary: null, slug: null, country: null });
   }
   return stops;
 }

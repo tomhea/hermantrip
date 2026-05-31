@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { trailColor, orderedTrailPoints, bearing, trailSegments } from './trail.js';
+import { trailColor, orderedTrailPoints, bearing, trailSegments, arcPoints } from './trail.js';
 
 // ── trailColor ────────────────────────────────────────────────────
 test('trailColor(0) is green, trailColor(1) is red', () => {
@@ -95,4 +95,35 @@ test('trailSegments carries from/to/color/bearing', () => {
 test('trailSegments returns [] for <2 points', () => {
   assert.deepEqual(trailSegments([]), []);
   assert.deepEqual(trailSegments([{ lat: 0, lng: 0 }]), []);
+});
+
+// ── arcPoints (M37 / #12) ─────────────────────────────────────────
+test('arcPoints starts at `from` and ends at `to`', () => {
+  const pts = arcPoints([0, 0], [0, 10], 0.2, 12);
+  assert.deepEqual(pts[0], [0, 0]);
+  assert.deepEqual(pts[pts.length - 1], [0, 10]);
+});
+
+test('arcPoints returns samples+1 points', () => {
+  assert.equal(arcPoints([0, 0], [0, 10], 0.2, 12).length, 13);
+  assert.equal(arcPoints([0, 0], [0, 10], 0.2, 24).length, 25);
+});
+
+test('arcPoints bows off the straight chord (apex is offset)', () => {
+  // chord lies on lat=0 (from [0,0] to [0,10]); a bowed arc lifts the midpoint
+  const pts = arcPoints([0, 0], [0, 10], 0.2, 12);
+  const apex = pts[6];
+  assert.ok(Math.abs(apex[0]) > 0.1, 'apex latitude should be offset from the chord');
+});
+
+test('arcPoints with bend 0 is effectively straight (apex on the chord)', () => {
+  const pts = arcPoints([0, 0], [0, 10], 0, 12);
+  assert.ok(Math.abs(pts[6][0]) < 1e-9, 'no bend → apex stays on the chord');
+});
+
+test('reversed leg with the same bend bows to the OPPOSITE side (round-trip lens)', () => {
+  const out = arcPoints([0, 0], [0, 10], 0.2, 12)[6];   // outbound apex
+  const ret = arcPoints([0, 10], [0, 0], 0.2, 12)[6];   // return apex
+  assert.ok(Math.sign(out[0]) === -Math.sign(ret[0]),
+    'outbound and return arcs must bow to opposite sides');
 });

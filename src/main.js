@@ -26,8 +26,8 @@ import { renderSlideshow } from './views/slideshow.js';
 import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
 import { coordsForAlbum, groupAlbumsByLocation } from './lib/album-coords.js';
-import { trailSegments } from './lib/trail.js';
-import { tripStopGroups, tripTrailPoints } from './lib/map-stops.js';
+import { trailSegments, arcPoints } from './lib/trail.js';
+import { tripStopGroups, tripTrailPoints, ISRAEL, BANGKOK } from './lib/map-stops.js';
 import { globeModuleUrl } from './lib/globe-loader.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline, dayStripHTML } from './views/timeline.js';
@@ -499,9 +499,16 @@ function loadGlobe() {
 // De-dupes repeated album links at the same pin.
 function stopPopupHTML(stops) {
   const seen = new Set();
+  const seenLabels = new Set();
   const rows = stops.map((s) => {
     const label = escapeHTML(s.label);
-    if (!s.albumId) return `<span class="map-popup-label">${label}</span>`;
+    if (!s.albumId) {
+      // Empty stop (e.g. גבעת שמואל / the return Bangkok stop) — plain label,
+      // de-duped so the opening + closing stops at one coord show it once.
+      if (seenLabels.has(label)) return '';
+      seenLabels.add(label);
+      return `<span class="map-popup-label">${label}</span>`;
+    }
     const href = albumPath(s.primary, s.slug);
     if (seen.has(href)) return '';
     seen.add(href);
@@ -525,31 +532,42 @@ function wirePopupLinks(marker) {
 }
 
 // Init / update Leaflet map with clustered location markers.
+// Is this segment the גבעת שמואל↔Bangkok long-haul leg (either direction)?
+// Those two legs (outbound at the start, return at the end) overlap, so we arc
+// them to opposite sides (#12).
+function isIsraelBangkokLeg(seg) {
+  const near = (p, q) => Math.abs(p[0] - q[0]) < 1e-3 && Math.abs(p[1] - q[1]) < 1e-3;
+  const a = seg.from, b = seg.to;
+  return (near(a, ISRAEL) && near(b, BANGKOK)) || (near(a, BANGKOK) && near(b, ISRAEL));
+}
+
 // Draw the gradient trip trail + direction arrowheads onto a Leaflet map.
 function drawTrail(L, map) {
   const points = tripTrailPoints(manifest);
   const segs = trailSegments(points);
   if (segs.length === 0) return;
 
-  // Thin gradient polyline, one Leaflet polyline per segment so each carries
-  // its own colour. Rendered under the markers (non-interactive).
+  // One gradient polyline per segment (each carries its own colour), under the
+  // markers (non-interactive). The two גבעת שמואל↔Bangkok legs are drawn as
+  // bowed arcs (#12) so the green outbound and the red return don't overlap;
+  // every other leg is a straight line. Each segment also gets its OWN
+  // arrowhead at its midpoint (#9: at least one arrow between every pair of
+  // nodes), rotated to the travel bearing and colour-matched.
   for (const seg of segs) {
-    L.polyline([seg.from, seg.to], {
+    const arced = isIsraelBangkokLeg(seg);
+    const path = arced ? arcPoints(seg.from, seg.to) : [seg.from, seg.to];
+    L.polyline(path, {
       color: seg.color,
       weight: 2.5,
       opacity: 0.85,
       interactive: false,
     }).addTo(map);
-  }
 
-  // Sparse arrowheads: ~12 across the route, rotated to travel bearing,
-  // coloured to match. A rotated "➤" glyph keeps it dependency-free.
-  const ARROWS = Math.min(12, segs.length);
-  const step = Math.max(1, Math.floor(segs.length / ARROWS));
-  for (let i = step; i < segs.length; i += step) {
-    const seg = segs[i];
-    const midLat = (seg.from[0] + seg.to[0]) / 2;
-    const midLng = (seg.from[1] + seg.to[1]) / 2;
+    // Arrow sits at the path's midpoint (the arc's apex for arced legs).
+    const mid = arced ? path[Math.floor(path.length / 2)] : [
+      (seg.from[0] + seg.to[0]) / 2,
+      (seg.from[1] + seg.to[1]) / 2,
+    ];
     // 0° glyph points east(→); map bearing 90°=east, so rotate by (bearing-90).
     const rot = seg.bearing - 90;
     const icon = L.divIcon({
@@ -558,7 +576,7 @@ function drawTrail(L, map) {
       iconSize: [16, 16],
       iconAnchor: [8, 8],
     });
-    L.marker([midLat, midLng], { icon, interactive: false, keyboard: false }).addTo(map);
+    L.marker(mid, { icon, interactive: false, keyboard: false }).addTo(map);
   }
 }
 
