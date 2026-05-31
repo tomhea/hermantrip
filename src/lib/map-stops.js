@@ -64,10 +64,11 @@ export function tripStops(manifest) {
 
   for (const album of manifest.albums) {
     const cities = ALBUM_CITIES[album.id];
+    const albumTitle = album.title || album.name;
     if (cities) {
       for (const [lat, lng, label, country] of cities) {
         stops.push({
-          lat, lng, label, albumId: album.id,
+          lat, lng, label, albumId: album.id, albumTitle,
           primary: album.primary, slug: album.slug,
           country: country || album.primary,
         });
@@ -77,7 +78,7 @@ export function tripStops(manifest) {
       if (!c) continue;
       const [lat, lng, label] = c;
       stops.push({
-        lat, lng, label, albumId: album.id,
+        lat, lng, label, albumId: album.id, albumTitle,
         primary: album.primary, slug: album.slug, country: album.primary,
       });
     }

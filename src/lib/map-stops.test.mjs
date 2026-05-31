@@ -5,9 +5,9 @@ import { tripStops, tripStopGroups, tripTrailPoints, OPENING_STOPS, ALBUM_CITIES
 // Minimal manifest: album 1 (multi: Bangkok+Kathmandu), 2 (multi), 6 (single).
 const manifest = {
   albums: [
-    { id: 1, primary: 'np', slug: 'bangkok-kathmandu' },
-    { id: 2, primary: 'np', slug: 'nagarkot-bhaktapur' },
-    { id: 6, primary: 'np', slug: 'chitwan' }, // single → from album-coords
+    { id: 1, name: '01. ההתחלה', primary: 'np', slug: 'bangkok-kathmandu' },
+    { id: 2, name: '02. נגארקוט', primary: 'np', slug: 'nagarkot-bhaktapur' },
+    { id: 6, name: '06. צ׳יטוואן', primary: 'np', slug: 'chitwan' }, // single → from album-coords
   ],
 };
 
@@ -120,4 +120,10 @@ test('CLOSING_STOPS / ISRAEL / BANGKOK constants are exported and consistent', (
   assert.equal(CLOSING_STOPS[CLOSING_STOPS.length - 1].label, 'גבעת שמואל');
   assert.deepEqual(ISRAEL, [32.0778, 34.8483]);
   assert.deepEqual(BANGKOK, [13.7563, 100.5018]);
+});
+
+test('M46: album stops carry albumTitle (for the popup album-name labels, #9)', () => {
+  const stops = tripStops(manifest).filter((s) => s.albumId);
+  assert.ok(stops.length > 0);
+  assert.ok(stops.every((s) => typeof s.albumTitle === 'string' && s.albumTitle.length > 0));
 });
