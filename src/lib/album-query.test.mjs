@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
 import {
   albumsForCountry, albumById, albumBySlug, nextAlbumInCountry, slideIndexInAlbum,
+  albumAfterInCountry,
 } from './album-query.js';
 
 const manifest = {
@@ -73,6 +74,30 @@ test('nextAlbumInCountry returns null for a single-album / unknown country', () 
 
 test('nextAlbumInCountry returns null when current id is not in the country', () => {
   assert.equal(nextAlbumInCountry(manifest, 'np', 999), null);
+});
+
+// ── albumAfterInCountry (M55 / #6) — like nextAlbumInCountry but NO wrap ──
+test('albumAfterInCountry advances by id order within the country (np: 1→2→3)', () => {
+  assert.equal(albumAfterInCountry(manifest, 'np', 1).id, 2);
+  assert.equal(albumAfterInCountry(manifest, 'np', 2).id, 3);
+});
+
+test('albumAfterInCountry returns null at the LAST album (no wrap, #6)', () => {
+  assert.equal(albumAfterInCountry(manifest, 'np', 3), null); // np last → no next
+  assert.equal(albumAfterInCountry(manifest, 'th', 19), null); // th last → no next
+});
+
+test('albumAfterInCountry uses the country-scoped order (th: 1→19)', () => {
+  assert.equal(albumAfterInCountry(manifest, 'th', 1).id, 19);
+});
+
+test('albumAfterInCountry accepts a string id', () => {
+  assert.equal(albumAfterInCountry(manifest, 'np', '1').id, 2);
+});
+
+test('albumAfterInCountry returns null for unknown country / id not in it', () => {
+  assert.equal(albumAfterInCountry(manifest, 'xx', 1), null);
+  assert.equal(albumAfterInCountry(manifest, 'np', 999), null);
 });
 
 test('albumById returns the matching album', () => {

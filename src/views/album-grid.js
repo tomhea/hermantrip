@@ -8,12 +8,12 @@
 // loading / fetch-failed / unknown-album / empty paths.
 
 import { errorHTML, loadingHTML } from '../lib/loading.js';
-import { albumById } from '../lib/album-query.js';
+import { albumById, albumAfterInCountry } from '../lib/album-query.js';
 import { sortPhotosByDate } from '../lib/ordering.js';
 import { groupPhotosByDay } from '../lib/photo-group.js';
 import { formatHebrewDate } from '../lib/photo-date.js';
 import { photoImgHTML } from '../lib/photo-img.js';
-import { homePath, countryPath, slidePath } from '../lib/paths.js';
+import { homePath, countryPath, slidePath, albumPath } from '../lib/paths.js';
 import { albumDateLabel } from '../lib/album-dates.js';
 
 const EAGER_COUNT = 12;
@@ -105,9 +105,18 @@ export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
     </button>
   `;
 
+  // "Next album" link at the bottom (#6): the next album within the VIEWING
+  // country (backCode), so a cross-country album points to the right neighbour.
+  // Hidden on the last album in the country (albumAfterInCountry → null, no wrap).
+  const next = albumAfterInCountry(manifest, backCode, album.id);
+  const nextBtn = next
+    ? `<a class="album-next" href="${albumPath(backCode, next.slug)}">האלבום הבא: ${escapeHTML(next.title ?? next.name)} →</a>`
+    : '';
+
   return `
     ${header(name, backHref, 'חזרה', subtitle)}
     ${playBtn}
     ${sections}
+    ${nextBtn}
   `;
 }

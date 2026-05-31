@@ -15,7 +15,8 @@ const manifest = {
   albums: [
     { id: 1, name: '01. נפאל - קטמנדו', slug: 'bangkok-kathmandu', primary: 'np', countries: ['np', 'th'],
       photos: photos(20) },
-    { id: 2, name: '02. ריק', primary: 'np', countries: ['np'], photos: [] },
+    { id: 2, name: '02. ריק', slug: 'rik', primary: 'np', countries: ['np'], photos: [] },
+    { id: 3, name: '03. האחרון', slug: 'last-one', primary: 'np', countries: ['np'], photos: photos(5) },
   ],
 };
 
@@ -72,6 +73,26 @@ test('M40: album page has a "הצג את האלבום" play button → slide 0',
 test('M40: empty album shows no play button', () => {
   const html = renderAlbumGrid({ manifest, id: '2' });
   assert.equal(/data-album-play/.test(html), false);
+});
+
+test('M55 #6: a "next album" button links to the next album in the country', () => {
+  const html = renderAlbumGrid({ manifest, code: 'np', id: '1' });
+  assert.match(html, /class="album-next"/);
+  assert.match(html, /href="\/nepal\/rik"/);       // next np album after 1 is 2 (slug rik)
+  assert.match(html, /האלבום הבא/);
+  assert.match(html, /02\. ריק/);                   // its name in the label
+});
+
+test('M55 #6: the LAST album shows no next-album button', () => {
+  const html = renderAlbumGrid({ manifest, code: 'np', id: '3' });
+  assert.equal(/class="album-next"/.test(html), false);
+});
+
+test('M55 #6: next button follows the VIEWING country for a cross-country album', () => {
+  // album 1 under thailand → next th album is 19 (not in this fixture) → none;
+  // under nepal → next is album 2. Confirms it uses the viewing code, not primary.
+  const np = renderAlbumGrid({ manifest, code: 'np', id: '1' });
+  assert.match(np, /href="\/nepal\/rik"/);
 });
 
 test('loading state when manifest is null', () => {

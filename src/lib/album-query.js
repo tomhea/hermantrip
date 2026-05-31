@@ -50,6 +50,18 @@ export function nextAlbumInCountry(manifest, countryCode, currentId) {
   return list[(i + 1) % list.length];
 }
 
+// The next album after `currentId` within a country's ordered list, WITHOUT
+// wrapping (M55 / #6). Returns the next album, or null when `currentId` is the
+// LAST album in the country (or the country/id is unknown). Used for the
+// per-album "האלבום הבא" button, which must not appear on the last album.
+export function albumAfterInCountry(manifest, countryCode, currentId) {
+  const list = albumsForCountry(manifest, countryCode);
+  const numId = typeof currentId === 'number' ? currentId : Number.parseInt(currentId, 10);
+  const i = list.findIndex((a) => a.id === numId);
+  if (i === -1 || i === list.length - 1) return null;
+  return list[i + 1];
+}
+
 // The album with the given id, or null. Accepts numeric or string id
 // (router params arrive as strings). Non-numeric strings → null.
 export function albumById(manifest, id) {
