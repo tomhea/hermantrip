@@ -25,6 +25,13 @@ test('prev/next zones are buttons with data-nav (JS-driven, not links)', () => {
   assert.match(html, /<button[^>]*data-nav="prev"/);
 });
 
+test('M31: transition toggle + shell class are present (random slideshow too)', () => {
+  const html = renderRandomShow({ manifest, item, scope: 'all', transition: 'slide' });
+  assert.match(html, /data-transition-toggle/);
+  assert.match(html, /class="slideshow-shell tr-slide"/);
+  assert.match(html, /החלקה/); // Hebrew label for slide
+});
+
 test('info panel shows the source album, country, date', () => {
   const html = renderRandomShow({ manifest, item, scope: 'all' });
   assert.match(html, /טרק פון היל/);  // album title

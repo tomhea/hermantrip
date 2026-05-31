@@ -6,6 +6,7 @@
 import { createRouter } from './lib/router.js';
 import { keyToAction, swipeToAction, preloadIndices } from './lib/slideshow-nav.js';
 import { nextSpeed } from './lib/slideshow-speed.js';
+import { nextTransition, DEFAULT_TRANSITION } from './lib/slideshow-transition.js';
 import { controlsVisible, CONTROLS_HIDE_MS } from './lib/controls-timer.js';
 import { albumById, albumBySlug } from './lib/album-query.js';
 import { sortPhotosByDate } from './lib/ordering.js';
@@ -143,6 +144,7 @@ function currentPath() {
 let autoplayOn = false;
 let autoplayTimer = null;
 let autoplaySpeed = 4000; // ms between auto-advances; cycled by the speed button
+let slideTransition = DEFAULT_TRANSITION; // entry animation, cycled by the transition button (M31)
 
 // Random slideshow (M17). The shuffled playlist + position live at module
 // scope; it's rebuilt on FRESH entry (or scope change) and preserved across
@@ -173,6 +175,7 @@ function renderSlide(params) {
   app.innerHTML = renderSlideshow({
     manifest, error: manifestError, code, id, idx: params.idx,
     dpr: dpr(), viewport: viewportClass(), autoplay: autoplayOn, speed: autoplaySpeed,
+    transition: slideTransition,
   });
   window.scrollTo(0, 0);
   wireSlideshow();
@@ -209,6 +212,7 @@ function renderRandom(scope, exitHref) {
   app.innerHTML = renderRandomShow({
     manifest, error: manifestError, item, scope, exitHref,
     autoplay: autoplayOn, speed: autoplaySpeed, dpr: dpr(), viewport: viewportClass(),
+    transition: slideTransition,
   });
   window.scrollTo(0, 0);
   wireSlideshow();
@@ -284,6 +288,16 @@ function wireSlideshow() {
   if (speedBtn) {
     speedBtn.addEventListener('click', () => {
       autoplaySpeed = nextSpeed(autoplaySpeed);
+      render();
+    });
+  }
+
+  // Transition button — cycle the entry animation (M31 / ask #1). Re-render so
+  // the label updates and the next slide mounts with the new tr-<name> class.
+  const trBtn = shell.querySelector('[data-transition-toggle]');
+  if (trBtn) {
+    trBtn.addEventListener('click', () => {
+      slideTransition = nextTransition(slideTransition);
       render();
     });
   }

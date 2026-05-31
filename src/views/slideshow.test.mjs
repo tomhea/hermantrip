@@ -148,6 +148,27 @@ test('M9: info panel shows Hebrew date, weekday, place, position', () => {
   assert.match(html, /קטמנדו/);   // place
 });
 
+test('M31: transition button shows the current transition label + shell carries tr-<name>', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2', transition: 'fade' });
+  assert.match(html, /data-transition-toggle/);
+  assert.match(html, /data-transition="fade"/);
+  assert.match(html, /class="slideshow-shell tr-fade"/);
+  assert.match(html, /עמעום/); // Hebrew label for fade
+});
+
+test('M31: a different transition stamps its own class + label (kenburns)', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2', transition: 'kenburns' });
+  assert.match(html, /class="slideshow-shell tr-kenburns"/);
+  assert.match(html, /תנועה/);
+  // kenburns dwell var is wired from speed
+  assert.match(html, /--kb-dwell:\d+ms/);
+});
+
+test('M31: transition defaults to fade when unspecified', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2' });
+  assert.match(html, /tr-fade/);
+});
+
 test('M9: info panel tolerates a photo with no capturedAt (omits date rows)', () => {
   const m = {
     countries: [{ code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [1] }],
