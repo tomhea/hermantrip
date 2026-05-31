@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { globeModuleUrl, GLOBE_VERSION } from './globe-loader.js';
+import { globeModuleUrl, GLOBE_VERSION, threeModuleUrl, THREE_SPEC } from './globe-loader.js';
 
 test('globeModuleUrl is an absolute https URL', () => {
   assert.match(globeModuleUrl(), /^https:\/\//);
@@ -20,4 +20,13 @@ test('globeModuleUrl is NOT the bare-specifier unpkg .module.js build', () => {
 
 test('GLOBE_VERSION is a pinned semver (no floating range)', () => {
   assert.match(GLOBE_VERSION, /^\d+\.\d+\.\d+$/);
+});
+
+test('M49: threeModuleUrl matches the globe.gl three spec + target (shared instance)', () => {
+  // globe.gl@2.34.0 imports `/three@^0.181.2?target=es2022`; we MUST request the
+  // identical spec+target so esm.sh resolves to the same module URL (one three
+  // instance — a mismatch breaks globe.gl's WebGL renderer).
+  assert.equal(threeModuleUrl(), `https://esm.sh/three@${THREE_SPEC}?target=es2022`);
+  assert.match(threeModuleUrl(), /^https:\/\/esm\.sh\/three@/);
+  assert.match(threeModuleUrl(), /target=es2022/);
 });
