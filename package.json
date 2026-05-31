@@ -6,6 +6,7 @@
   "description": "Static Hebrew photo-album site for a 1-year family trip. See README.md.",
   "scripts": {
     "test": "node scripts/test.mjs",
+    "lint": "npx eslint@9 --max-warnings=0 .",
     "smoke": "node scripts/smoke.mjs",
     "serve": "node scripts/serve.mjs"
   },
