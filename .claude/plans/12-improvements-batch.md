@@ -23,7 +23,9 @@ overflow-safe layout.
 - [x] **M35** — Guessing game: maximize photo size (#5) ✅ v0.M35
 - [x] **M36** — Timeline: sticky "← חזרה ציר זמן" bar overlapping content on scroll (#11) ✅ v0.M36
 - [x] **M37** — Map: ≥1 arrow per segment (#9) + closing Thailand→Israel leg with bidirectional Israel↔Bangkok coloring (#12) ✅ v0.M37
-- [ ] **M38** — Globe: city visited 2+ times → "choose which" picker (#10) — in review
+- [x] **M38** — Globe: city visited 2+ times → "choose which" picker (#10) ✅ v0.M38
+
+ALL 12 ASKS COMPLETE (M30–M38, tags v0.M30…v0.M38, SW cache v42). Deployed + live-verified.
 
 ## Notes / decisions
 - Transitions set (#1) proposed: none/cut, fade, crossfade, slide, zoom (Ken Burns). Confirm or adjust during M30.

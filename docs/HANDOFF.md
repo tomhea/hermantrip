@@ -70,8 +70,16 @@ so returning visitors get the new code via the SW auto-update.
   sticky-header offset fix, lazy photo hydration on dwell/slider.
 - ✅ Album-name slug URLs; SW auto-update.
 
-Tags through **v0.M29** (M29 = the ESLint `no-undef` guard, R8). Milestone
-history is in the task list / git tags.
+Tags through **v0.M38**. M29 = ESLint `no-undef` guard (R8). M30–M38 = a
+12-item improvement batch (see `.claude/plans/12-improvements-batch.md`):
+M30 slideshow mobile bar, M31 5 transitions, M32 repeat/continue loop +
+localStorage prefs persistence, M33 Space=play/pause + long-press no-op, M34
+album-card play button, M35 game photo maximised, M36 timeline sticky-header
+fix, M37 per-segment map arrows + flight-home trail with bidirectional
+Israel↔Bangkok arcs, M38 globe multi-visit "choose which" picker. SW cache is
+**v42**. Note: slideshow autoplay is intentionally NOT persisted (only
+speed/transition/loop) — revisit if the user wants autoplay remembered too.
+Milestone history is in the task list / git tags.
 
 ## Verified-live right now (DOM probes)
 
