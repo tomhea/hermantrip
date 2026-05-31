@@ -409,6 +409,25 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   width: 60vw;
   height: 40vh;
 }
+
+/* Slide transitions (M31 / ask #1). The shell carries a tr-<name> class; the
+   photo is recreated on every navigation, so these *entry* animations replay
+   automatically when the new slide mounts. `none` has no animation (instant
+   cut). kenburns runs across the autoplay dwell (--kb-dwell, set inline). */
+@keyframes ss-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ss-zoom { from { opacity: 0; transform: scale(1.06); } to { opacity: 1; transform: scale(1); } }
+@keyframes ss-slide { from { opacity: 0; transform: translateX(6%); } to { opacity: 1; transform: translateX(0); } }
+@keyframes ss-kenburns { from { transform: scale(1); } to { transform: scale(1.08); } }
+.slideshow-shell.tr-fade .slideshow-photo { animation: ss-fade 0.45s ease both; }
+.slideshow-shell.tr-zoom .slideshow-photo { animation: ss-zoom 0.5s ease both; }
+.slideshow-shell.tr-slide .slideshow-photo { animation: ss-slide 0.45s ease both; }
+.slideshow-shell.tr-kenburns .slideshow-photo {
+  animation: ss-kenburns var(--kb-dwell, 6000ms) ease-out both;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .slideshow-shell .slideshow-photo { animation: none !important; }
+}
 /* Invisible tap zones: left half = next (RTL), right half = prev */
 .slideshow-zone {
   position: absolute;
@@ -511,6 +530,7 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 
 /* M9: shared bar control (speed / fullscreen / download / info) */
 .slideshow-speed-btn,
+.slideshow-tr-btn,
 .slideshow-fs,
 .slideshow-dl,
 .slideshow-info > summary {
@@ -533,8 +553,10 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   list-style: none;           /* hide default <summary> marker */
 }
 .slideshow-speed-btn { font-variant-numeric: tabular-nums; font-size: 0.8rem; }
+.slideshow-tr-btn { font-size: 0.8rem; }
 .slideshow-info > summary::-webkit-details-marker { display: none; }
 .slideshow-speed-btn:hover, .slideshow-speed-btn:focus-visible,
+.slideshow-tr-btn:hover, .slideshow-tr-btn:focus-visible,
 .slideshow-fs:hover, .slideshow-fs:focus-visible,
 .slideshow-dl:hover, .slideshow-dl:focus-visible,
 .slideshow-info > summary:hover { color: #fff; }

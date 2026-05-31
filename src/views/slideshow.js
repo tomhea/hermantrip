@@ -11,6 +11,7 @@ import { sortPhotosByDate } from '../lib/ordering.js';
 import { imageUrl } from '../lib/image-url.js';
 import { clampIndex, nextIndex, prevIndex } from '../lib/slideshow-nav.js';
 import { speedLabel } from '../lib/slideshow-speed.js';
+import { transitionClass, transitionLabel } from '../lib/slideshow-transition.js';
 import { albumPlace } from '../lib/album-place.js';
 import { formatHebrewDate, hebrewWeekday, formatClock } from '../lib/photo-date.js';
 import { COUNTRIES } from '../lib/countries.js';
@@ -52,7 +53,7 @@ function infoPanel(album, photo, i, total) {
   `;
 }
 
-export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewport = 'phone', autoplay = false, speed = 4000 }) {
+export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewport = 'phone', autoplay = false, speed = 4000, transition = 'fade' }) {
   if (error) {
     return `<div class="slideshow-shell">${errorHTML('לא הצלחנו לטעון את התמונה. נסו לרענן.')}</div>`;
   }
@@ -101,9 +102,10 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
   const downloadHref = imageUrl(photo.id, 'download');
 
   return `
-    <div class="slideshow-shell" data-slideshow
+    <div class="slideshow-shell ${transitionClass(transition)}" data-slideshow
          data-next="${nextHref}" data-prev="${prevHref}" data-exit="${exitHref}"
-         data-autoplay-on="${autoplay ? 'true' : 'false'}" data-speed="${speed}">
+         data-autoplay-on="${autoplay ? 'true' : 'false'}" data-speed="${speed}"
+         data-transition="${escapeHTML(transition)}" style="--kb-dwell:${speed}ms">
       <div class="slideshow-stage">
         <img class="slideshow-photo" src="${src}" alt="${escapeHTML(album.title ?? album.name)} — ${i + 1}"
              decoding="async" fetchpriority="high" onerror="${onerror}">
@@ -116,6 +118,8 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
                 aria-label="${playLabel}" aria-pressed="${autoplay ? 'true' : 'false'}">${playGlyph}</button>
         <button type="button" class="slideshow-speed-btn" data-speed-toggle
                 aria-label="מהירות מצגת">${escapeHTML(speedLabel(speed))}</button>
+        <button type="button" class="slideshow-tr-btn" data-transition-toggle
+                aria-label="מעבר בין תמונות">${escapeHTML(transitionLabel(transition))}</button>
         <button type="button" class="slideshow-fs" data-fullscreen-toggle
                 aria-label="מסך מלא">⛶</button>
         <a class="slideshow-dl" href="${downloadHref}" download="${escapeHTML(photo.name)}"

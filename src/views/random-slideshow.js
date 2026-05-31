@@ -9,6 +9,7 @@ import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { imageUrl } from '../lib/image-url.js';
 import { albumPlace } from '../lib/album-place.js';
 import { speedLabel } from '../lib/slideshow-speed.js';
+import { transitionClass, transitionLabel } from '../lib/slideshow-transition.js';
 import { formatHebrewDate, hebrewWeekday, formatClock } from '../lib/photo-date.js';
 import { COUNTRIES } from '../lib/countries.js';
 import { albumPath } from '../lib/paths.js';
@@ -47,7 +48,7 @@ function infoPanel(album, photo) {
 
 export function renderRandomShow({
   manifest, item, scope, autoplay = false, speed = 4000, dpr = 1, viewport = 'phone',
-  error, exitHref = '/',
+  transition = 'fade', error, exitHref = '/',
 }) {
   if (error) {
     return `<div class="slideshow-shell">${errorHTML('לא הצלחנו לטעון את התמונות. נסו לרענן.')}</div>`;
@@ -75,9 +76,10 @@ export function renderRandomShow({
   const albumHref = albumPath(album.primary, album.slug);
 
   return `
-    <div class="slideshow-shell" data-slideshow data-random="${escapeHTML(scope)}"
+    <div class="slideshow-shell ${transitionClass(transition)}" data-slideshow data-random="${escapeHTML(scope)}"
          data-exit="${escapeHTML(exitHref)}"
-         data-autoplay-on="${autoplay ? 'true' : 'false'}" data-speed="${speed}">
+         data-autoplay-on="${autoplay ? 'true' : 'false'}" data-speed="${speed}"
+         data-transition="${escapeHTML(transition)}" style="--kb-dwell:${speed}ms">
       <div class="slideshow-stage">
         <img class="slideshow-photo" src="${src}" alt="${escapeHTML(albumTitle)}"
              decoding="async" fetchpriority="high" onerror="${onerror}">
@@ -90,6 +92,8 @@ export function renderRandomShow({
                 aria-label="${playLabel}" aria-pressed="${autoplay ? 'true' : 'false'}">${playGlyph}</button>
         <button type="button" class="slideshow-speed-btn" data-speed-toggle
                 aria-label="מהירות מצגת">${escapeHTML(speedLabel(speed))}</button>
+        <button type="button" class="slideshow-tr-btn" data-transition-toggle
+                aria-label="מעבר בין תמונות">${escapeHTML(transitionLabel(transition))}</button>
         <button type="button" class="slideshow-fs" data-fullscreen-toggle aria-label="מסך מלא">⛶</button>
         <a class="slideshow-dl" href="${downloadHref}" download="${escapeHTML(photo.name)}"
            aria-label="הורדת התמונה המקורית">⬇</a>
