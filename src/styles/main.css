@@ -438,7 +438,15 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  /* WRAP so every control stays visible on a narrow phone (M30 / ask #2):
+     7 controls today, 9 after the transition + loop toggles land — a single
+     non-wrapping row overflowed and clipped the end buttons on a 390px
+     portrait screen. Wrapping reflows them onto a second centred row and
+     keeps each ≥44px touch target intact. On ≥600px the row has room and
+     never wraps. */
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-3);
   padding: var(--space-3) var(--space-3);
   color: #f2ece2;
   background: rgba(0, 0, 0, 0.35);
@@ -534,13 +542,21 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 /* Info panel: pops up above the bar from the ⓘ summary */
 .slideshow-info { position: relative; }
 .slideshow-info[open] > summary { color: var(--earth-ochre); }
+/* Phone base (M30 / ask #2): anchor the panel to the VIEWPORT, horizontally
+   centred, instead of to the ⓘ summary. Summary-anchored absolute positioning
+   pushed the panel off the screen edge whenever the ⓘ sat near the inline
+   edge of the (now wrapping) bar. Fixed + centred guarantees it's always
+   fully on-screen and clears a one- or two-row bar; it scrolls if tall. */
 .slideshow-info .info-body {
-  position: absolute;
-  bottom: 3rem;
-  inset-inline-start: 0;
+  position: fixed;
+  left: 50%;
+  bottom: 6.5rem;
+  transform: translateX(-50%);
   margin: 0;
-  min-width: 16rem;
-  max-width: 78vw;
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--space-3));
+  max-height: 60vh;
+  overflow-y: auto;
   background: rgba(20, 17, 14, 0.96);
   border: 1px solid rgba(242, 236, 226, 0.2);
   border-radius: 4px;
@@ -549,6 +565,22 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   font-size: var(--type-small);
   line-height: 1.5;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+/* ≥600px: enough room to anchor the panel to the ⓘ button again (nicer,
+   contextual) — the bar never wraps at this width so it can't clip. */
+@media (min-width: 600px) {
+  .slideshow-info .info-body {
+    position: absolute;
+    left: auto;
+    bottom: 3rem;
+    inset-inline-start: 0;
+    transform: none;
+    width: auto;
+    min-width: 16rem;
+    max-width: 78vw;
+    max-height: none;
+    overflow-y: visible;
+  }
 }
 .slideshow-info .info-row {
   display: flex;
