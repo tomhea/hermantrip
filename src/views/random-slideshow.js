@@ -10,6 +10,7 @@ import { imageUrl } from '../lib/image-url.js';
 import { albumPlace } from '../lib/album-place.js';
 import { speedLabel } from '../lib/slideshow-speed.js';
 import { transitionClass, transitionLabel } from '../lib/slideshow-transition.js';
+import { shareMenuHTML } from '../lib/share-menu.js';
 import { formatHebrewDate, hebrewWeekday, formatClock } from '../lib/photo-date.js';
 import { COUNTRIES } from '../lib/countries.js';
 import { albumPath } from '../lib/paths.js';
@@ -97,6 +98,7 @@ export function renderRandomShow({
         <button type="button" class="slideshow-fs" data-fullscreen-toggle aria-label="מסך מלא">⛶</button>
         <a class="slideshow-dl" href="${downloadHref}" download="${escapeHTML(photo.name)}"
            aria-label="הורדת התמונה המקורית">⬇</a>
+        ${shareMenuHTML()}
         ${infoPanel(album, photo)}
         <a class="slideshow-title" href="${albumHref}">${escapeHTML(albumTitle)}</a>
       </div>

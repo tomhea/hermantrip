@@ -29,6 +29,7 @@ const BROWSER = {
   IntersectionObserver: READONLY, MutationObserver: READONLY, ResizeObserver: READONLY,
   AbortController: READONLY, AbortSignal: READONLY, URL: READONLY, URLSearchParams: READONLY,
   Image: READONLY, Audio: READONLY, Event: READONLY, CustomEvent: READONLY,
+  ClipboardItem: READONLY, File: READONLY, Blob: READONLY, FileReader: READONLY,
   HTMLElement: READONLY, Element: READONLY, Node: READONLY, DOMParser: READONLY,
   getComputedStyle: READONLY, matchMedia: READONLY, screen: READONLY,
   performance: READONLY, crypto: READONLY, structuredClone: READONLY, scrollTo: READONLY,

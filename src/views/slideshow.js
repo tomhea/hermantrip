@@ -13,6 +13,7 @@ import { clampIndex, nextIndex, prevIndex } from '../lib/slideshow-nav.js';
 import { speedLabel } from '../lib/slideshow-speed.js';
 import { transitionClass, transitionLabel } from '../lib/slideshow-transition.js';
 import { loopGlyph, loopAriaLabel, normalizeLoop } from '../lib/slideshow-loop.js';
+import { shareMenuHTML } from '../lib/share-menu.js';
 import { albumPlace } from '../lib/album-place.js';
 import { formatHebrewDate, hebrewWeekday, formatClock } from '../lib/photo-date.js';
 import { COUNTRIES } from '../lib/countries.js';
@@ -137,6 +138,7 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
                 aria-label="מסך מלא">⛶</button>
         <a class="slideshow-dl" href="${downloadHref}" download="${escapeHTML(photo.name)}"
            aria-label="הורדת התמונה המקורית">⬇</a>
+        ${shareMenuHTML()}
         ${infoPanel(album, photo, i, photos.length)}
         <span class="slideshow-counter" dir="ltr">${counter}</span>
       </div>

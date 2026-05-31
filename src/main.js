@@ -368,6 +368,7 @@ function wireSlideshow() {
     });
   }
 
+  wireShare(shell);
   wireControls(shell);
 
   // (Re)schedule the auto-advance while autoplay is on. Each slide render
@@ -376,6 +377,78 @@ function wireSlideshow() {
   if (autoplayOn) {
     autoplayTimer = setTimeout(() => slideAdvance(shell, 1), autoplaySpeed);
   }
+}
+
+// Brief transient confirmation toast (used by share/copy, M42).
+let shareToastTimer = null;
+function showToast(shell, msg) {
+  let el = shell.querySelector('.slideshow-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.className = 'slideshow-toast';
+    shell.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add('is-visible');
+  if (shareToastTimer) clearTimeout(shareToastTimer);
+  shareToastTimer = setTimeout(() => el.classList.remove('is-visible'), 1800);
+}
+
+// Draw a same-origin <img> to a canvas → PNG blob (clipboard image write needs
+// PNG). Same-origin /img/ proxy means the canvas isn't tainted.
+function imageToPngBlob(img) {
+  return new Promise((resolve, reject) => {
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    c.getContext('2d').drawImage(img, 0, 0);
+    c.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/png');
+  });
+}
+
+// Share menu (#4): copy link / copy picture / share link / share picture.
+// Unsupported actions are hidden (no navigator.share / clipboard).
+function wireShare(shell) {
+  const share = shell.querySelector('.slideshow-share');
+  if (!share) return;
+  const photo = shell.querySelector('.slideshow-photo');
+  const canShare = typeof navigator.share === 'function';
+  const canCopy = !!(navigator.clipboard && navigator.clipboard.writeText);
+  for (const btn of share.querySelectorAll('[data-share]')) {
+    if (btn.dataset.shareKind === 'share' && !canShare) btn.hidden = true;
+    if (btn.dataset.shareKind === 'copy' && !canCopy) btn.hidden = true;
+  }
+  if (![...share.querySelectorAll('[data-share]')].some((b) => !b.hidden)) {
+    share.hidden = true; // nothing this browser can do
+    return;
+  }
+  share.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-share]');
+    if (!btn) return;
+    e.preventDefault();
+    const url = location.href;
+    try {
+      if (btn.dataset.share === 'copy-link') {
+        await navigator.clipboard.writeText(url);
+        showToast(shell, 'הקישור הועתק');
+      } else if (btn.dataset.share === 'share-link') {
+        await navigator.share({ url });
+      } else if (btn.dataset.share === 'copy-picture') {
+        const png = await imageToPngBlob(photo);
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })]);
+        showToast(shell, 'התמונה הועתקה');
+      } else if (btn.dataset.share === 'share-picture') {
+        const blob = await (await fetch(photo.src)).blob();
+        const file = new File([blob], 'hermantrip.jpg', { type: blob.type || 'image/jpeg' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file] });
+        } else {
+          await navigator.share({ url }); // fallback when file-share unsupported
+        }
+      }
+    } catch { /* user cancelled / clipboard blocked — non-fatal */ }
+    share.open = false;
+  });
 }
 
 // Control-bar visibility (M10 + M11).
