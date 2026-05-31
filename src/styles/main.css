@@ -911,10 +911,63 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 
 /* Globe container (M21) */
 .globe-container {
+  position: relative;    /* anchor the loading overlay (#4) */
   flex: 1 1 auto;
   width: 100%;
   background: #0a0a12;   /* deep space */
   isolation: isolate;
+}
+
+/* Globe loading overlay (M57 / #4): a starfield + Hebrew caption shown while
+   globe.gl + three.js download and the scene builds, instead of a blank box. */
+.globe-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  background: #05070d;   /* near-black space */
+  overflow: hidden;
+}
+/* Three layered fields of tiny star dots, each a different size/offset, gently
+   twinkling. Pure CSS — no images. */
+.globe-stars,
+.globe-stars::before,
+.globe-stars::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+  background-image:
+    radial-gradient(1.5px 1.5px at 20px 30px, #ffffff 99%, transparent),
+    radial-gradient(1.5px 1.5px at 90px 80px, #cfe0ff 99%, transparent),
+    radial-gradient(1px 1px at 150px 50px, #ffffff 99%, transparent),
+    radial-gradient(1px 1px at 200px 120px, #e9f0ff 99%, transparent);
+  background-size: 220px 180px;
+  animation: globe-twinkle 3.6s ease-in-out infinite alternate;
+}
+.globe-stars::before { background-size: 320px 260px; opacity: 0.7; animation-delay: 1.2s; }
+.globe-stars::after  { background-size: 160px 140px; opacity: 0.5; animation-delay: 2.4s; }
+@keyframes globe-twinkle {
+  from { opacity: 0.45; }
+  to   { opacity: 1; }
+}
+.globe-loading-text {
+  position: relative;
+  z-index: 1;
+  color: #eaf0ff;
+  font-family: var(--font-family);
+  font-size: var(--type-h2, 1.25rem);
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+}
+@media (prefers-reduced-motion: reduce) {
+  .globe-stars,
+  .globe-stars::before,
+  .globe-stars::after { animation: none; }
 }
 
 /* "Choose which album" picker for a globe city visited 2+ times (M38 / #10). */
