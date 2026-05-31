@@ -18,6 +18,7 @@ import { albumPath, slidePath, countryPath } from './lib/paths.js';
 import { transformManifest } from './lib/album-transform.js';
 import { shuffle } from './lib/random.js';
 import { shouldReloadForController } from './lib/sw-update.js';
+import { rememberScroll, recallScroll, isSlideOf } from './lib/scroll-store.js';
 import { allPhotos, countryPhotos } from './lib/photo-pool.js';
 import { renderCountryList } from './views/country-list.js';
 import { renderAlbumList } from './views/album-list.js';
@@ -109,7 +110,7 @@ function renderCountry(params) {
   window.scrollTo(0, 0);
 }
 
-function renderAlbum(params) {
+function renderAlbum(params, fromPath) {
   const code = codeFromSlug(params.country);
   const res = manifest ? albumBySlug(manifest, code, params.album) : null;
   if (manifest && !res) { renderNotFound(currentPath()); return; }
@@ -120,7 +121,10 @@ function renderAlbum(params) {
     manifest, error: manifestError, code,
     id: res ? res.album.id : params.album, dpr: dpr(),
   });
-  window.scrollTo(0, 0);
+  // Returning from this album's own slideshow → restore the prior scroll (#7);
+  // arriving from anywhere else → start at the top.
+  const here = currentPath();
+  window.scrollTo(0, isSlideOf(fromPath, here) ? recallScroll(here) : 0);
 }
 
 function viewportClass() {
@@ -129,12 +133,21 @@ function viewportClass() {
   return 'phone';
 }
 
+// Path of the view rendered just before the current one — lets renderAlbum tell
+// "returning from my own slideshow" (restore scroll, #7) apart from "arriving
+// fresh from a country grid / deep link" (start at top). Updated in render().
+let prevPath = null;
+
 // SPA navigation: push a clean path and re-render (M12). Accepts a leading
 // '#'-stripped path for back-compat with any caller still passing one.
 function go(path) {
   if (!path) return;
   const clean = path.replace(/^#/, '');
   if (clean !== currentPath()) {
+    const from = currentPath();
+    // Opening a photo from an album → remember where we were so closing the
+    // slideshow lands back at the same spot (#7).
+    if (isSlideOf(clean, from)) rememberScroll(from, window.scrollY);
     window.history.pushState({}, '', clean);
   }
   render();
@@ -1201,6 +1214,10 @@ function renderNotFound(path) {
 
 function render() {
   const path = currentPath();
+  // Remember where we came from for this render, then advance prevPath for the
+  // next one. Captured before any early return so it always tracks (#7).
+  const fromPath = prevPath;
+  prevPath = path;
   const match = router.match(path);
   // Country/album/slide carry a country SLUG — reject unknown slugs as 404
   // (e.g. /atlantis) rather than rendering an empty country view.
@@ -1252,7 +1269,7 @@ function render() {
       renderCountry(match.params);
       break;
     case 'album':
-      renderAlbum(match.params);
+      renderAlbum(match.params, fromPath);
       break;
     case 'slide':
       renderSlide(match.params);
