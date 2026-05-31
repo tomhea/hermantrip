@@ -13,9 +13,11 @@ export const LOOP_MODES = ['repeat', 'continue'];
 export const DEFAULT_LOOP = 'repeat';
 
 const GLYPHS = { repeat: '↺', continue: '↳' };
+// Hover/aria wording (M44 / #7): present-tense, describing what the CURRENT
+// mode does. Used for both the title tooltip and the aria-label.
 const ARIA = {
-  repeat: 'חזרה על האלבום',
-  continue: 'המשך לאלבום הבא במדינה',
+  repeat: 'חוזר על האלבום',
+  continue: 'ממשיך לאלבום הבא',
 };
 
 export function normalizeLoop(m) {

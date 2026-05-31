@@ -219,3 +219,11 @@ test('M43: info panel has a bottom "גודל" size row with data-size-id (#6)', 
   const fileAt = html.indexOf('<dt>קובץ</dt>');
   assert.ok(fileAt !== -1 && sizeAt > fileAt, 'size row comes after the file row (bottom)');
 });
+
+test('M44: loop button has a title tooltip + glyph wrapped for mirroring (#7)', () => {
+  const repeat = renderSlideshow({ manifest, id: '1', idx: '2', loopMode: 'repeat' });
+  assert.match(repeat, /title="חוזר על האלבום"/);
+  assert.match(repeat, /<span class="loop-glyph">/);
+  const cont = renderSlideshow({ manifest, id: '1', idx: '2', loopMode: 'continue' });
+  assert.match(cont, /title="ממשיך לאלבום הבא"/);
+});

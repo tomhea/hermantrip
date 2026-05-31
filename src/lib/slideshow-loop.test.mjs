@@ -28,3 +28,8 @@ test('each mode has a distinct glyph and a non-empty Hebrew aria-label', () => {
     assert.ok(loopAriaLabel(m).length > 0);
   }
 });
+
+test('M44: present-tense hover/aria wording per mode (#7)', () => {
+  assert.equal(loopAriaLabel('repeat'), 'חוזר על האלבום');
+  assert.equal(loopAriaLabel('continue'), 'ממשיך לאלבום הבא');
+});
