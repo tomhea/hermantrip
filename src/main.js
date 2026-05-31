@@ -7,6 +7,8 @@ import { createRouter } from './lib/router.js';
 import { keyToAction, swipeToAction, preloadIndices } from './lib/slideshow-nav.js';
 import { nextSpeed } from './lib/slideshow-speed.js';
 import { nextTransition, DEFAULT_TRANSITION } from './lib/slideshow-transition.js';
+import { nextLoopMode, DEFAULT_LOOP } from './lib/slideshow-loop.js';
+import { parsePrefs, serializePrefs } from './lib/slideshow-prefs.js';
 import { controlsVisible, CONTROLS_HIDE_MS } from './lib/controls-timer.js';
 import { albumById, albumBySlug } from './lib/album-query.js';
 import { sortPhotosByDate } from './lib/ordering.js';
@@ -145,6 +147,32 @@ let autoplayOn = false;
 let autoplayTimer = null;
 let autoplaySpeed = 4000; // ms between auto-advances; cycled by the speed button
 let slideTransition = DEFAULT_TRANSITION; // entry animation, cycled by the transition button (M31)
+let slideLoopMode = DEFAULT_LOOP; // 'repeat' | 'continue', cycled by the loop button (M32)
+
+// Persist the slideshow config picks (speed / transition / loop) across
+// sessions (M32 / ask #4). localStorage access lives here in the wiring layer
+// (src/lib stays pure, R6); slideshow-prefs.js handles validation. Autoplay is
+// a transient play/pause control and is intentionally NOT persisted.
+const SLIDESHOW_PREFS_KEY = 'hermantrip:slideshow';
+
+function loadSlideshowPrefs() {
+  let raw = null;
+  try { raw = localStorage.getItem(SLIDESHOW_PREFS_KEY); } catch { /* storage blocked */ }
+  const prefs = parsePrefs(raw);
+  autoplaySpeed = prefs.speed;
+  slideTransition = prefs.transition;
+  slideLoopMode = prefs.loopMode;
+}
+
+function saveSlideshowPrefs() {
+  try {
+    localStorage.setItem(SLIDESHOW_PREFS_KEY, serializePrefs({
+      speed: autoplaySpeed, transition: slideTransition, loopMode: slideLoopMode,
+    }));
+  } catch { /* storage blocked / full — non-fatal */ }
+}
+
+loadSlideshowPrefs();
 
 // Random slideshow (M17). The shuffled playlist + position live at module
 // scope; it's rebuilt on FRESH entry (or scope change) and preserved across
@@ -175,7 +203,7 @@ function renderSlide(params) {
   app.innerHTML = renderSlideshow({
     manifest, error: manifestError, code, id, idx: params.idx,
     dpr: dpr(), viewport: viewportClass(), autoplay: autoplayOn, speed: autoplaySpeed,
-    transition: slideTransition,
+    transition: slideTransition, loopMode: slideLoopMode,
   });
   window.scrollTo(0, 0);
   wireSlideshow();
@@ -288,6 +316,7 @@ function wireSlideshow() {
   if (speedBtn) {
     speedBtn.addEventListener('click', () => {
       autoplaySpeed = nextSpeed(autoplaySpeed);
+      saveSlideshowPrefs();
       render();
     });
   }
@@ -298,6 +327,17 @@ function wireSlideshow() {
   if (trBtn) {
     trBtn.addEventListener('click', () => {
       slideTransition = nextTransition(slideTransition);
+      saveSlideshowPrefs();
+      render();
+    });
+  }
+
+  // Loop button — toggle repeat-album ↔ continue-to-next-album (M32 / ask #3).
+  const loopBtn = shell.querySelector('[data-loop-toggle]');
+  if (loopBtn) {
+    loopBtn.addEventListener('click', () => {
+      slideLoopMode = nextLoopMode(slideLoopMode);
+      saveSlideshowPrefs();
       render();
     });
   }

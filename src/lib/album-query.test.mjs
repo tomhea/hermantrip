@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { albumsForCountry, albumById, albumBySlug } from './album-query.js';
+import { albumsForCountry, albumById, albumBySlug, nextAlbumInCountry } from './album-query.js';
 
 const manifest = {
   countries: [
@@ -43,6 +43,34 @@ test('albumsForCountry does not mutate manifest.albums order', () => {
   const before = manifest.albums.map((a) => a.id);
   albumsForCountry(manifest, 'np');
   assert.deepEqual(manifest.albums.map((a) => a.id), before);
+});
+
+test('nextAlbumInCountry advances by id order within the country (np: 1→2→3)', () => {
+  // np order is [1, 2, 3]
+  assert.equal(nextAlbumInCountry(manifest, 'np', 1).id, 2);
+  assert.equal(nextAlbumInCountry(manifest, 'np', 2).id, 3);
+});
+
+test('nextAlbumInCountry wraps the last album back to the first', () => {
+  assert.equal(nextAlbumInCountry(manifest, 'np', 3).id, 1); // last → first
+});
+
+test('nextAlbumInCountry accepts a string id', () => {
+  assert.equal(nextAlbumInCountry(manifest, 'np', '2').id, 3);
+});
+
+test('nextAlbumInCountry uses the country-scoped list (th: 1→19→1)', () => {
+  assert.equal(nextAlbumInCountry(manifest, 'th', 1).id, 19);
+  assert.equal(nextAlbumInCountry(manifest, 'th', 19).id, 1);
+});
+
+test('nextAlbumInCountry returns null for a single-album / unknown country', () => {
+  assert.equal(nextAlbumInCountry(manifest, 'xx', 1), null);
+  assert.equal(nextAlbumInCountry({ albums: [{ id: 5, countries: ['zz'] }] }, 'zz', 5), null);
+});
+
+test('nextAlbumInCountry returns null when current id is not in the country', () => {
+  assert.equal(nextAlbumInCountry(manifest, 'np', 999), null);
 });
 
 test('albumById returns the matching album', () => {

@@ -11,9 +11,13 @@ deploy → verify live (DOM probe).
 Reordered: #2 (mobile bar) first so later button additions land on an
 overflow-safe layout.
 
-- [ ] **M30** — Slideshow mobile/vertical: all buttons visible (wrap), info panel on-screen (#2)
-- [ ] **M31** — Slideshow: 5 transitions (#1)
+- [x] **M30** — Slideshow mobile/vertical: all buttons visible (wrap), info panel on-screen (#2) ✅ v0.M30
+- [x] **M31** — Slideshow: 5 transitions (#1) ✅ v0.M31
 - [ ] **M32** — Slideshow: repeat-album↔continue-to-next toggle (#3) + persist all picks, localStorage (#4)
+      Decision: persist speed + transition + loop-mode (the config "picks").
+      Autoplay stays a transient play/pause control (existing reset-on-exit),
+      NOT persisted — flag to user in final summary for confirmation.
+      Continue applies to forward nav (next/autoplay); prev stays in-album.
 - [ ] **M33** — Slideshow input: space=play/pause (#7) + long-press side-zone = explicit no-op (#8)
 - [ ] **M34** — Album-card "play" button → first photo, autoplay, fullscreen (#6)
 - [ ] **M35** — Guessing game: maximize photo size (#5)

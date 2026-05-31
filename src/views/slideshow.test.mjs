@@ -169,6 +169,29 @@ test('M31: transition defaults to fade when unspecified', () => {
   assert.match(html, /tr-fade/);
 });
 
+test('M32: loop button present, defaults to repeat (not pressed)', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2' });
+  assert.match(html, /data-loop-toggle/);
+  assert.match(html, /class="slideshow-loop-btn"[^>]*aria-pressed="false"/);
+});
+
+test('M32: continue mode at the LAST photo links next → next album slide 0', () => {
+  // album 1 (5 photos) is last at idx 4; np order [1,2] → next album id 2 = chitwan
+  const html = renderSlideshow({ manifest, id: '1', idx: '4', loopMode: 'continue' });
+  assert.match(html, /data-next="\/nepal\/chitwan\/0"/);
+  assert.match(html, /aria-pressed="true"/); // loop button reflects continue
+});
+
+test('M32: continue mode mid-album still advances within the album', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2', loopMode: 'continue' });
+  assert.match(html, /data-next="\/nepal\/bangkok-kathmandu\/3"/);
+});
+
+test('M32: repeat mode (default) wraps last → first within the album', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '4', loopMode: 'repeat' });
+  assert.match(html, /data-next="\/nepal\/bangkok-kathmandu\/0"/);
+});
+
 test('M9: info panel tolerates a photo with no capturedAt (omits date rows)', () => {
   const m = {
     countries: [{ code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [1] }],
