@@ -15,7 +15,7 @@ Photos live in a public Google Drive folder; the site never re-hosts them.
   Pure logic in `src/lib/` (no DOM/fetch), views in `src/views/` (pure
   HTML-string builders), all DOM/router/state wiring in `src/main.js`.
 - **Tests:** `npm test` (= `node scripts/test.mjs`, `node --test`, zero runtime
-  deps). Currently **616 passing / 0 fail**. ESLint `no-undef` runs inside the
+  deps). Currently **618 passing / 0 fail**. ESLint `no-undef` runs inside the
   suite via `src/lib/eslint-noundef.test.mjs` (M29) — `npm run lint` =
   `npx eslint@9 --max-warnings=0 .` (config: `eslint.config.mjs`).
 - **Manifest:** `data/manifest.json` (~4.8 MB, 88 raw albums → 87 after
@@ -35,7 +35,7 @@ tar czf - -C dist . | ssh root@tomhe.app 'rm -rf /var/www/hermantrip/* && tar xz
 ```
 **IMPORTANT:** when adding a new `src/lib/*.js` or `src/views/*.js`, add it to
 BOTH (a) the dist-copy file list in the deploy command and (b) `sw.js`
-`SHELL_FILES`, and **bump `SHELL_CACHE`** (currently `hermantrip-shell-v53`)
+`SHELL_FILES`, and **bump `SHELL_CACHE`** (currently `hermantrip-shell-v54`)
 so returning visitors get the new code via the SW auto-update. `dist/` is
 gitignored; assemble it by copying index.html + sw.js + icon.svg +
 manifest.webmanifest + src/ (minus `*.test.mjs`) + data/ (the per-milestone
@@ -76,6 +76,8 @@ loop does this inline with a small node script).
 - ✅ **Timeline** (`/timeline`): 325 days, RTL slider (start on the right),
   sticky-header offset fix, lazy photo hydration on dwell/slider.
 - ✅ Album-name slug URLs; SW auto-update.
+
+**M50** (SW **v54**) — globe building footprint slimmed to a third (width & depth) with one window per floor (`BUILDING_WIDTH`/`windowColumns` in `globe-buildings.js`).
 
 **M49** (tag `v0.M49`, SW **v53**) — globe markers are now real 3D **box
 buildings**: gray windowed bodies + red pyramid roofs, height ∝ days (a quarter
