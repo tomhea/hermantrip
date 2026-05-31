@@ -31,7 +31,7 @@ tar czf - -C dist . | ssh root@tomhe.app 'rm -rf /var/www/hermantrip/* && tar xz
 ```
 **IMPORTANT:** when adding a new `src/lib/*.js` or `src/views/*.js`, add it to
 BOTH (a) the dist-copy file list in the deploy command and (b) `sw.js`
-`SHELL_FILES`, and **bump `SHELL_CACHE`** (currently `hermantrip-shell-v32`)
+`SHELL_FILES`, and **bump `SHELL_CACHE`** (currently `hermantrip-shell-v33`)
 so returning visitors get the new code via the SW auto-update.
 
 ## Key architecture notes
@@ -70,7 +70,8 @@ so returning visitors get the new code via the SW auto-update.
   sticky-header offset fix, lazy photo hydration on dwell/slider.
 - ✅ Album-name slug URLs; SW auto-update.
 
-Tags through **v0.M28.2**. Milestone history is in the task list / git tags.
+Tags through **v0.M29** (M29 = the ESLint `no-undef` guard, R8). Milestone
+history is in the task list / git tags.
 
 ## Verified-live right now (DOM probes)
 
@@ -97,16 +98,21 @@ tracing (write step into `document.title`).
   the CR-ist finished / despite CHANGES_REQUESTED**. Don't do that. Wait for
   the CR-ist verdict; only `gh pr merge` on an explicit APPROVED.
 
-### 2. The real toolchain gap (R8) — fix this to prevent recurrence
-`node --check` only checks syntax. The outage (undeclared var) and an earlier
-one (missing import) both shipped because **nothing runs ESLint**. ESLint IS
-available via `npx eslint@9` (verified: `no-undef` catches `globeResizeHandler`
-— 7 errors before the fix, 0 after). **Wire ESLint `no-undef` into the test
-suite / a guard so `main.js` (the never-unit-imported DOM layer) can't ship an
-undefined reference again.** This is the single highest-value follow-up.
-(There are already partial guards: `src/lib/import-integrity.test.mjs`,
-`src/lib/syntax-integrity.test.mjs`, `src/boot-invoked.test.mjs` — but they're
-heuristic; ESLint is the real fix.)
+### 2. The real toolchain gap (R8) — ✅ DONE in M29
+`node --check` only checks syntax, so the outage (undeclared var) and an
+earlier one (missing import) both shipped because nothing ran ESLint. **Fixed
+in M29 (PR #40, tag `v0.M29`):**
+- `eslint.config.mjs` — flat config, `no-undef` + a few correctness rules,
+  browser/node globals enumerated inline (the `globals` pkg isn't resolvable
+  under `npx`).
+- `src/lib/eslint-noundef.test.mjs` — runs `npx eslint@9 --max-warnings=0 .`
+  inside `node --test` and fails loudly if ESLint can't be invoked. Verified
+  it reproduces the exact M28 signature (delete the `globeResizeHandler`
+  declaration → 7 `no-undef` errors; restore → 0).
+- `npm run lint` script added.
+So `main.js` (the never-unit-imported DOM layer) can no longer ship an
+undefined reference. The older heuristic guards (`import-integrity`,
+`syntax-integrity`, `boot-invoked`) remain as cheap belt-and-suspenders.
 
 ### 3. Open feature asks from the user (most recent 7-item list)
 Status of the last batch the user requested:
