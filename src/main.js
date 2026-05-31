@@ -25,7 +25,8 @@ import { renderAlbumGrid } from './views/album-grid.js';
 import { renderSlideshow } from './views/slideshow.js';
 import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
-import { coordsForAlbum, groupAlbumsByLocation } from './lib/album-coords.js';
+import { coordsForAlbum } from './lib/album-coords.js';
+import { buildingsForGlobe } from './lib/globe-buildings.js';
 import { trailSegments, arcPoints, trailArcs } from './lib/trail.js';
 import { tripStopGroups, tripTrailPoints, ISRAEL, BANGKOK } from './lib/map-stops.js';
 import { globeModuleUrl } from './lib/globe-loader.js';
@@ -755,12 +756,15 @@ async function initGlobeView() {
   if (!container || container.dataset.globeReady) return;
   container.dataset.globeReady = '1';
 
-  const locationGroups = groupAlbumsByLocation(manifest);
-  const points = locationGroups.map(({ lat, lng, albums }) => ({
-    lat, lng,
-    color: MAP_COUNTRY_COLORS[albums[0].primary] || '#888',
-    label: albums.map(a => a.title || a.name).join(' / '),
-    albums,
+  // Buildings (#10b): one per visit, height ∝ days spent. Multi-visit cities
+  // get several side-by-side buildings; a multi-place album splits its days.
+  const buildings = buildingsForGlobe(manifest);
+  const maxDays = Math.max(1, ...buildings.map((b) => b.days));
+  const points = buildings.map((b) => ({
+    lat: b.lat, lng: b.lng, days: b.days,
+    color: MAP_COUNTRY_COLORS[b.country] || '#888',
+    label: b.album.title || b.album.name,
+    albums: [b.album], // single album per building → onPointClick opens it directly
   }));
 
   const globe = GlobeFn({ animateIn: false })(container);
@@ -772,8 +776,8 @@ async function initGlobeView() {
     .pointLat('lat')
     .pointLng('lng')
     .pointColor('color')
-    .pointRadius(0.45)
-    .pointAltitude(0.02)
+    .pointRadius(0.28)
+    .pointAltitude((d) => 0.02 + (d.days / maxDays) * 0.45)
     .pointLabel((d) => `<div class="map-popup" style="direction:rtl">${
       d.albums.map(a => `<span class="map-popup-link">${escapeHTML(a.title || a.name)}</span>`).join('<br>')
     }</div>`)
