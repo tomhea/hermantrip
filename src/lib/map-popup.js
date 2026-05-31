@@ -28,7 +28,10 @@ export function stopPopupHTML(stops) {
       seenLabel.add(label);
       return `<span class="map-popup-label">${label}</span>`;
     }
-    const href = albumPath(s.primary, s.slug);
+    // Use the pin's per-city country so a map entry points to ITS country's
+    // shared album (#8): album 1's Bangkok pin → /thailand/…, its Kathmandu
+    // pin → /nepal/…. Falls back to primary for stops without a country.
+    const href = albumPath(s.country || s.primary, s.slug);
     if (seenHref.has(href)) return '';
     seenHref.add(href);
     const text = escapeHTML(s.albumTitle || s.label);
