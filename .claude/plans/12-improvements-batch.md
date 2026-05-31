@@ -18,12 +18,12 @@ overflow-safe layout.
       Autoplay stays a transient play/pause control (existing reset-on-exit),
       NOT persisted — flag to user in final summary for confirmation.
       Continue applies to forward nav (next/autoplay); prev stays in-album.
-- [ ] **M33** — Slideshow input: space=play/pause (#7) + long-press side-zone = explicit no-op (#8)
-- [ ] **M34** — Album-card "play" button → first photo, autoplay, fullscreen (#6)
-- [ ] **M35** — Guessing game: maximize photo size (#5)
-- [ ] **M36** — Timeline: sticky "← חזרה ציר זמן" bar overlapping content on scroll (#11)
-- [ ] **M37** — Map: ≥1 arrow per segment (#9) + closing Thailand→Israel leg with bidirectional Israel↔Bangkok coloring (#12)
-- [ ] **M38** — Globe: city visited 2+ times → "choose which" picker (#10)
+- [x] **M33** — Slideshow input: space=play/pause (#7) + long-press side-zone = explicit no-op (#8) ✅ v0.M33
+- [x] **M34** — Album-card "play" button → first photo, autoplay, fullscreen (#6) ✅ v0.M34
+- [x] **M35** — Guessing game: maximize photo size (#5) ✅ v0.M35
+- [x] **M36** — Timeline: sticky "← חזרה ציר זמן" bar overlapping content on scroll (#11) ✅ v0.M36
+- [x] **M37** — Map: ≥1 arrow per segment (#9) + closing Thailand→Israel leg with bidirectional Israel↔Bangkok coloring (#12) ✅ v0.M37
+- [ ] **M38** — Globe: city visited 2+ times → "choose which" picker (#10) — in review
 
 ## Notes / decisions
 - Transitions set (#1) proposed: none/cut, fade, crossfade, slide, zoom (Ken Burns). Confirm or adjust during M30.
