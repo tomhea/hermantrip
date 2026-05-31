@@ -284,6 +284,15 @@ function wireSlideshow() {
     btn.addEventListener('click', () => slideAdvance(shell, btn.dataset.nav === 'next' ? 1 : -1));
   }
 
+  // M33 / ask #8 — explicit "nothing" handle for a long-press on the tap-zones.
+  // Long-pressing a side zone (an <a> in album mode, a <button> in random mode)
+  // otherwise pops the context menu / link preview and feels like the side
+  // grabbed the press. Swallow contextmenu on the zones so a long-press does
+  // exactly nothing; a normal tap still navigates (click is unaffected).
+  for (const zone of shell.querySelectorAll('.slideshow-zone')) {
+    zone.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
+
   // Touch swipe on the stage.
   const stage = shell.querySelector('.slideshow-stage');
   if (stage) {
@@ -426,9 +435,13 @@ window.addEventListener('keydown', (e) => {
   if (!shell) return;
   const action = keyToAction(e.key);
   if (!action) return;
-  e.preventDefault();
+  e.preventDefault(); // Space would otherwise scroll the page
   if (action === 'exit') go(shell.dataset.exit);
-  else slideAdvance(shell, action === 'next' ? 1 : -1);
+  else if (action === 'playpause') {
+    // M33 / ask #7 — Space toggles autoplay, like clicking the play button.
+    autoplayOn = !autoplayOn;
+    render();
+  } else slideAdvance(shell, action === 'next' ? 1 : -1);
 });
 
 // ── Map + Globe (M18 / M21) ──────────────────────────────────────

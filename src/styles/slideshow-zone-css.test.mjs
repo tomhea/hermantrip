@@ -35,3 +35,14 @@ test('.slideshow-zone removes the UA button border', () => {
 test('.slideshow-zone neutralises native control appearance', () => {
   assert.match(zoneRuleBody(), /appearance:\s*none/);
 });
+
+// M33 / ask #8 — long-press on a tap-zone must do nothing (no iOS callout /
+// text selection). The contextmenu no-op is wired in main.js; the CSS half is
+// the callout/selection suppression asserted here.
+test('.slideshow-zone suppresses the iOS long-press callout', () => {
+  assert.match(zoneRuleBody(), /-webkit-touch-callout:\s*none/);
+});
+
+test('.slideshow-zone is not text-selectable (no long-press selection)', () => {
+  assert.match(zoneRuleBody(), /user-select:\s*none/);
+});
