@@ -46,11 +46,12 @@ function spreadOverlaps(buildings) {
 }
 
 // Building footprint (M50). The box body's width AND depth are a THIRD of the
-// M49 size (1.3 → ~0.433), so the buildings read as slimmer towers; one window
-// per floor (the wall texture draws WINDOWS_PER_FLOOR windows per tile).
+// M49 size (1.3 → ~0.433), so the buildings read as slimmer towers. The wall
+// texture draws WINDOWS_PER_FLOOR windows per tile — TWO per floor (M56 / #0),
+// each with a darker frame (the frame colour lives in main.js's texture).
 export const M49_BUILDING_WIDTH = 1.3;
 export const BUILDING_WIDTH = M49_BUILDING_WIDTH / 3;
-export const WINDOWS_PER_FLOOR = 1;
+export const WINDOWS_PER_FLOOR = 2;
 
 // Evenly-spaced window x-positions for one wall-texture tile (M50). `count`
 // windows of width `winW` across a tile `tileW` wide, each horizontally
