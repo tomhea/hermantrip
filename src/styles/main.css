@@ -334,6 +334,7 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
    corner. Sibling of the card link (no interactive nesting); anchored to the
    card, which is now position:relative. */
 .album-card { position: relative; }
+.country-card { position: relative; }  /* anchor the random-play overlay (M41) */
 .album-play {
   position: absolute;
   top: var(--space-2);

@@ -11,7 +11,7 @@
 import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { imageUrl } from '../lib/image-url.js';
 import { pickCountryThumb } from '../lib/country-thumb.js';
-import { countryPath, randomPath } from '../lib/paths.js';
+import { countryPath, randomPath, countryRandomPath } from '../lib/paths.js';
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -66,6 +66,14 @@ function renderCountryCard(country, manifest, dpr) {
   const thumbHTML = thumb
     ? `<img class="country-thumb" src="${imageUrl(thumb.id, 'card', { dpr })}" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">`
     : '<div class="country-thumb country-thumb-empty" aria-hidden="true"></div>';
+  // Random-slideshow play button (#3) — same UI as the album-card play button
+  // (.album-play). data-random-play → main.js starts that country's random show
+  // fullscreen + autoplaying. Sibling of the card link (no interactive nesting).
+  const play = total > 0
+    ? `<button type="button" class="album-play" data-random-play
+               data-href="${countryRandomPath(country.code)}"
+               aria-label="מצגת אקראית — ${escapeHTML(country.he)}">▶</button>`
+    : '';
   return `
     <li class="country-card">
       <a href="${countryPath(country.code)}">
@@ -76,6 +84,7 @@ function renderCountryCard(country, manifest, dpr) {
           <span class="country-count">${total.toLocaleString('he-IL')} תמונות</span>
         </div>
       </a>
+      ${play}
     </li>
   `;
 }
@@ -94,7 +103,7 @@ export function renderCountryList({ manifest, error, dpr = 1 }) {
   return `
     ${renderHeader()}
     <nav class="home-actions">
-      <a class="action-link" href="${randomPath()}">▷ מצגת אקראית מכל המדינות</a>
+      <a class="action-link" href="${randomPath()}" data-random-play data-href="${randomPath()}">▷ מצגת אקראית מכל המדינות</a>
       <a class="action-link" href="/map">◎ מפה</a>
       <a class="action-link" href="/game">? משחק ניחושים</a>
       <a class="action-link" href="/timeline">↕ ציר זמן</a>
