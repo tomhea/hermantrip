@@ -991,9 +991,11 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   padding: var(--space-3);
   border-bottom: 1px solid var(--divider);
   background: var(--surface);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  /* M36 / ask #11 — NOT sticky. It used to be sticky at top:0 while the slider
+     stuck at top:48px, but the header is actually ~73px tall, so the slider sat
+     25px UNDER it and day headings hid behind the "← חזרה / ציר זמן" line. The
+     back/title bar doesn't need pinning; it scrolls away and only the slider
+     (the useful navigator) stays sticky at the very top. */
 }
 .tl-back  { font-size: var(--type-small); color: var(--accent); white-space: nowrap; }
 .tl-title { font-size: var(--type-h2); font-weight: 500; }
@@ -1068,8 +1070,8 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 /* ── Timeline date slider (M22) ─────────────────────────────────── */
 .tl-slider-wrap {
   position: sticky;
-  top: 48px;          /* just below the .tl-header */
-  z-index: 9;
+  top: 0;             /* sticks to the very top; the header scrolls away (M36) */
+  z-index: 10;
   background: var(--surface);
   border-bottom: 1px solid var(--divider);
   padding: var(--space-2) var(--space-3);
@@ -1140,9 +1142,10 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 }
 
 /* ── Timeline overhaul (M25) ────────────────────────────────────── */
-/* Day headings land clear of the sticky header (~48px) + slider (~52px),
-   so slider-jump / scrollIntoView don't hide the heading behind them. */
-.tl-day { scroll-margin-top: 108px; }
+/* Day headings land clear of the ONLY remaining sticky element — the slider
+   (~52px; the header scrolls away now, M36) — so slider-jump / scrollIntoView
+   don't hide the heading behind it. */
+.tl-day { scroll-margin-top: 60px; }
 /* Empty strip keeps page height ~stable before a day hydrates. */
 .tl-photo-strip { min-height: 64px; }
 @media (min-width: 600px)  { .tl-photo-strip { min-height: 84px; } }
