@@ -531,6 +531,7 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 /* M9: shared bar control (speed / fullscreen / download / info) */
 .slideshow-speed-btn,
 .slideshow-tr-btn,
+.slideshow-loop-btn,
 .slideshow-fs,
 .slideshow-dl,
 .slideshow-info > summary {
@@ -554,6 +555,9 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 }
 .slideshow-speed-btn { font-variant-numeric: tabular-nums; font-size: 0.8rem; }
 .slideshow-tr-btn { font-size: 0.8rem; }
+.slideshow-loop-btn { font-size: 1.05rem; }
+/* "continue" mode is the active (non-default) state — tint it like play's on-state */
+.slideshow-loop-btn[aria-pressed="true"] { color: var(--earth-ochre); }
 .slideshow-info > summary::-webkit-details-marker { display: none; }
 .slideshow-speed-btn:hover, .slideshow-speed-btn:focus-visible,
 .slideshow-tr-btn:hover, .slideshow-tr-btn:focus-visible,

@@ -6,12 +6,13 @@
 // reads to wire keyboard + swipe via slideshow-nav's pure mappers.
 
 import { errorHTML, loadingHTML } from '../lib/loading.js';
-import { albumById } from '../lib/album-query.js';
+import { albumById, nextAlbumInCountry } from '../lib/album-query.js';
 import { sortPhotosByDate } from '../lib/ordering.js';
 import { imageUrl } from '../lib/image-url.js';
 import { clampIndex, nextIndex, prevIndex } from '../lib/slideshow-nav.js';
 import { speedLabel } from '../lib/slideshow-speed.js';
 import { transitionClass, transitionLabel } from '../lib/slideshow-transition.js';
+import { loopGlyph, loopAriaLabel, normalizeLoop } from '../lib/slideshow-loop.js';
 import { albumPlace } from '../lib/album-place.js';
 import { formatHebrewDate, hebrewWeekday, formatClock } from '../lib/photo-date.js';
 import { COUNTRIES } from '../lib/countries.js';
@@ -53,7 +54,7 @@ function infoPanel(album, photo, i, total) {
   `;
 }
 
-export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewport = 'phone', autoplay = false, speed = 4000, transition = 'fade' }) {
+export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewport = 'phone', autoplay = false, speed = 4000, transition = 'fade', loopMode = 'repeat' }) {
   if (error) {
     return `<div class="slideshow-shell">${errorHTML('לא הצלחנו לטעון את התמונה. נסו לרענן.')}</div>`;
   }
@@ -85,7 +86,17 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
 
   const i = clampIndex(idx, photos.length);
   const photo = photos[i];
-  const nextHref = slidePath(navCode, album.slug, nextIndex(i, photos.length));
+  const loop = normalizeLoop(loopMode);
+  // "Continue" (#3): at the album's LAST photo, forward nav jumps to the first
+  // photo of the next album in the country instead of wrapping to photo 0.
+  // Falls back to the in-album wrap when there is no next album (country has
+  // a single album). Prev always wraps within the album.
+  const atLast = i === photos.length - 1;
+  let nextHref = slidePath(navCode, album.slug, nextIndex(i, photos.length));
+  if (loop === 'continue' && atLast) {
+    const nextAlbum = nextAlbumInCountry(manifest, navCode, album.id);
+    if (nextAlbum) nextHref = slidePath(nextAlbum.primary, nextAlbum.slug, 0);
+  }
   const prevHref = slidePath(navCode, album.slug, prevIndex(i, photos.length));
   const src = imageUrl(photo.id, 'slide', { dpr, viewport });
   // Same-origin /img/ proxy can't be ORB-blocked; onerror just shows the
@@ -116,6 +127,8 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
         <a class="slideshow-close" href="${exitHref}" aria-label="סגירה וחזרה לאלבום">✕</a>
         <button type="button" class="slideshow-play" data-autoplay-toggle
                 aria-label="${playLabel}" aria-pressed="${autoplay ? 'true' : 'false'}">${playGlyph}</button>
+        <button type="button" class="slideshow-loop-btn" data-loop-toggle
+                aria-label="${escapeHTML(loopAriaLabel(loop))}" aria-pressed="${loop === 'continue' ? 'true' : 'false'}">${loopGlyph(loop)}</button>
         <button type="button" class="slideshow-speed-btn" data-speed-toggle
                 aria-label="מהירות מצגת">${escapeHTML(speedLabel(speed))}</button>
         <button type="button" class="slideshow-tr-btn" data-transition-toggle

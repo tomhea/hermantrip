@@ -14,6 +14,20 @@ export function albumsForCountry(manifest, countryCode) {
     .sort((a, b) => a.id - b.id);
 }
 
+// The next album after `currentId` within a country's ordered list (M32 /
+// ask #3, "continue to next album"). Order matches the album grid
+// (albumsForCountry: by id ascending). Wraps round to the first album when at
+// the last. Returns the next album object, or null if the country has 0/1
+// albums or the current id isn't in it.
+export function nextAlbumInCountry(manifest, countryCode, currentId) {
+  const list = albumsForCountry(manifest, countryCode);
+  if (list.length <= 1) return null;
+  const numId = typeof currentId === 'number' ? currentId : Number.parseInt(currentId, 10);
+  const i = list.findIndex((a) => a.id === numId);
+  if (i === -1) return null;
+  return list[(i + 1) % list.length];
+}
+
 // The album with the given id, or null. Accepts numeric or string id
 // (router params arrive as strings). Non-numeric strings → null.
 export function albumById(manifest, id) {
