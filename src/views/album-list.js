@@ -7,7 +7,7 @@
 import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { albumsForCountry } from '../lib/album-query.js';
 import { photoImgHTML } from '../lib/photo-img.js';
-import { homePath, albumPath, countryRandomPath } from '../lib/paths.js';
+import { homePath, albumPath, countryRandomPath, slidePath } from '../lib/paths.js';
 import { albumDateLabel } from '../lib/album-dates.js';
 
 function escapeHTML(s) {
@@ -33,16 +33,27 @@ function albumCard(album, code, dpr) {
   const thumb = first
     ? photoImgHTML(first, { intent: 'card', dpr, className: 'album-thumb' })
     : '<div class="album-thumb photo-broken" aria-hidden="true"></div>';
+  // Play button (M34 / ask #6): jumps straight to the album's first photo and
+  // starts the slideshow in fullscreen (wired in main.js via data-album-play).
+  // Only shown when the album actually has photos. It's a sibling of the card
+  // link (interactive elements can't nest inside an <a>).
+  const name = album.title ?? album.name;
+  const play = count > 0
+    ? `<button type="button" class="album-play" data-album-play
+               data-slide-href="${slidePath(code, album.slug, 0)}"
+               aria-label="הפעלת מצגת — ${escapeHTML(name)}">▶</button>`
+    : '';
   return `
     <li class="album-card">
-      <a href="${albumPath(code, album.slug)}">
+      <a class="album-card-link" href="${albumPath(code, album.slug)}">
         ${thumb}
         <div class="album-card-meta">
-          <span class="album-name">${escapeHTML(album.title ?? album.name)}</span>
+          <span class="album-name">${escapeHTML(name)}</span>
           <span class="album-count">${count.toLocaleString('he-IL')} תמונות</span>
           ${dateLabel ? `<span class="album-dates">${escapeHTML(dateLabel)}</span>` : ''}
         </div>
       </a>
+      ${play}
     </li>
   `;
 }

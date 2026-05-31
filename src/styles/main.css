@@ -330,6 +330,33 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   font-size: var(--type-small);
   font-variant-numeric: tabular-nums;
 }
+/* Per-album play button (M34 / ask #6): a circular ▶ over the thumbnail's top
+   corner. Sibling of the card link (no interactive nesting); anchored to the
+   card, which is now position:relative. */
+.album-card { position: relative; }
+.album-play {
+  position: absolute;
+  top: var(--space-2);
+  inset-inline-end: var(--space-2);
+  z-index: 2;
+  width: 2.75rem;               /* ≥44px touch target */
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 0 2px;           /* optical-centre the ▶ glyph */
+  border: none;
+  border-radius: 50%;
+  background: rgba(20, 17, 14, 0.6);
+  color: #f2ece2;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.album-play:hover,
+.album-play:focus-visible { background: var(--earth-ochre); color: #fff; }
 
 /* Album day groups (M14): a date header above each day's photo grid. */
 .day-group { margin-bottom: var(--space-5); }

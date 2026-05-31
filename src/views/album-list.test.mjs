@@ -43,6 +43,22 @@ test('happy path: includes a back link to home', () => {
   assert.match(html, /href="\/"/);
 });
 
+test('M34: each non-empty album card has a play button → first slide (data-slide-href)', () => {
+  const html = renderAlbumList({ manifest, code: 'np' });
+  assert.match(html, /data-album-play/);
+  assert.match(html, /data-slide-href="\/nepal\/bangkok-kathmandu\/0"/);
+  assert.match(html, /data-slide-href="\/nepal\/nagarkot-bhaktapur\/0"/);
+});
+
+test('M34: empty album shows no play button (nothing to play)', () => {
+  const m = {
+    countries: [{ code: 'x', he: 'X', en: 'X', primaryAlbums: [1] }],
+    albums: [{ id: 1, name: 'ריק', slug: 'empty', primary: 'x', countries: ['x'], photos: [] }],
+  };
+  const html = renderAlbumList({ manifest: m, code: 'x' });
+  assert.equal(/data-album-play/.test(html), false);
+});
+
 test('loading state when manifest is null', () => {
   const html = renderAlbumList({ manifest: null, code: 'np' });
   assert.match(html, /role="status"/);

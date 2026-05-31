@@ -1015,6 +1015,21 @@ function render() {
 
 // Intercept same-origin link clicks for SPA navigation. Skips downloads,
 // new-tab/modified clicks, cross-origin, and the /img/ proxy (real fetches).
+// M34 / ask #6 — the per-album "play" button on the country page jumps to the
+// album's first photo, starts autoplay, and goes fullscreen. requestFullscreen
+// must run inside this user-gesture click; we fullscreen the persistent <html>
+// (not #app) so the slide re-renders survive — same trick as the bar's
+// fullscreen toggle. Delegated so it works across re-renders without wiring.
+document.addEventListener('click', (e) => {
+  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const playBtn = e.target.closest('[data-album-play]');
+  if (!playBtn) return;
+  e.preventDefault();
+  autoplayOn = true;
+  document.documentElement.requestFullscreen?.().catch(() => { /* not fatal */ });
+  go(playBtn.dataset.slideHref);
+});
+
 document.addEventListener('click', (e) => {
   if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   const a = e.target.closest('a');
