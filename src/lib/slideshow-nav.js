@@ -32,11 +32,12 @@ export function prevIndex(idx, len, opts = {}) {
 export function keyToAction(key) {
   switch (key) {
     case 'ArrowLeft':
-    case ' ':
-    case 'Spacebar': // older browsers
       return 'next';
     case 'ArrowRight':
       return 'prev';
+    case ' ':
+    case 'Spacebar': // older browsers
+      return 'playpause'; // M33 / ask #7 — toggle autoplay, not advance
     case 'Escape':
       return 'exit';
     default:

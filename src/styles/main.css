@@ -448,6 +448,15 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
+  /* M33 / ask #8 — a long-press on a tap-zone of a LIVE slideshow used to feel
+     like the side "captured" the press: iOS popped the link callout / a text
+     selection, Android the context menu. Suppress all of that so a long-press
+     does nothing; a normal tap still navigates. (The contextmenu event is also
+     swallowed in main.js as the explicit no-op handle.) */
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 .slideshow-zone-next { inset-inline-start: 0; }   /* left in RTL */
 .slideshow-zone-prev { inset-inline-end: 0; }      /* right in RTL */

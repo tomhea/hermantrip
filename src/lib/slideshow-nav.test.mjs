@@ -59,8 +59,9 @@ test.describe('keyToAction (RTL: ArrowLeft = next)', () => {
   test('Escape → exit', () => {
     assert.equal(keyToAction('Escape'), 'exit');
   });
-  test('spacebar → next', () => {
-    assert.equal(keyToAction(' '), 'next');
+  test('spacebar → playpause (M33 / ask #7)', () => {
+    assert.equal(keyToAction(' '), 'playpause');
+    assert.equal(keyToAction('Spacebar'), 'playpause'); // older browsers
   });
   test('unrelated key → null', () => {
     assert.equal(keyToAction('a'), null);
