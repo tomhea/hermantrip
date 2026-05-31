@@ -47,9 +47,9 @@ function infoPanel(album, photo, i, total) {
         ${row('שעה', clock)}
         ${row('מדינה', countries)}
         ${row('מקום', place)}
-        ${row('אלבום', album.title ?? album.name)}
-        <div class="info-row"><dt>תמונה</dt><dd dir="ltr">${i + 1} / ${total}</dd></div>
+        <div class="info-row"><dt>תמונה</dt><dd class="info-count" dir="ltr">${i + 1} / ${total}</dd></div>
         ${row('קובץ', photo.name)}
+        <div class="info-row"><dt>גודל</dt><dd class="info-size" dir="ltr" data-size-id="${escapeHTML(photo.id)}">…</dd></div>
       </dl>
     </details>
   `;

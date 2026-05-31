@@ -40,8 +40,8 @@ function infoPanel(album, photo) {
         ${row('שעה', clock)}
         ${row('מדינה', countries)}
         ${row('מקום', place)}
-        ${row('אלבום', album.title ?? album.name)}
         ${row('קובץ', photo.name)}
+        <div class="info-row"><dt>גודל</dt><dd class="info-size" dir="ltr" data-size-id="${escapeHTML(photo.id)}">…</dd></div>
       </dl>
     </details>
   `;

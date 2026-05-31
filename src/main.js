@@ -369,6 +369,7 @@ function wireSlideshow() {
   }
 
   wireShare(shell);
+  wireInfoSize(shell);
   wireControls(shell);
 
   // (Re)schedule the auto-advance while autoplay is on. Each slide render
@@ -377,6 +378,32 @@ function wireSlideshow() {
   if (autoplayOn) {
     autoplayTimer = setTimeout(() => slideAdvance(shell, 1), autoplaySpeed);
   }
+}
+
+// Photo file-size lookup for the info panel "גודל" row (M43 / #6). The manifest
+// has no size field, so we HEAD the original via the same-origin proxy and read
+// Content-Length, lazily when the info panel first opens, cached per photo id.
+const photoSizeCache = new Map(); // id → display string e.g. "5215KB"
+function wireInfoSize(shell) {
+  const details = shell.querySelector('.slideshow-info');
+  const sizeEl = shell.querySelector('.info-size');
+  if (!details || !sizeEl) return;
+  const id = sizeEl.dataset.sizeId;
+  if (!id) return;
+  const fill = async () => {
+    if (photoSizeCache.has(id)) { sizeEl.textContent = photoSizeCache.get(id); return; }
+    try {
+      const res = await fetch(`/img/${id}/orig`, { method: 'HEAD' });
+      const len = res.headers.get('Content-Length');
+      const txt = len ? `${Math.round(Number(len) / 1024).toLocaleString('he-IL')}KB` : '—';
+      photoSizeCache.set(id, txt);
+      sizeEl.textContent = txt;
+    } catch {
+      sizeEl.textContent = '—';
+    }
+  };
+  details.addEventListener('toggle', () => { if (details.open) fill(); });
+  if (details.open) fill();
 }
 
 // Brief transient confirmation toast (used by share/copy, M42).
