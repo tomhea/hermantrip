@@ -37,20 +37,30 @@ export function albumById(manifest, id) {
   return albums.find((a) => a.id === numId) ?? null;
 }
 
-// Resolve a URL slug to an album within a country (M23). Matches an album
-// whose `primary === code` (canonical URLs live under the primary country)
+// Resolve a URL slug to an album within a country (M23; multi-country fix M51).
+// Matches an album that BELONGS to `code` (i.e. `code` is in its `countries`)
 // where the slug equals the album's canonical `slug` OR one of its aliases.
 // Returns { album, isAlias } or null. `isAlias` true ⇒ caller should redirect
-// to the canonical URL.
+// to the canonical URL (within the same country).
+//
+// A cross-country album (e.g. album 1 = np+th) is therefore a first-class page
+// under EVERY country it belongs to — /nepal/bangkok-kathmandu AND
+// /thailand/bangkok-kathmandu both resolve as canonical (#8). Matching on
+// `a.primary === code` (the old M23 rule) 404'd every non-primary country.
 export function albumBySlug(manifest, code, slug) {
   if (!manifest || !code || !slug) return null;
   const albums = manifest.albums ?? [];
+  // An album belongs to `code` if `code` is in its countries[]; fall back to
+  // the primary for any manifest entry lacking a countries array.
+  const inCountry = (a) => (Array.isArray(a.countries)
+    ? a.countries.includes(code)
+    : a.primary === code);
   // Exact canonical match first.
-  const canonical = albums.find((a) => a.primary === code && a.slug === slug);
+  const canonical = albums.find((a) => inCountry(a) && a.slug === slug);
   if (canonical) return { album: canonical, isAlias: false };
-  // Alias match → caller redirects to the canonical URL.
+  // Alias match → caller redirects to the canonical URL (same country).
   const aliased = albums.find(
-    (a) => a.primary === code && aliasesForAlbum(a.id).includes(slug),
+    (a) => inCountry(a) && aliasesForAlbum(a.id).includes(slug),
   );
   if (aliased) return { album: aliased, isAlias: true };
   return null;

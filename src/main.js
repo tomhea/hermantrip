@@ -826,6 +826,7 @@ async function initGlobeView() {
   const maxDays = Math.max(1, ...buildings.map((b) => b.days));
   const points = buildings.map((b) => ({
     lat: b.lat, lng: b.lng, days: b.days,
+    country: b.country, // per-visit country → link to THIS country's shared album (#8)
     color: MAP_COUNTRY_COLORS[b.country] || '#888',
     label: b.album.title || b.album.name,
     albums: [b.album], // single album per building → onPointClick opens it directly
@@ -855,7 +856,7 @@ async function initGlobeView() {
       // once, e.g. Bangkok ×3) → open a "choose which" picker (#10).
       if (d.albums.length === 1) {
         const a = d.albums[0];
-        go(albumPath(a.primary, a.slug));
+        go(albumPath(d.country || a.primary, a.slug)); // THIS country's shared album (#8)
       } else {
         showGlobePicker(d, container);
       }

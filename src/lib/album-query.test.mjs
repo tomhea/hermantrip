@@ -103,9 +103,25 @@ test('albumBySlug: an alias resolves to the album and flags isAlias:true', () =>
   assert.equal(r.isAlias, true);
 });
 
-test('albumBySlug: only matches under the album primary country', () => {
-  // album 1 is np-primary; its slug is NOT reachable under thailand
-  assert.equal(albumBySlug(manifest, 'th', 'bangkok-kathmandu'), null);
+test('albumBySlug: canonical slug resolves under ANY of the album countries (#8)', () => {
+  // album 1 is np-primary but spans np+th. Its canonical slug must be a
+  // first-class page under thailand too — not just nepal (the M51 regression
+  // fix: match a.countries.includes(code), not a.primary === code).
+  const r = albumBySlug(manifest, 'th', 'bangkok-kathmandu');
+  assert.equal(r.album.id, 1);
+  assert.equal(r.isAlias, false); // canonical per country — no cross-country redirect
+});
+
+test('albumBySlug: a city alias resolves under its own country (#8)', () => {
+  // album 1 alias "kathmandu" under nepal → canonical bangkok-kathmandu (redirect)
+  const r = albumBySlug(manifest, 'np', 'kathmandu');
+  assert.equal(r.album.id, 1);
+  assert.equal(r.isAlias, true);
+});
+
+test('albumBySlug: a slug is still NOT reachable under a country the album is not in', () => {
+  // album 1 is np+th only — never resolvable under india
+  assert.equal(albumBySlug(manifest, 'in', 'bangkok-kathmandu'), null);
 });
 
 test('albumBySlug: unknown slug → null (numeric / bad slug → 404 path)', () => {

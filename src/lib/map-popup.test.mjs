@@ -45,6 +45,27 @@ test('de-dupes repeated album hrefs', () => {
   assert.equal((html.match(/map-popup-link/g) || []).length, 1);
 });
 
+test('#8: link uses the per-stop country (a map entry points to ITS country’s shared album)', () => {
+  // album 1 (np+th) seen at its Bangkok pin (country th) → /thailand/…, and at
+  // its Kathmandu pin (country np) → /nepal/…. The link follows the pin's
+  // country, not the album's primary.
+  const th = stopPopupHTML([
+    { albumId: 1, albumTitle: 'A', label: 'בנגקוק', primary: 'np', country: 'th', slug: 'bangkok-kathmandu' },
+  ]);
+  assert.match(th, /href="\/thailand\/bangkok-kathmandu"/);
+  const np = stopPopupHTML([
+    { albumId: 1, albumTitle: 'A', label: 'קטמנדו', primary: 'np', country: 'np', slug: 'bangkok-kathmandu' },
+  ]);
+  assert.match(np, /href="\/nepal\/bangkok-kathmandu"/);
+});
+
+test('#8: link falls back to primary when a stop has no country', () => {
+  const html = stopPopupHTML([
+    { albumId: 2, albumTitle: 'A', label: 'x', primary: 'np', slug: 'nagarkot-bhaktapur' },
+  ]);
+  assert.match(html, /href="\/nepal\/nagarkot-bhaktapur"/);
+});
+
 test('escapes album titles', () => {
   const html = stopPopupHTML([{ albumId: 1, albumTitle: '<b>x</b>', label: 'l', primary: 'np', slug: 's' }]);
   assert.equal(html.includes('<b>x</b>'), false);
