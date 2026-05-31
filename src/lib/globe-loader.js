@@ -19,3 +19,14 @@ export const GLOBE_VERSION = '2.34.0';
 export function globeModuleUrl() {
   return `https://esm.sh/globe.gl@${GLOBE_VERSION}`;
 }
+
+// three.js version range that globe.gl@2.34.0 itself imports from esm.sh
+// (`import "/three@^0.181.2?target=es2022"`). We load THREE for the custom
+// "buildings" layer (M49); pinning the SAME spec + target makes esm.sh resolve
+// to the exact module URL globe.gl uses, so the browser shares ONE three
+// instance — a different instance would break globe.gl's WebGL renderer.
+export const THREE_SPEC = '^0.181.2';
+
+export function threeModuleUrl() {
+  return `https://esm.sh/three@${THREE_SPEC}?target=es2022`;
+}

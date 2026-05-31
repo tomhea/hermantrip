@@ -26,10 +26,10 @@ import { renderSlideshow } from './views/slideshow.js';
 import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
 import { coordsForAlbum } from './lib/album-coords.js';
-import { buildingsForGlobe } from './lib/globe-buildings.js';
+import { buildingsForGlobe, buildingHeightFraction } from './lib/globe-buildings.js';
 import { trailSegments, arcPoints, trailArcs } from './lib/trail.js';
 import { tripStopGroups, tripTrailPoints, ISRAEL, BANGKOK } from './lib/map-stops.js';
-import { globeModuleUrl } from './lib/globe-loader.js';
+import { globeModuleUrl, threeModuleUrl } from './lib/globe-loader.js';
 import { globePickerHTML } from './lib/globe-picker.js';
 import { stopPopupHTML } from './lib/map-popup.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
@@ -597,6 +597,62 @@ function loadGlobe() {
   return globePromise;
 }
 
+// Load THREE for the globe "buildings" custom layer (M49). Same esm.sh spec +
+// target as globe.gl's own three import → the browser shares ONE three module
+// (a second instance would break globe.gl's WebGL renderer).
+let threePromise = null;
+function loadThree() {
+  if (threePromise) return threePromise;
+  threePromise = import(/* @vite-ignore */ threeModuleUrl())
+    .then((mod) => mod)
+    .catch((err) => { console.error('three.js failed to load:', err); throw err; });
+  return threePromise;
+}
+
+const GLOBE_RADIUS = 100; // globe.gl's world-unit globe radius
+
+// One reusable wall texture: a gray facade with a 2-window row per tile, lit
+// glass. Cloned per building with a per-height vertical repeat (floors).
+function buildingWallTexture(THREE) {
+  const c = document.createElement('canvas');
+  c.width = 64; c.height = 32;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#9aa1a8'; ctx.fillRect(0, 0, 64, 32);           // wall
+  for (const x of [10, 38]) {                                     // 2 windows
+    ctx.fillStyle = '#2f3946'; ctx.fillRect(x - 1, 7, 18, 18);    // frame
+    ctx.fillStyle = '#86b0d6'; ctx.fillRect(x, 8, 16, 16);        // glass
+    ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(x, 8, 16, 4); // sky glint
+  }
+  ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fillRect(0, 30, 64, 2); // floor line
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+
+// A single box building: gray windowed body + a red pyramid roof. Built so its
+// base sits at local y=0 and it extends +Y; main.js orients +Y radially.
+function makeBuilding(THREE, heightUnits, wallTexBase) {
+  const W = 1.3;                              // thin, building-like footprint
+  const H = Math.max(1.8, heightUnits);       // floor so the windowed body always shows
+  const group = new THREE.Group();
+
+  const tex = wallTexBase.clone();
+  tex.needsUpdate = true;
+  tex.repeat.set(1, Math.max(1, Math.round(H / 1.6))); // one window row ≈ every 1.6 units
+  const bodyGeo = new THREE.BoxGeometry(W, H, W);
+  bodyGeo.translate(0, H / 2, 0);
+  group.add(new THREE.Mesh(bodyGeo, new THREE.MeshLambertMaterial({ color: 0xc2c8cd, map: tex })));
+
+  // A small red pyramid CAP — modest so the gray windowed body dominates.
+  const roofH = 0.7;
+  const roofGeo = new THREE.ConeGeometry(W * 0.78, roofH, 4); // 4-sided = pyramid
+  roofGeo.rotateY(Math.PI / 4);                                // square-align to box
+  roofGeo.translate(0, H + roofH / 2, 0);
+  group.add(new THREE.Mesh(roofGeo, new THREE.MeshLambertMaterial({ color: 0xc0392b }))); // red roof
+  return group;
+}
+
 // Plain-text label(s) for a pin's hover tooltip (#3) — city name(s).
 function stopTooltipText(stops) {
   return [...new Set(stops.map((s) => s.label))].join(' · ');
@@ -756,6 +812,11 @@ async function initGlobeView() {
   if (!container || container.dataset.globeReady) return;
   container.dataset.globeReady = '1';
 
+  // THREE for the box-building layer (M49). If it fails, fall back to the
+  // visible day-height markers so the globe still shows something.
+  let THREE = null;
+  try { THREE = await loadThree(); } catch { THREE = null; }
+
   // Buildings (#10b): one per visit, height ∝ days spent. Multi-visit cities
   // get several side-by-side buildings; a multi-place album splits its days.
   const buildings = buildingsForGlobe(manifest);
@@ -769,15 +830,20 @@ async function initGlobeView() {
 
   const globe = GlobeFn({ animateIn: false })(container);
   window._hermanGlobe = globe; // test/debug handle (parallels window._hermanMap)
+  // The points layer stays as the hover + click target (reusing onPointClick /
+  // the picker). When THREE is available it's made INVISIBLE (transparent, flat)
+  // and the visible markers become the 3D box buildings below; the click ray
+  // still passes through the boxes to the underlying point. Without THREE we
+  // fall back to visible day-height point markers.
   globe
     .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
     .backgroundColor('rgba(0,0,0,0)')
     .pointsData(points)
     .pointLat('lat')
     .pointLng('lng')
-    .pointColor('color')
-    .pointRadius(0.28)
-    .pointAltitude((d) => 0.02 + (d.days / maxDays) * 0.45)
+    .pointColor(THREE ? () => 'rgba(0,0,0,0)' : 'color')
+    .pointRadius(THREE ? 0.6 : 0.28)
+    .pointAltitude(THREE ? 0 : (d) => 0.02 + (d.days / maxDays) * 0.45)
     .pointLabel((d) => `<div class="map-popup" style="direction:rtl">${
       d.albums.map(a => `<span class="map-popup-link">${escapeHTML(a.title || a.name)}</span>`).join('<br>')
     }</div>`)
@@ -791,6 +857,26 @@ async function initGlobeView() {
         showGlobePicker(d, container);
       }
     });
+
+  // Box buildings (M49 / #1): gray windowed boxes with red pyramid roofs,
+  // height ∝ days (a quarter of the old cylinder height). One per visit; the
+  // invisible points above carry hover + click. Custom three layer.
+  if (THREE) {
+    const wallTex = buildingWallTexture(THREE);
+    const upAxis = new THREE.Vector3(0, 1, 0);
+    globe
+      .customLayerData(points)
+      .customThreeObject((d) => makeBuilding(
+        THREE, buildingHeightFraction(d.days, maxDays) * GLOBE_RADIUS, wallTex,
+      ))
+      .customThreeObjectUpdate((obj, d) => {
+        const p = globe.getCoords(d.lat, d.lng, 0); // base on the surface
+        obj.position.set(p.x, p.y, p.z);
+        obj.quaternion.setFromUnitVectors(
+          upAxis, new THREE.Vector3(p.x, p.y, p.z).normalize(), // stand up radially
+        );
+      });
+  }
 
   // Trip trail on the globe (M47 / #10a): the same green→red route as the map
   // (incl. the flight-home closing leg), drawn as great-circle arcs. The

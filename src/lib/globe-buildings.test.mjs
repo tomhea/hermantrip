@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { albumDayCount, buildingsForGlobe } from './globe-buildings.js';
+import { albumDayCount, buildingsForGlobe, buildingHeightFraction, HEIGHT_SCALE } from './globe-buildings.js';
 
 test('albumDayCount counts DISTINCT calendar days (≥1)', () => {
   assert.equal(albumDayCount({ photos: [
@@ -66,4 +66,17 @@ test('buildings sharing a coordinate are nudged apart (distinct lng)', () => {
 test('returns [] for a null/empty manifest', () => {
   assert.deepEqual(buildingsForGlobe(null), []);
   assert.deepEqual(buildingsForGlobe({ albums: [] }), []);
+});
+
+test('M49: buildingHeightFraction is a QUARTER of the old cylinder height', () => {
+  // old fraction = 0.02 + ratio*0.45; new = ×0.25
+  assert.equal(HEIGHT_SCALE, 0.25);
+  assert.ok(Math.abs(buildingHeightFraction(10, 10) - (0.02 + 0.45) * 0.25) < 1e-9); // max
+  assert.ok(Math.abs(buildingHeightFraction(0, 10) - 0.02 * 0.25) < 1e-9);           // min
+  assert.ok(Math.abs(buildingHeightFraction(5, 10) - (0.02 + 0.225) * 0.25) < 1e-9); // mid
+});
+
+test('M49: buildingHeightFraction clamps + tolerates maxDays 0', () => {
+  assert.ok(buildingHeightFraction(99, 10) <= (0.02 + 0.45) * 0.25 + 1e-9); // clamped at ratio 1
+  assert.equal(typeof buildingHeightFraction(3, 0), 'number'); // no divide-by-zero
 });
