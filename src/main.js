@@ -19,6 +19,7 @@ import { transformManifest } from './lib/album-transform.js';
 import { shuffle } from './lib/random.js';
 import { shouldReloadForController } from './lib/sw-update.js';
 import { rememberScroll, recallScroll, isSlideOf } from './lib/scroll-store.js';
+import { globeLoadingHTML } from './lib/loading.js';
 import { allPhotos, countryPhotos } from './lib/photo-pool.js';
 import { renderCountryList } from './views/country-list.js';
 import { renderAlbumList } from './views/album-list.js';
@@ -837,6 +838,11 @@ async function initGlobeView() {
   if (!container || container.dataset.globeReady) return;
   container.dataset.globeReady = '1';
 
+  // Starfield + "טוען את כדור הארץ…" while globe.gl + three.js download and the
+  // scene builds (#4) — covers the long esm.sh fetch instead of a blank black
+  // box. Removed once the globe is up. Sits above the canvas (z-index in CSS).
+  container.innerHTML = globeLoadingHTML();
+
   // THREE for the box-building layer (M49). If it fails, fall back to the
   // visible day-height markers so the globe still shows something.
   let THREE = null;
@@ -943,6 +949,10 @@ async function initGlobeView() {
 
   // Centre the initial point of view on מוי נה, Vietnam (#6).
   globe.pointOfView({ lat: 10.9332, lng: 108.2867, altitude: 2.2 }, 0);
+
+  // Globe is up — drop the starfield loading overlay (#4). globe.gl appends its
+  // canvas without clearing the container, so the overlay is still a child here.
+  container.querySelector('.globe-loading')?.remove();
 
   window._hermanGlobe = globe;
 }

@@ -3,8 +3,10 @@ import { strict as assert } from 'node:assert';
 import {
   DEFAULT_LOADING_TEXT,
   DEFAULT_ERROR_TEXT,
+  GLOBE_LOADING_TEXT,
   loadingHTML,
   errorHTML,
+  globeLoadingHTML,
 } from './loading.js';
 
 test('default loading text is Hebrew "טוען..."', () => {
@@ -47,6 +49,23 @@ test('errorHTML uses custom text', () => {
 
 test('errorHTML includes role="alert"', () => {
   assert.match(errorHTML(), /role="alert"/);
+});
+
+// ── globeLoadingHTML (M57 / #4) ──────────────────────────────────
+test('globeLoadingHTML shows the Hebrew "loading earth" caption', () => {
+  assert.equal(GLOBE_LOADING_TEXT, 'טוען את כדור הארץ…');
+  assert.match(globeLoadingHTML(), /טוען את כדור הארץ…/);
+});
+
+test('globeLoadingHTML includes a starfield layer + role="status"', () => {
+  const html = globeLoadingHTML();
+  assert.match(html, /class="globe-loading"/);
+  assert.match(html, /class="globe-stars"/);
+  assert.match(html, /role="status"/);
+});
+
+test('globeLoadingHTML escapes custom text', () => {
+  assert.equal(globeLoadingHTML('<b>x</b>').includes('<b>x</b>'), false);
 });
 
 test('escapes HTML special chars in custom text to prevent XSS', () => {
