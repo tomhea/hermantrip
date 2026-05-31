@@ -30,6 +30,7 @@ import { trailSegments, arcPoints } from './lib/trail.js';
 import { tripStopGroups, tripTrailPoints, ISRAEL, BANGKOK } from './lib/map-stops.js';
 import { globeModuleUrl } from './lib/globe-loader.js';
 import { globePickerHTML } from './lib/globe-picker.js';
+import { stopPopupHTML } from './lib/map-popup.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline, dayStripHTML } from './views/timeline.js';
 import { buildTimeline, sliderValueToBucketIndex, scrollYToBucketIndex } from './lib/timeline.js';
@@ -593,29 +594,6 @@ function loadGlobe() {
       throw new Error('Globe.gl failed to load');
     });
   return globePromise;
-}
-
-// Build popup HTML for a pin's stop(s). Album stops are SPA links; empty
-// stops (albumId null, e.g. גבעת שמואל) render as plain labels (no link).
-// De-dupes repeated album links at the same pin.
-function stopPopupHTML(stops) {
-  const seen = new Set();
-  const seenLabels = new Set();
-  const rows = stops.map((s) => {
-    const label = escapeHTML(s.label);
-    if (!s.albumId) {
-      // Empty stop (e.g. גבעת שמואל / the return Bangkok stop) — plain label,
-      // de-duped so the opening + closing stops at one coord show it once.
-      if (seenLabels.has(label)) return '';
-      seenLabels.add(label);
-      return `<span class="map-popup-label">${label}</span>`;
-    }
-    const href = albumPath(s.primary, s.slug);
-    if (seen.has(href)) return '';
-    seen.add(href);
-    return `<a href="${href}" class="map-popup-link" data-href="${href}">${label}</a>`;
-  }).filter(Boolean).join('');
-  return `<div class="map-popup">${rows}</div>`;
 }
 
 // Plain-text label(s) for a pin's hover tooltip (#3) — city name(s).
