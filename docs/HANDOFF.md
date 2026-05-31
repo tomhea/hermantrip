@@ -70,7 +70,18 @@ so returning visitors get the new code via the SW auto-update.
   sticky-header offset fix, lazy photo hydration on dwell/slider.
 - ✅ Album-name slug URLs; SW auto-update.
 
-Tags through **v0.M38**. M29 = ESLint `no-undef` guard (R8). M30–M38 = a
+Tags through **v0.M48** (SW cache **v52**). M39–M48 = a second 10-item batch
+(see `.claude/plans/batch2-improvements.md`): M39 timeline perf (cached scroll
+offsets) + slider pinned, M40 album-page play button, M41 random autostart +
+country-card play buttons, M42 slideshow share menu (copy/share link & picture),
+M43 info-panel counter alignment + file-size row (HEAD `/img/{id}/orig`), M44
+loop tooltips + mirrored glyph, M45 game back button, M46 map popups show album
+names (Bangkok), M47 globe gradient trail, M48 globe day-height buildings.
+Decisions to revisit if wanted: globe trail uses dash-flow direction (not
+literal arrowheads); the M44 loop glyph mirror is `scaleX(-1)` (mirror about a
+vertical axis) per the "vertically mirrored" request.
+
+Earlier: M29 = ESLint `no-undef` guard (R8). M30–M38 = a
 12-item improvement batch (see `.claude/plans/12-improvements-batch.md`):
 M30 slideshow mobile bar, M31 5 transitions, M32 repeat/continue loop +
 localStorage prefs persistence, M33 Space=play/pause + long-press no-op, M34
