@@ -26,7 +26,7 @@ import { renderSlideshow } from './views/slideshow.js';
 import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
 import { coordsForAlbum, groupAlbumsByLocation } from './lib/album-coords.js';
-import { trailSegments, arcPoints } from './lib/trail.js';
+import { trailSegments, arcPoints, trailArcs } from './lib/trail.js';
 import { tripStopGroups, tripTrailPoints, ISRAEL, BANGKOK } from './lib/map-stops.js';
 import { globeModuleUrl } from './lib/globe-loader.js';
 import { globePickerHTML } from './lib/globe-picker.js';
@@ -764,6 +764,7 @@ async function initGlobeView() {
   }));
 
   const globe = GlobeFn({ animateIn: false })(container);
+  window._hermanGlobe = globe; // test/debug handle (parallels window._hermanMap)
   globe
     .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
     .backgroundColor('rgba(0,0,0,0)')
@@ -786,6 +787,23 @@ async function initGlobeView() {
         showGlobePicker(d, container);
       }
     });
+
+  // Trip trail on the globe (M47 / #10a): the same green→red route as the map
+  // (incl. the flight-home closing leg), drawn as great-circle arcs. The
+  // animated dash flow shows the travel direction — the globe's equivalent of
+  // the map's per-segment arrowheads.
+  globe
+    .arcsData(trailArcs(tripTrailPoints(manifest)))
+    .arcStartLat((d) => d.startLat)
+    .arcStartLng((d) => d.startLng)
+    .arcEndLat((d) => d.endLat)
+    .arcEndLng((d) => d.endLng)
+    .arcColor('color')
+    .arcStroke(0.5)
+    .arcAltitudeAutoScale(0.3)
+    .arcDashLength(0.5)
+    .arcDashGap(0.25)
+    .arcDashAnimateTime(3000);
 
   // Size the globe canvas to the container so it's centred in its own area
   // (#5 — without explicit width/height globe.gl can render offset, esp. in

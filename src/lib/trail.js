@@ -72,6 +72,19 @@ export function bearing(a, b) {
   return (toDeg(Math.atan2(y, x)) + 360) % 360;
 }
 
+// Trail as Globe.gl arc records (M47 / #10a): one arc per segment, carrying
+// the same green→red gradient colour as the map polyline. Globe.gl draws each
+// as a great-circle arc; main.js adds directional dash animation so the flow
+// reads as the travel direction (the globe equivalent of the map arrowheads).
+// → [{ startLat, startLng, endLat, endLng, color }]
+export function trailArcs(points) {
+  return trailSegments(points).map((s) => ({
+    startLat: s.from[0], startLng: s.from[1],
+    endLat: s.to[0], endLng: s.to[1],
+    color: s.color,
+  }));
+}
+
 // A gently bowed arc between two [lat,lng] points, as an array of [lat,lng]
 // samples (M37 / ask #12). Used for the גבעת שמואל↔Bangkok long-haul legs:
 // drawing the outbound and the (reversed) return leg with the SAME bend makes

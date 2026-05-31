@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { trailColor, orderedTrailPoints, bearing, trailSegments, arcPoints } from './trail.js';
+import { trailColor, orderedTrailPoints, bearing, trailSegments, arcPoints, trailArcs } from './trail.js';
 
 // ── trailColor ────────────────────────────────────────────────────
 test('trailColor(0) is green, trailColor(1) is red', () => {
@@ -126,4 +126,25 @@ test('reversed leg with the same bend bows to the OPPOSITE side (round-trip lens
   const ret = arcPoints([0, 10], [0, 0], 0.2, 12)[6];   // return apex
   assert.ok(Math.sign(out[0]) === -Math.sign(ret[0]),
     'outbound and return arcs must bow to opposite sides');
+});
+
+// ── trailArcs (M47 / #10a globe trail) ────────────────────────────
+test('trailArcs makes one arc per segment with gradient colors + endpoints', () => {
+  const pts = [{ lat: 0, lng: 0 }, { lat: 10, lng: 10 }, { lat: 20, lng: 5 }];
+  const arcs = trailArcs(pts);
+  assert.equal(arcs.length, 2); // 3 points → 2 segments
+  assert.deepEqual(
+    { sLat: arcs[0].startLat, sLng: arcs[0].startLng, eLat: arcs[0].endLat, eLng: arcs[0].endLng },
+    { sLat: 0, sLng: 0, eLat: 10, eLng: 10 },
+  );
+  assert.equal(arcs[1].startLat, 10);
+  assert.equal(arcs[1].endLat, 20);
+  for (const a of arcs) assert.match(a.color, /^#[0-9a-f]{6}$/);
+  // first arc greener than the last (gradient start → end)
+  assert.notEqual(arcs[0].color, arcs[arcs.length - 1].color);
+});
+
+test('trailArcs returns [] for <2 points', () => {
+  assert.deepEqual(trailArcs([]), []);
+  assert.deepEqual(trailArcs([{ lat: 1, lng: 1 }]), []);
 });
