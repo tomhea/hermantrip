@@ -93,8 +93,21 @@ export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
       </section>`;
   }).join('');
 
+  // Labelled play button under the album name (#2): same data-album-play hook
+  // as the country-page card button (main.js → first photo, autoplay,
+  // fullscreen). slide 0 of this album.
+  const name = album.title ?? album.name;
+  const playBtn = `
+    <button type="button" class="album-page-play" data-album-play
+            data-slide-href="${slidePath(backCode, album.slug, 0)}"
+            aria-label="הפעלת מצגת — ${escapeHTML(name)}">
+      <span class="album-page-play-icon" aria-hidden="true">▶</span> הצג את האלבום
+    </button>
+  `;
+
   return `
-    ${header(album.title ?? album.name, backHref, 'חזרה', subtitle)}
+    ${header(name, backHref, 'חזרה', subtitle)}
+    ${playBtn}
     ${sections}
   `;
 }
