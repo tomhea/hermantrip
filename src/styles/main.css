@@ -808,6 +808,57 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   isolation: isolate;
 }
 
+/* "Choose which album" picker for a globe city visited 2+ times (M38 / #10). */
+.globe-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 18, 0.6);
+  padding: var(--space-4);
+}
+.globe-picker {
+  position: relative;
+  max-width: min(22rem, 92vw);
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: 6px;
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+.globe-picker-close {
+  position: absolute;
+  top: var(--space-2);
+  inset-inline-end: var(--space-2);
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.globe-picker-close:hover { color: var(--text); }
+.globe-picker-title {
+  margin: 0 0 var(--space-3);
+  font-weight: 500;
+  font-size: var(--type-body);
+}
+.globe-picker-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.globe-picker-link {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  color: var(--accent);
+  text-decoration: none;
+  border-radius: 4px;
+}
+.globe-picker-link:hover,
+.globe-picker-link:focus-visible { background: var(--earth-pale); }
+
 /* ── Game view (M19) ────────────────────────────────────────────── */
 .game-shell {
   /* Full-viewport takeover (M35 / ask #5) so the photo can truly fill the

@@ -29,6 +29,7 @@ import { coordsForAlbum, groupAlbumsByLocation } from './lib/album-coords.js';
 import { trailSegments, arcPoints } from './lib/trail.js';
 import { tripStopGroups, tripTrailPoints, ISRAEL, BANGKOK } from './lib/map-stops.js';
 import { globeModuleUrl } from './lib/globe-loader.js';
+import { globePickerHTML } from './lib/globe-picker.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline, dayStripHTML } from './views/timeline.js';
 import { buildTimeline, sliderValueToBucketIndex, scrollYToBucketIndex } from './lib/timeline.js';
@@ -640,6 +641,31 @@ async function initLeafletMap() {
 }
 
 // Init Globe.gl with album location points (loaded via dynamic import — R5).
+// Mount the "choose which album" overlay for a multi-album globe point (#10).
+// Appended INTO the globe container so it's auto-removed when the map view
+// re-renders; the backdrop is fixed so it still covers the viewport. Closes on
+// backdrop click, the ✕, or Escape; a link navigates (SPA) and closes.
+function showGlobePicker(point, container) {
+  const host = container || document.body;
+  host.querySelectorAll('[data-globe-picker-backdrop]').forEach((e) => e.remove());
+  const tmp = document.createElement('div');
+  tmp.innerHTML = globePickerHTML(point.albums);
+  const backdrop = tmp.firstElementChild;
+  host.appendChild(backdrop);
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  function close() {
+    backdrop.remove();
+    window.removeEventListener('keydown', onKey);
+  }
+  window.addEventListener('keydown', onKey);
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop || e.target.closest('[data-globe-picker-close]')) close();
+  });
+  for (const link of backdrop.querySelectorAll('[data-href]')) {
+    link.addEventListener('click', (e) => { e.preventDefault(); close(); go(link.dataset.href); });
+  }
+}
+
 async function initGlobeView() {
   let GlobeFn;
   try { GlobeFn = await loadGlobe(); } catch {
@@ -673,8 +699,14 @@ async function initGlobeView() {
       d.albums.map(a => `<span class="map-popup-link">${escapeHTML(a.title || a.name)}</span>`).join('<br>')
     }</div>`)
     .onPointClick((d) => {
-      const a = d.albums[0];
-      go(albumPath(a.primary, a.slug));
+      // One album → open it directly. 2+ albums (a city visited more than
+      // once, e.g. Bangkok ×3) → open a "choose which" picker (#10).
+      if (d.albums.length === 1) {
+        const a = d.albums[0];
+        go(albumPath(a.primary, a.slug));
+      } else {
+        showGlobePicker(d, container);
+      }
     });
 
   // Size the globe canvas to the container so it's centred in its own area
