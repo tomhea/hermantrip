@@ -810,10 +810,18 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 
 /* ── Game view (M19) ────────────────────────────────────────────── */
 .game-shell {
+  /* Full-viewport takeover (M35 / ask #5) so the photo can truly fill the
+     screen. Previously min-height:100dvh sat INSIDE main#app's vertical
+     padding, so the shell ran 100dvh + that padding and pushed the answer
+     grid below the fold. position:fixed escapes the page padding (same pattern
+     as the slideshow shell); overflow-y keeps it usable on very short screens. */
+  position: fixed;
+  inset: 0;
+  z-index: 50;
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
   background: var(--bg);
+  overflow-y: auto;
 }
 .game-header {
   display: flex;
@@ -827,17 +835,27 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 }
 .game-score { font-weight: 700; color: var(--accent); }
 .game-stage {
-  flex: 0 0 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  /* M35 / ask #5 — maximise the photo: the stage GROWS to take all vertical
+     space the header / prompt / answer grid leave, instead of being hard-
+     capped at 45dvh. flex-basis MUST be 0 (not auto): with auto, the stage's
+     basis inflates to the image's intrinsic pixel height and the answer grid
+     gets pushed off the bottom. basis 0 means the stage takes only the
+     leftover slack, so everything fits within the viewport and the photo
+     still fills it. */
+  flex: 1 1 0;
+  min-height: 0;
+  position: relative;           /* anchor the absolutely-positioned photo */
   background: #14110e;
-  max-height: 45dvh;
   overflow: hidden;
 }
 .game-photo {
+  /* Absolutely filled so the <img> contributes ZERO to the stage's layout
+     height — otherwise its automatic min-content size pushes the answer grid
+     off the bottom. The stage takes pure flex leftover; the photo fills it. */
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: 45dvh;
+  height: 100%;
   object-fit: contain;
 }
 .game-prompt {
