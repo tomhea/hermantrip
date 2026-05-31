@@ -110,3 +110,13 @@ test('renderGameDone: low score gives נסו שוב', () => {
   const html = renderGameDone({ score: 5, maxScore: 20 });
   assert.match(html, /נסו שוב/);
 });
+
+test('M45: every play step has a "חזרה" back link to home (#8)', () => {
+  const c = renderGameCountry({ round, roundNum: 1, totalRounds: 10, score: 0, dpr: 1, viewport: 'phone' });
+  const a = renderGameAlbum({ round, roundNum: 1, totalRounds: 10, score: 1, choices, countryCorrect: true, dpr: 1, viewport: 'phone' });
+  const r = renderGameResult({ round, roundNum: 1, totalRounds: 10, score: 2, countryCorrect: true, albumCorrect: true, isLast: false, dpr: 1, viewport: 'phone' });
+  for (const html of [c, a, r]) {
+    assert.match(html, /class="game-back"[^>]*href="\/"/);
+    assert.match(html, /חזרה/);
+  }
+});

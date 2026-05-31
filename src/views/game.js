@@ -22,6 +22,17 @@ const COUNTRY_LABELS = {
   au: 'אוסטרליה', nz: 'ניו זילנד', th: 'תאילנד',
 };
 
+// Shared game header: a "חזרה" back link to home (#8) + round + score.
+function gameHeader(roundNum, totalRounds, score) {
+  return `
+    <div class="game-header">
+      <a class="game-back" href="/" aria-label="חזרה לדף הבית">→ חזרה</a>
+      <span class="game-round">שאלה ${roundNum} מתוך ${totalRounds}</span>
+      <span class="game-score">ניקוד: ${score}</span>
+    </div>
+  `;
+}
+
 // Render the photo (shared across steps).
 function photoHTML(photo, album, dpr, viewport) {
   const src = imageUrl(photo.id, 'slide', { dpr, viewport });
@@ -33,10 +44,7 @@ export function renderGameCountry({ round, roundNum, totalRounds, score, dpr, vi
   const { photo, album } = round;
   return `
     <div class="game-shell" data-game-step="country">
-      <div class="game-header">
-        <span class="game-round">שאלה ${roundNum} מתוך ${totalRounds}</span>
-        <span class="game-score">ניקוד: ${score}</span>
-      </div>
+      ${gameHeader(roundNum, totalRounds, score)}
       <div class="game-stage">
         ${photoHTML(photo, album, dpr, viewport)}
       </div>
@@ -60,10 +68,7 @@ export function renderGameAlbum({ round, roundNum, totalRounds, score, choices, 
     : `<span class="game-wrong">✗ תשובה נכונה: ${escapeHTML(COUNTRY_LABELS[album.primary] || album.primary)}</span>`;
   return `
     <div class="game-shell" data-game-step="album">
-      <div class="game-header">
-        <span class="game-round">שאלה ${roundNum} מתוך ${totalRounds}</span>
-        <span class="game-score">ניקוד: ${score}</span>
-      </div>
+      ${gameHeader(roundNum, totalRounds, score)}
       <div class="game-stage">
         ${photoHTML(photo, album, dpr, viewport)}
       </div>
@@ -85,10 +90,7 @@ export function renderGameResult({ round, roundNum, totalRounds, score, countryC
   const earned = (countryCorrect ? 1 : 0) + (albumCorrect ? 1 : 0);
   return `
     <div class="game-shell" data-game-step="result">
-      <div class="game-header">
-        <span class="game-round">שאלה ${roundNum} מתוך ${totalRounds}</span>
-        <span class="game-score">ניקוד: ${score}</span>
-      </div>
+      ${gameHeader(roundNum, totalRounds, score)}
       <div class="game-stage">
         ${photoHTML(photo, album, dpr, viewport)}
       </div>
