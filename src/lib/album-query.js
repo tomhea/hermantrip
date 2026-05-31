@@ -1,6 +1,28 @@
 // Album lookups against the manifest. Pure — no DOM, no fetch.
 
 import { aliasesForAlbum } from './album-slugs.js';
+import { sortPhotosByDate } from './ordering.js';
+
+// Memoised id→slide-index maps, keyed by the album object. The manifest's
+// album objects are stable for the page lifetime, so this avoids re-sorting a
+// large album (e.g. Bangkok ×400) on every timeline thumbnail (R5). Pure /
+// deterministic — no DOM, no fetch.
+const slideIndexCache = new WeakMap();
+
+// The slide index of a photo within its album, i.e. its position in the SAME
+// date-sorted order the album grid + slideshow use (M53 / #1). A timeline
+// thumbnail links to this index so it opens the exact photo, not the album top.
+// Unknown id / empty album → 0 (a safe slideshow entry point).
+export function slideIndexInAlbum(album, photoId) {
+  if (!album || !Array.isArray(album.photos) || album.photos.length === 0) return 0;
+  let map = slideIndexCache.get(album);
+  if (!map) {
+    map = new Map();
+    sortPhotosByDate(album.photos).forEach((p, i) => map.set(p.id, i));
+    slideIndexCache.set(album, map);
+  }
+  return map.get(photoId) ?? 0;
+}
 
 // Every album whose `countries` array includes the given code, sorted by
 // album id ascending. Cross-country albums (e.g. album 1 = np+th) appear

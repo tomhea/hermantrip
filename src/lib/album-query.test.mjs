@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { albumsForCountry, albumById, albumBySlug, nextAlbumInCountry } from './album-query.js';
+import {
+  albumsForCountry, albumById, albumBySlug, nextAlbumInCountry, slideIndexInAlbum,
+} from './album-query.js';
 
 const manifest = {
   countries: [
@@ -87,6 +89,39 @@ test('albumById unknown id returns null', () => {
 
 test('albumById non-numeric string returns null', () => {
   assert.equal(albumById(manifest, 'abc'), null);
+});
+
+// ── slideIndexInAlbum (M53 / #1) ─────────────────────────────────
+test('slideIndexInAlbum: returns the photo position in date-sorted order', () => {
+  const album = { id: 9, photos: [
+    { id: 'b', name: 'b.jpg', capturedAt: '2011-03-02T10:00:00' },
+    { id: 'a', name: 'a.jpg', capturedAt: '2011-03-01T10:00:00' },
+    { id: 'c', name: 'c.jpg', capturedAt: '2011-03-03T10:00:00' },
+  ] };
+  // date order is a(0), b(1), c(2) — NOT manifest order
+  assert.equal(slideIndexInAlbum(album, 'a'), 0);
+  assert.equal(slideIndexInAlbum(album, 'b'), 1);
+  assert.equal(slideIndexInAlbum(album, 'c'), 2);
+});
+
+test('slideIndexInAlbum: matches the slideshow/grid index (sortPhotosByDate)', () => {
+  // a real album-grid link uses i = position in sortPhotosByDate(photos); this
+  // helper must agree so a timeline thumb opens the SAME slide.
+  const album = { id: 1, photos: [
+    { id: 'x', name: 'IMG_2.jpg' },           // undated → after dated, by name
+    { id: 'y', name: 'IMG_1.jpg', capturedAt: '2011-01-01T00:00:00' },
+  ] };
+  assert.equal(slideIndexInAlbum(album, 'y'), 0); // dated first
+  assert.equal(slideIndexInAlbum(album, 'x'), 1);
+});
+
+test('slideIndexInAlbum: unknown photo id → 0 (safe slideshow entry)', () => {
+  assert.equal(slideIndexInAlbum({ id: 1, photos: [{ id: 'a' }] }, 'zzz'), 0);
+});
+
+test('slideIndexInAlbum: null/empty album → 0', () => {
+  assert.equal(slideIndexInAlbum(null, 'a'), 0);
+  assert.equal(slideIndexInAlbum({ id: 1, photos: [] }, 'a'), 0);
 });
 
 // ── albumBySlug (M23) ────────────────────────────────────────────

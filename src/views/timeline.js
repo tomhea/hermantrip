@@ -13,7 +13,8 @@
 
 import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { imageUrl } from '../lib/image-url.js';
-import { albumPath } from '../lib/paths.js';
+import { slidePath } from '../lib/paths.js';
+import { slideIndexInAlbum } from '../lib/album-query.js';
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -24,7 +25,9 @@ function escapeHTML(s) {
 // Render a single photo thumbnail within a day bucket.
 function photoThumb({ photo, album }, dpr) {
   const src = imageUrl(photo.id, 'thumb', { dpr });
-  const href = albumPath(album.primary, album.slug);
+  // Link to the EXACT photo's slide (#1), not the album top — its position in
+  // the album's date-sorted order, matching the grid/slideshow indexing.
+  const href = slidePath(album.primary, album.slug, slideIndexInAlbum(album, photo.id));
   return `
     <a class="tl-thumb-link" href="${href}" title="${escapeHTML(album.title || album.name)}">
       <img class="tl-thumb" src="${src}" alt="" loading="lazy" decoding="async"

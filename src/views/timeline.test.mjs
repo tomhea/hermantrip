@@ -2,16 +2,21 @@ import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { renderTimeline, dayStripHTML } from './timeline.js';
 
-const manifest = { albums: [{ id: 2, primary: 'np', countries: ['np'], name: 'נגארקוט', title: 'נגארקוט', photos: [] }] };
+// The bucket's `album` is the full manifest album (incl. photos), as buildTimeline
+// produces — so the timeline thumb can resolve a photo's slide index (M53 / #1).
+const npAlbum = {
+  id: 2, primary: 'np', slug: 'nagarkot-bhaktapur', name: 'נגארקוט', title: 'נגארקוט',
+  photos: [
+    { id: 'p1', name: 'p1.jpg', capturedAt: '2011-03-15T08:00:00' },
+    { id: 'p2', name: 'p2.jpg', capturedAt: '2011-03-16T09:00:00' },
+  ],
+};
+const manifest = { albums: [{ ...npAlbum, countries: ['np'] }] };
 const timeline = [
   { key: '2011-03-15', label: '15 במרץ 2011', photos: [
-    { photo: { id: 'p1', capturedAt: '2011-03-15T08:00:00' },
-      album: { id: 2, primary: 'np', slug: 'nagarkot-bhaktapur', name: 'נגארקוט', title: 'נגארקוט' } },
-  ]},
+    { photo: npAlbum.photos[0], album: npAlbum } ]},
   { key: '2011-03-16', label: '16 במרץ 2011', photos: [
-    { photo: { id: 'p2', capturedAt: '2011-03-16T09:00:00' },
-      album: { id: 2, primary: 'np', slug: 'nagarkot-bhaktapur', name: 'נגארקוט', title: 'נגארקוט' } },
-  ]},
+    { photo: npAlbum.photos[1], album: npAlbum } ]},
 ];
 
 // ── Loading / error / empty states (R3) ──────────────────────────
@@ -104,8 +109,10 @@ test('dayStripHTML: thumbnails have onerror fallback (R4)', () => {
   assert.match(dayStripHTML(timeline[0], 1), /onerror=/);
 });
 
-test('dayStripHTML: photos link to their album slug', () => {
-  assert.match(dayStripHTML(timeline[0], 1), /href="\/nepal\/nagarkot-bhaktapur"/);
+test('dayStripHTML: photo links to its EXACT slide, not the album top (#1)', () => {
+  // p1 is slide 0, p2 is slide 1 in the album's date order.
+  assert.match(dayStripHTML(timeline[0], 1), /href="\/nepal\/nagarkot-bhaktapur\/0"/);
+  assert.match(dayStripHTML(timeline[1], 1), /href="\/nepal\/nagarkot-bhaktapur\/1"/);
 });
 
 test('dayStripHTML: shows the album tag', () => {
