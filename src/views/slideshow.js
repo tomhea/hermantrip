@@ -129,7 +129,8 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
         <button type="button" class="slideshow-play" data-autoplay-toggle
                 aria-label="${playLabel}" aria-pressed="${autoplay ? 'true' : 'false'}">${playGlyph}</button>
         <button type="button" class="slideshow-loop-btn" data-loop-toggle
-                aria-label="${escapeHTML(loopAriaLabel(loop))}" aria-pressed="${loop === 'continue' ? 'true' : 'false'}">${loopGlyph(loop)}</button>
+                aria-label="${escapeHTML(loopAriaLabel(loop))}" title="${escapeHTML(loopAriaLabel(loop))}"
+                aria-pressed="${loop === 'continue' ? 'true' : 'false'}"><span class="loop-glyph">${loopGlyph(loop)}</span></button>
         <button type="button" class="slideshow-speed-btn" data-speed-toggle
                 aria-label="מהירות מצגת">${escapeHTML(speedLabel(speed))}</button>
         <button type="button" class="slideshow-tr-btn" data-transition-toggle
