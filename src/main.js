@@ -20,6 +20,7 @@ import { shuffle } from './lib/random.js';
 import { shouldReloadForController } from './lib/sw-update.js';
 import { rememberScroll, recallScroll, isSlideOf } from './lib/scroll-store.js';
 import { globeLoadingHTML } from './lib/loading.js';
+import { countryMapLabels } from './lib/country-labels.js';
 import { allPhotos, countryPhotos } from './lib/photo-pool.js';
 import { renderCountryList } from './views/country-list.js';
 import { renderAlbumList } from './views/album-list.js';
@@ -754,10 +755,25 @@ async function initLeafletMap() {
   window._hermanMap = map;
   leafletMapInstance = map;
   L.control.zoom({ position: 'topleft' }).addTo(map);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+  // Label-FREE base tiles (#2): the standard OSM tiles burn English/local place
+  // names into the imagery; CARTO's "light_nolabels" is clean so the only names
+  // on the map are our Hebrew ones (country labels below + Hebrew city tooltips).
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd',
+    attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a> · © <a href="https://carto.com/attributions">CARTO</a>',
     maxZoom: 19,
   }).addTo(map);
+
+  // Hebrew country labels (#2) — non-interactive text markers at each country's
+  // trip region, replacing the base map's removed labels in Hebrew.
+  for (const { he, lat, lng } of countryMapLabels()) {
+    const icon = L.divIcon({
+      className: 'map-country-label-wrap',
+      html: `<span class="map-country-label">${escapeHTML(he)}</span>`,
+      iconSize: [0, 0],
+    });
+    L.marker([lat, lng], { icon, interactive: false, keyboard: false }).addTo(map);
+  }
 
   const bounds = [];
   const stopGroups = tripStopGroups(manifest);
