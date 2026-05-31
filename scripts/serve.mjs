@@ -68,7 +68,7 @@ async function tryServe(reqPath) {
 const imgCache = new Map(); // key `${id}/${size}` -> { buf, type }
 const IMG_CACHE_MAX = 400;
 
-async function serveImg(id, size, res) {
+async function serveImg(id, size, res, method = 'GET') {
   const key = `${id}/${size}`;
   let hit = imgCache.get(key);
   if (!hit) {
@@ -81,10 +81,14 @@ async function serveImg(id, size, res) {
   }
   const headers = {
     'Content-Type': hit.type,
+    // Explicit Content-Length so HEAD reveals the file size (mirrors Caddy;
+    // the info panel's "גודל" row HEADs /img/{id}/orig — M43).
+    'Content-Length': hit.buf.length,
     'Cache-Control': 'public, max-age=31536000, immutable',
   };
   if (size === 'orig') headers['Content-Disposition'] = `attachment; filename="${id}.jpg"`;
   res.writeHead(200, headers);
+  if (method === 'HEAD') { res.end(); return; } // headers only, no body
   res.end(hit.buf);
 }
 
@@ -94,7 +98,7 @@ const server = createServer(async (req, res) => {
   const img = parseImgPath(url.pathname);
   if (img) {
     try {
-      await serveImg(img.id, img.size, res);
+      await serveImg(img.id, img.size, res, req.method);
       console.log(`img ${url.pathname}`);
     } catch (err) {
       res.writeHead(502, { 'Content-Type': 'text/plain' });

@@ -203,3 +203,19 @@ test('M9: info panel tolerates a photo with no capturedAt (omits date rows)', ()
   assert.match(html, /<details class="slideshow-info"/);
   assert.match(html, /1 \/ 1/);
 });
+
+test('M43: position counter is .info-count (right-aligned) and album row is gone (#5/#6)', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2' });
+  assert.match(html, /<dd class="info-count" dir="ltr">3 \/ 5<\/dd>/);
+  // the "אלבום" info row label must be removed
+  assert.equal(/<dt>אלבום<\/dt>/.test(html), false);
+});
+
+test('M43: info panel has a bottom "גודל" size row with data-size-id (#6)', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2' });
+  assert.match(html, /<dt>גודל<\/dt>\s*<dd class="info-size" dir="ltr" data-size-id="p002">…<\/dd>/);
+  // it is the LAST info row (lowest line)
+  const sizeAt = html.indexOf('<dt>גודל</dt>');
+  const fileAt = html.indexOf('<dt>קובץ</dt>');
+  assert.ok(fileAt !== -1 && sizeAt > fileAt, 'size row comes after the file row (bottom)');
+});

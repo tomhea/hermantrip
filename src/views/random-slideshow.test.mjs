@@ -69,3 +69,9 @@ test('empty pool → message + back link', () => {
   assert.match(html, /אין תמונות/);
   assert.match(html, /href="\/nepal"/);
 });
+
+test('M43: random info panel drops the album row and adds a "גודל" size row (#6)', () => {
+  const html = renderRandomShow({ manifest, item, scope: 'all' });
+  assert.equal(/<dt>אלבום<\/dt>/.test(html), false);
+  assert.match(html, /<dt>גודל<\/dt>\s*<dd class="info-size" dir="ltr" data-size-id="p1">…<\/dd>/);
+});
