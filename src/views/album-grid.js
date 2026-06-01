@@ -110,7 +110,7 @@ export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
   // Hidden on the last album in the country (albumAfterInCountry → null, no wrap).
   const next = albumAfterInCountry(manifest, backCode, album.id);
   const nextBtn = next
-    ? `<a class="album-next" href="${albumPath(backCode, next.slug)}">האלבום הבא: ${escapeHTML(next.title ?? next.name)} →</a>`
+    ? `<a class="album-next" href="${albumPath(backCode, next.slug)}">← האלבום הבא: ${escapeHTML(next.title ?? next.name)}</a>`
     : '';
 
   return `
