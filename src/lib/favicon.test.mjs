@@ -17,11 +17,17 @@ test('all referenced icon files exist in the repo root', () => {
   }
 });
 
-test('index.html links the favicon, an SVG icon, and the apple-touch icon', () => {
+test('index.html links the favicon (.ico) and apple-touch icon', () => {
   const html = read('index.html');
   assert.match(html, /<link[^>]+rel="icon"[^>]+href="\/favicon\.ico"/);
-  assert.match(html, /<link[^>]+rel="icon"[^>]+type="image\/svg\+xml"[^>]+href="\/icon\.svg"/);
   assert.match(html, /<link[^>]+rel="apple-touch-icon"[^>]+href="\/apple-touch-icon\.png"/);
+});
+
+test('M61: icon.svg is NOT linked as a browser tab icon (use ico/png instead)', () => {
+  const html = read('index.html');
+  // icon.svg must not appear in a <link rel="icon"> — it belongs in the manifest
+  // but should not override the user's custom .ico/.png in the browser tab.
+  assert.doesNotMatch(html, /<link[^>]+rel="icon"[^>]+type="image\/svg\+xml"[^>]+href="\/icon\.svg"/);
 });
 
 test('manifest lists PNG icons (128 + 180) alongside the SVG', () => {

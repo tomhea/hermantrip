@@ -136,6 +136,8 @@ function viewportClass() {
   return 'phone';
 }
 
+let mapMode = 'map'; // 'map' | 'globe'
+
 // Path of the view rendered just before the current one — lets renderAlbum tell
 // "returning from my own slideshow" (restore scroll, #7) apart from "arriving
 // fresh from a country grid / deep link" (start at top). Updated in render().
@@ -148,9 +150,12 @@ function go(path) {
   const clean = path.replace(/^#/, '');
   if (clean !== currentPath()) {
     const from = currentPath();
-    // Opening a photo from an album → remember where we were so closing the
-    // slideshow lands back at the same spot (#7).
     if (isSlideOf(clean, from)) rememberScroll(from, window.scrollY);
+    // Encode the globe mode in the /map history entry before navigating away
+    // so the browser back button restores the globe, not the default map.
+    if (from === '/map' && mapMode === 'globe') {
+      history.replaceState({ mapMode: 'globe' }, '', '/map');
+    }
     window.history.pushState({}, '', clean);
   }
   render();
@@ -622,7 +627,6 @@ const MAP_COUNTRY_COLORS = {
   au: '#b56439', nz: '#6b8459', th: '#c8943d',
 };
 
-let mapMode = 'map'; // 'map' | 'globe'
 let leafletMapInstance = null; // reuse across mode-switches
 let globeResizeHandler = null; // window resize listener while globe mounted (M28)
 
@@ -1430,7 +1434,12 @@ document.addEventListener('click', (e) => {
   go(href);
 });
 
-window.addEventListener('popstate', render);
+window.addEventListener('popstate', (e) => {
+  // Restore globe mode when the user presses back to /map from a globe-opened
+  // album (go() encodes {mapMode:'globe'} into the /map history entry).
+  if (e.state?.mapMode) mapMode = e.state.mapMode;
+  render();
+});
 
 // Migrate old hash URLs (pre-M12) so shared links keep working:
 // '#/album/1/slide/0' → '/nepal/1/0', etc. Album→country uses the album's

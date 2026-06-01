@@ -95,6 +95,14 @@ test('M55 #6: next button follows the VIEWING country for a cross-country album'
   assert.match(np, /href="\/nepal\/rik"/);
 });
 
+test('M61: next-album arrow points LEFT (RTL forward = ←, not →)', () => {
+  const html = renderAlbumGrid({ manifest, code: 'np', id: '1' });
+  // In Hebrew RTL "next" flows left; the arrow must be ← not →
+  assert.match(html, /class="album-next"/);
+  assert.doesNotMatch(html, /→.*האלבום הבא/);
+  assert.match(html, /←.*האלבום הבא/);
+});
+
 test('loading state when manifest is null', () => {
   const html = renderAlbumGrid({ manifest: null, id: '1' });
   assert.match(html, /role="status"/);
