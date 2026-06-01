@@ -21,6 +21,7 @@ import { shouldReloadForController } from './lib/sw-update.js';
 import { rememberScroll, recallScroll, isSlideOf } from './lib/scroll-store.js';
 import { globeLoadingHTML } from './lib/loading.js';
 import { countryMapLabels } from './lib/country-labels.js';
+import { landscapeFullscreenAction, LANDSCAPE_PHONE_MEDIA } from './lib/fullscreen-policy.js';
 import { allPhotos, countryPhotos } from './lib/photo-pool.js';
 import { renderCountryList } from './views/country-list.js';
 import { renderAlbumList } from './views/album-list.js';
@@ -544,10 +545,60 @@ function wireControls(shell) {
 
 // Entering/leaving fullscreen: reveal for the hide window on entry, and
 // re-apply (constant bar) on exit.
+// Phone-landscape fullscreen state (M59 / #5) — declared before the
+// fullscreenchange listener that clears ownership on a manual exit.
+let landscapeFsOwned = false;
+let armedFsGesture = null;
+
 document.addEventListener('fullscreenchange', () => {
   if (document.fullscreenElement) lastPointerActivityAt = performance.now();
+  // If fullscreen was dropped (incl. a manual exit), we no longer "own" it for
+  // the landscape policy below.
+  if (!document.fullscreenElement) landscapeFsOwned = false;
   applyControls();
 });
+
+// ── Phone-landscape fullscreen (M59 / #5) ────────────────────────
+// On a phone held in landscape, hide the browser URL bar by going fullscreen.
+// The Fullscreen API needs a user gesture, so we arm a one-shot tap handler
+// when the policy says "enter"; we exit (no gesture needed) on rotate-to-portrait
+// — but only a fullscreen WE entered, never the slideshow's.
+function disarmFsGesture() {
+  if (!armedFsGesture) return;
+  document.removeEventListener('click', armedFsGesture, true);
+  document.removeEventListener('touchend', armedFsGesture, true);
+  armedFsGesture = null;
+}
+function evaluateLandscapeFullscreen() {
+  if (!document.fullscreenEnabled) return;
+  const landscapePhone = window.matchMedia(LANDSCAPE_PHONE_MEDIA).matches;
+  const action = landscapeFullscreenAction({
+    landscapePhone,
+    isFullscreen: !!document.fullscreenElement,
+    ownedByLandscape: landscapeFsOwned,
+  });
+  if (action === 'enter') {
+    if (armedFsGesture) return; // already waiting for the tap
+    armedFsGesture = () => {
+      disarmFsGesture();
+      if (!window.matchMedia(LANDSCAPE_PHONE_MEDIA).matches || document.fullscreenElement) return;
+      document.documentElement.requestFullscreen?.()
+        .then(() => { landscapeFsOwned = true; })
+        .catch(() => { /* gesture/permission refused — non-fatal */ });
+    };
+    document.addEventListener('click', armedFsGesture, true);
+    document.addEventListener('touchend', armedFsGesture, true);
+  } else if (action === 'exit') {
+    disarmFsGesture();
+    document.exitFullscreen?.().catch(() => { /* non-fatal */ });
+    landscapeFsOwned = false;
+  } else if (!landscapePhone) {
+    disarmFsGesture(); // no longer relevant
+  }
+}
+window.matchMedia(LANDSCAPE_PHONE_MEDIA).addEventListener('change', evaluateLandscapeFullscreen);
+window.addEventListener('orientationchange', evaluateLandscapeFullscreen);
+window.addEventListener('resize', evaluateLandscapeFullscreen, { passive: true });
 
 // One global keyboard listener; acts only while a slideshow is mounted.
 window.addEventListener('keydown', (e) => {
@@ -1387,6 +1438,7 @@ window.addEventListener('popstate', render);
 
 (async function boot() {
   render(); // shows loading state
+  evaluateLandscapeFullscreen(); // in case we load already in phone-landscape (#5)
   await loadManifest();
   render();
 
