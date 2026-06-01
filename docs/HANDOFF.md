@@ -1,8 +1,30 @@
 # Handoff — hermantrip.tomhe.app
 
 _Last updated: 2026-06-01. Read this first, then `docs/cr-rules.md`. Recent
-batch plans: `.claude/plans/12-improvements-batch.md` (M30–M38) and
-`.claude/plans/batch2-improvements.md` (M39–M48); M49 = globe box buildings._
+batch plans: `.claude/plans/12-improvements-batch.md` (M30–M38),
+`.claude/plans/batch2-improvements.md` (M39–M48), and
+`.claude/plans/batch3-fixes.md` (M51–M60); M49 = globe box buildings._
+
+**Batch 3 (M51–M60, SW v64, 665 tests) — all live.** A 10-item fix list:
+M51 multi-country album URLs now resolve under every country (regression fix —
+`albumBySlug` matches `countries.includes(code)`; map/globe links use the
+per-stop country); M52 single-album map pins navigate directly (no 1-of-1
+popup); M53 timeline thumbnail opens the exact slide (`slideIndexInAlbum`); M54
+closing the slideshow restores the album scroll position (`scroll-store.js`);
+M55 "האלבום הבא" link at the album bottom (`albumAfterInCountry`, no wrap); M56
+globe buildings get 2 windows/floor + darker frames + **full-height** click/hover
+bars (`pointAltitude` = building height, was a flat base disk); M57 globe
+loading **starfield** + "טוען את כדור הארץ…" (`globeLoadingHTML`); M58 **Hebrew-only
+map** — CARTO `light_nolabels` base + Hebrew country labels (`country-labels.js`),
+cities Hebrew via tooltips; M59 phone-**landscape → fullscreen** on next tap
+(`fullscreen-policy.js`); M60 favicon/app-icon set.
+**Two things to eyeball on the live globe (screenshot tool can't capture WebGL):**
+the M56 windows/frames and M57 starfield were verified by texture-pixel readback
++ accessor probes, not a human screenshot. **Deferred:** the user's provided
+`favicon.svg` was 4.4 MB (embedded raster) so it was NOT shipped — the 798-byte
+`icon.svg` fills the SVG slot; re-export an optimised vector to use it. Full
+Hebrew street/POI map labels need a keyed tile provider (e.g. MapTiler
+`language=he`) — not shipped (no key).
 
 ## What this is
 
