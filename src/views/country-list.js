@@ -1,17 +1,22 @@
-// Country list view — the home page from M3 onward.
+// Country list view — the photo-forward home page (M2 redesign).
 //
-// Pure HTML-string builder: takes the current state ({ manifest, error })
-// and returns the HTML to inject into #app. Click navigation uses plain
-// `<a href="#/country/...">` so no DOM event handlers are needed —
-// the router catches hashchange and re-renders.
+// Pure HTML-string builder: takes { manifest, error, dpr } and returns the HTML
+// for #app. The 7 countries fill one no-scroll screen as photo tiles with the
+// country name overlaid; a slim header carries the icon nav + theme toggle. Both
+// the desktop (2/2/3) and phone (2/2/2/1) layer sets are emitted; CSS shows the
+// right one per viewport/orientation (see main.css .home-layers). Tiles use a
+// CSS background-image (not <img>), so there is no per-tile onerror hop.
 //
-// R3: tested for no-data + fetch-failed render paths in
-// country-list.test.mjs.
+// R3: no-data + fetch-failed render paths tested in country-list.test.mjs.
 
 import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { imageUrl } from '../lib/image-url.js';
 import { pickCountryThumb } from '../lib/country-thumb.js';
-import { countryPath, randomPath, countryRandomPath } from '../lib/paths.js';
+import { countryPath, randomPath } from '../lib/paths.js';
+import { countryColor } from '../lib/country-colors.js';
+import { icon } from '../lib/nav-icons.js';
+import { homeLayers } from '../lib/home-layout.js';
+import { COUNTRY_ORDER } from '../lib/countries.js';
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -19,100 +24,69 @@ function escapeHTML(s) {
   }[c]));
 }
 
-// Schematic globe — pale ocean disk, sage land blobs, one terra-cotta
-// "we were here" dot. Repeated from M2's home stub.
-const GLOBE_SVG = `<svg class="home-globe" viewBox="0 0 80 80" aria-hidden="true">
-  <circle cx="40" cy="40" r="32" fill="var(--earth-pale)" stroke="var(--text)" stroke-width="1.2"/>
-  <path d="M 16 32 Q 24 26, 32 32 Q 38 36, 44 32 Q 50 30, 56 34 L 55 40 Q 48 44, 40 42 Q 30 42, 20 40 Z"
-        fill="var(--earth-sage)" opacity="0.85"/>
-  <path d="M 24 52 Q 32 50, 42 54 Q 50 56, 56 52 L 54 60 Q 44 62, 34 60 Q 28 58, 24 56 Z"
-        fill="var(--earth-sage)" opacity="0.85"/>
-  <ellipse cx="40" cy="40" rx="32" ry="9" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>
-  <ellipse cx="40" cy="40" rx="11" ry="32" fill="none" stroke="var(--text)" stroke-width="0.4" opacity="0.35"/>
-  <circle cx="46" cy="36" r="1.6" fill="var(--accent)"/>
-</svg>`;
-
-const COUNTRY_DOT = {
-  np: 'var(--earth-slate)',
-  in: 'var(--earth-ochre)',
-  vn: 'var(--earth-sage)',
-  cn: 'var(--earth-slate)',
-  au: 'var(--accent)',
-  nz: 'var(--earth-sage)',
-  th: 'var(--earth-ochre)',
-};
-
-function renderHeader() {
+function navHTML() {
   return `
-    <header class="home-header">
-      <div class="home-header-text">
-        <h1 class="display">הרמן בדרכים</h1>
-        <p class="tagline">אלבום משפחתי מטיול בן שנה</p>
-      </div>
-      ${GLOBE_SVG}
-    </header>
+    <a class="slim-nav" href="${randomPath()}" data-random-play data-href="${randomPath()}">${icon('slideshow')} מצגת<span class="nav-long"> אקראית</span></a>
+    <a class="slim-nav" href="/map">${icon('map')} מפה</a>
+    <a class="slim-nav" href="/game">${icon('game')} משחק<span class="nav-long"> ניחושים</span></a>
+    <a class="slim-nav" href="/timeline">${icon('timeline')} ציר זמן</a>
+    <button type="button" class="slim-nav slim-toggle" data-theme-toggle aria-label="מצב בהיר/כהה">${icon('moon')}${icon('sun')}</button>
   `;
 }
 
-function renderCountryCard(country, manifest, dpr) {
+function tile(country, manifest, dpr) {
   const thumb = pickCountryThumb(manifest, country.code);
   const total = manifest.albums
     .filter((a) => a.countries.includes(country.code))
     .reduce((s, a) => s + a.photos.length, 0);
-  const dotColor = COUNTRY_DOT[country.code] ?? 'var(--accent)';
-  // Same-origin /img/ proxy can't be ORB-blocked, so the old
-  // onerror→thumbnailLink hop is gone; onerror just shows the placeholder
-  // on a genuine miss.
-  const thumbHTML = thumb
-    ? `<img class="country-thumb" src="${imageUrl(thumb.id, 'card', { dpr })}" loading="lazy" alt="" decoding="async" onerror="this.classList.add('country-thumb-broken')">`
-    : '<div class="country-thumb country-thumb-empty" aria-hidden="true"></div>';
-  // Random-slideshow play button (#3) — same UI as the album-card play button
-  // (.album-play). data-random-play → main.js starts that country's random show
-  // fullscreen + autoplaying. Sibling of the card link (no interactive nesting).
-  const play = total > 0
-    ? `<button type="button" class="album-play" data-random-play
-               data-href="${countryRandomPath(country.code)}"
-               aria-label="מצגת אקראית — ${escapeHTML(country.he)}">▶</button>`
-    : '';
+  const bg = thumb
+    ? `style="background-image:url('${imageUrl(thumb.id, 'card', { dpr })}')"`
+    : `style="background:${countryColor(country.code)}"`;
   return `
-    <li class="country-card">
-      <a href="${countryPath(country.code)}">
-        ${thumbHTML}
-        <div class="country-card-meta">
-          <span class="country-dot" style="background:${dotColor}" aria-hidden="true"></span>
-          <span class="country-name">${escapeHTML(country.he)}</span>
-          <span class="country-count">${total.toLocaleString('he-IL')} תמונות</span>
-        </div>
-      </a>
-      ${play}
-    </li>
-  `;
+    <a class="country-tile" href="${countryPath(country.code)}" ${bg}>
+      <span class="country-tile-scrim" aria-hidden="true"></span>
+      <span class="country-tile-name">${escapeHTML(country.he)}</span>
+      <span class="country-tile-count">${total.toLocaleString('he-IL')} תמונות</span>
+    </a>`;
+}
+
+function layersHTML(manifest, dpr, mode) {
+  const byCode = new Map(manifest.countries.map((c) => [c.code, c]));
+  const ordered = COUNTRY_ORDER.filter((code) => byCode.has(code));
+  const layers = homeLayers(ordered, mode);
+  return `<div class="home-layers" data-layers="${mode}">${
+    layers.map((row, i) => {
+      const tiles = row
+        .filter((code) => byCode.has(code))
+        .map((code) => tile(byCode.get(code), manifest, dpr))
+        .join('');
+      if (!tiles) return '';
+      const finale = i === layers.length - 1 && mode === 'desktop' ? ' data-finale' : '';
+      return `<div class="home-layer"${finale}>${tiles}</div>`;
+    }).join('')
+  }</div>`;
+}
+
+function homeHeader() {
+  return `
+    <header class="slim-header home-header">
+      <div class="slim-title-wrap">
+        <h1 class="slim-title">הרמן בדרכים <span class="slim-sub">שנה אחת · שבע מדינות</span></h1>
+      </div>
+      <nav class="slim-actions">${navHTML()}</nav>
+    </header>`;
 }
 
 export function renderCountryList({ manifest, error, dpr = 1 }) {
-  if (error) {
-    return `${renderHeader()}${errorHTML('לא הצלחנו לטעון את האלבום. נסו לרענן.')}`;
-  }
-  if (!manifest) {
-    return `${renderHeader()}${loadingHTML()}`;
-  }
+  const header = homeHeader();
+  if (error) return `${header}${errorHTML('לא הצלחנו לטעון את האלבום. נסו לרענן.')}`;
+  if (!manifest) return `${header}${loadingHTML()}`;
   if (!Array.isArray(manifest.countries) || manifest.countries.length === 0) {
-    return `${renderHeader()}<p class="muted">אין מדינות להצגה.</p>`;
+    return `${header}<p class="muted">אין מדינות להצגה.</p>`;
   }
-
-  return `
-    ${renderHeader()}
-    <nav class="home-actions">
-      <a class="action-link" href="${randomPath()}" data-random-play data-href="${randomPath()}">▷ מצגת אקראית מכל המדינות</a>
-      <a class="action-link" href="/map">◎ מפה</a>
-      <a class="action-link" href="/game">? משחק ניחושים</a>
-      <a class="action-link" href="/timeline">↕ ציר זמן</a>
-    </nav>
-    <ul class="country-grid" aria-label="מדינות">
-      ${manifest.countries.map((c) => renderCountryCard(c, manifest, dpr)).join('')}
-    </ul>
-    <p class="home-coming-soon">
-      בחרו מדינה כדי לדפדף באלבומים שלה.
-    </p>
-  `;
+  return `${header}
+    <main class="home-fit">
+      ${layersHTML(manifest, dpr, 'desktop')}
+      ${layersHTML(manifest, dpr, 'phone')}
+    </main>`;
 }

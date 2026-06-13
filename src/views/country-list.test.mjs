@@ -2,90 +2,97 @@ import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { renderCountryList } from './country-list.js';
 
+// Full 7-country fixture (codes must be in COUNTRY_ORDER so the home layers fill).
 const manifest = {
   countries: [
     { code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [1] },
-    { code: 'th', he: 'תאילנד', en: 'Thailand', primaryAlbums: [19] },
+    { code: 'in', he: 'הודו', en: 'India', primaryAlbums: [2] },
+    { code: 'vn', he: 'ויאטנם', en: 'Vietnam', primaryAlbums: [3] },
+    { code: 'cn', he: 'סין', en: 'China', primaryAlbums: [4] },
+    { code: 'au', he: 'אוסטרליה', en: 'Australia', primaryAlbums: [5] },
+    { code: 'nz', he: 'ניו זילנד', en: 'New Zealand', primaryAlbums: [6] },
+    { code: 'th', he: 'תאילנד', en: 'Thailand', primaryAlbums: [7] },
   ],
   albums: [
-    { id: 1, name: 'one', primary: 'np', countries: ['np', 'th'],
-      photos: [{ id: 'photo-np', name: 'a.jpg' }] },
-    { id: 19, name: 'th', primary: 'th', countries: ['th'],
-      photos: [{ id: 'photo-th', name: 'a.jpg' }] },
+    { id: 1, name: 'a', primary: 'np', countries: ['np'], photos: [{ id: 'photo-np', name: 'a.jpg' }] },
+    { id: 2, name: 'a', primary: 'in', countries: ['in'], photos: [{ id: 'photo-in', name: 'a.jpg' }] },
+    { id: 3, name: 'a', primary: 'vn', countries: ['vn'], photos: [{ id: 'photo-vn', name: 'a.jpg' }] },
+    { id: 4, name: 'a', primary: 'cn', countries: ['cn'], photos: [{ id: 'photo-cn', name: 'a.jpg' }] },
+    { id: 5, name: 'a', primary: 'au', countries: ['au'], photos: [{ id: 'photo-au', name: 'a.jpg' }] },
+    { id: 6, name: 'a', primary: 'nz', countries: ['nz'], photos: [{ id: 'photo-nz', name: 'a.jpg' }] },
+    { id: 7, name: 'a', primary: 'th', countries: ['th'], photos: [{ id: 'photo-th', name: 'a.jpg' }] },
   ],
 };
 
-test('happy path: renders header + grid with one card per country', () => {
-  const html = renderCountryList({ manifest });
-  assert.match(html, /class="display">הרמן בדרכים/);
-  assert.match(html, /class="country-grid"/);
-  assert.match(html, /href="\/nepal"/);
-  assert.match(html, /href="\/thailand"/);
-  assert.match(html, /נפאל/);
-  assert.match(html, /תאילנד/);
+// --- new home structure (M2) ---
+
+test('home tiles overlay the country name on the photo (no white meta box)', () => {
+  const html = renderCountryList({ manifest, dpr: 1 });
+  assert.match(html, /class="country-tile"/);
+  assert.match(html, /class="country-tile-name"/);
+  assert.equal(/country-card-meta/.test(html), false); // old white meta box gone
 });
 
-test('M41: each country card has a random-play button → that country random show', () => {
-  const html = renderCountryList({ manifest });
-  assert.match(html, /data-random-play/);
-  assert.match(html, /data-href="\/nepal\/random"/);
-  assert.match(html, /data-href="\/thailand\/random"/);
+test('home renders desktop + phone layer sets (both present; CSS shows one)', () => {
+  const html = renderCountryList({ manifest, dpr: 1 });
+  assert.match(html, /data-layers="desktop"/);
+  assert.match(html, /data-layers="phone"/);
 });
 
-test('M41: the all-countries random link triggers random-play (fullscreen+autostart)', () => {
+test('the desktop set has a tall finale layer (data-finale)', () => {
+  const html = renderCountryList({ manifest, dpr: 1 });
+  assert.match(html, /data-finale/);
+});
+
+test('nav uses the icon set + a theme toggle', () => {
+  const html = renderCountryList({ manifest, dpr: 1 });
+  assert.match(html, /data-theme-toggle/);
+  assert.match(html, /class="nav-icon"/);
+});
+
+test('count rides as a hover-reveal sub-label (not always shown as a box)', () => {
+  const html = renderCountryList({ manifest, dpr: 1 });
+  assert.match(html, /class="country-tile-count"/);
+});
+
+test('tiles link to each country page in trip order', () => {
+  const html = renderCountryList({ manifest, dpr: 1 });
+  assert.match(html, /class="country-tile" href="\/nepal"/);
+  assert.match(html, /class="country-tile" href="\/thailand"/);
+  assert.ok(html.indexOf('/nepal') < html.indexOf('/thailand'));
+});
+
+test('photo tiles use the same-origin /img/ proxy as a background image (never raw Google URL)', () => {
+  const html = renderCountryList({ manifest, dpr: 1 });
+  assert.match(html, /background-image:url\('\/img\/photo-np\/360'\)/);
+  assert.equal(/googleusercontent|drive\.google/.test(html), false);
+});
+
+test('DPR is passed through to the tile background image', () => {
+  const html = renderCountryList({ manifest, dpr: 2 });
+  assert.match(html, /background-image:url\('\/img\/photo-np\/720'\)/);
+});
+
+test('a country with no thumb falls back to its country colour', () => {
+  const m = {
+    countries: [{ code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [] }],
+    albums: [],
+  };
+  const html = renderCountryList({ manifest: m });
+  assert.match(html, /style="background:#4f7a8c"/); // nepal colour
+});
+
+test('the all-countries random link triggers random-play (fullscreen+autostart)', () => {
   const html = renderCountryList({ manifest });
   assert.match(html, /href="\/random"[^>]*data-random-play/);
 });
 
-test('M41: a country with 0 photos shows its card but NO random-play button', () => {
-  const m = {
-    countries: [{ code: 'xx', he: 'ריקה', en: 'Empty' }],
-    albums: [], // → that country has 0 photos
-  };
-  const html = renderCountryList({ manifest: m });
-  assert.match(html, /ריקה/);                          // card still rendered
-  // The per-card random-play button uses class="album-play"; it must be absent
-  // (the always-present home "מצגת אקראית" nav link is an .action-link, not this).
-  assert.equal(/class="album-play"/.test(html), false);
-});
+// --- state paths (R3) ---
 
-test('happy path: each card has a same-origin /img/ card image', () => {
-  const html = renderCountryList({ manifest });
-  assert.match(html, /<img class="country-thumb"[^>]*src="\/img\/photo-np\/360"/);
-  assert.match(html, /<img class="country-thumb"[^>]*src="\/img\/photo-th\/360"/);
-});
-
-test('happy path: card image never emits a raw Google URL', () => {
-  const html = renderCountryList({ manifest });
-  assert.equal(/googleusercontent|drive\.google/.test(html), false);
-});
-
-test('happy path: image uses loading="lazy" (R5 budget)', () => {
-  const html = renderCountryList({ manifest });
-  assert.match(html, /loading="lazy"/);
-});
-
-test('happy path: image onerror shows the placeholder (no thumbnailLink hop)', () => {
-  const m = {
-    countries: [{ code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [1] }],
-    albums: [{ id: 1, name: 'a', primary: 'np', countries: ['np'],
-      photos: [{ id: 'p1', name: 'a.jpg' }] }],
-  };
-  const html = renderCountryList({ manifest: m });
-  assert.match(html, /onerror="this\.classList\.add\('country-thumb-broken'\)"/);
-  assert.equal(html.includes('dataset.fb'), false);
-});
-
-test('happy path: DPR is passed through to image URL', () => {
-  const html = renderCountryList({ manifest, dpr: 2 });
-  assert.match(html, /src="\/img\/photo-np\/720"/);
-});
-
-test('fetch-failed state: renders errorHTML', () => {
+test('fetch-failed state: renders errorHTML (header still shows for context)', () => {
   const html = renderCountryList({ manifest: null, error: new Error('boom') });
   assert.match(html, /role="alert"/);
   assert.match(html, /לא הצלחנו לטעון/);
-  // Header still renders so user has visual context
   assert.match(html, /הרמן בדרכים/);
 });
 
@@ -107,18 +114,9 @@ test('empty-manifest state: also when countries is missing', () => {
   assert.match(html, /אין מדינות להצגה/);
 });
 
-test('country with no thumb falls back to placeholder div', () => {
-  const m = {
-    countries: [{ code: 'x', he: 'X', en: 'X', primaryAlbums: [] }],
-    albums: [],
-  };
-  const html = renderCountryList({ manifest: m });
-  assert.match(html, /class="country-thumb country-thumb-empty"/);
-});
-
 test('escapes country names to prevent XSS', () => {
   const m = {
-    countries: [{ code: 'x', he: '<script>alert(1)</script>', en: 'X', primaryAlbums: [] }],
+    countries: [{ code: 'np', he: '<script>alert(1)</script>', en: 'X', primaryAlbums: [] }],
     albums: [],
   };
   const html = renderCountryList({ manifest: m });
