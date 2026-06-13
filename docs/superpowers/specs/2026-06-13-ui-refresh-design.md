@@ -32,8 +32,8 @@ tag → archive → deploy), with FAIL→PASS test evidence per PR.
 ### Themes — light + dark
 Two themes, toggled by a **☾ / ☀** control in the header (desktop: in the left
 action cluster; phone: in the header row, both orientations). Persisted to
-`localStorage`; **default follows the device `prefers-color-scheme`** (open: or
-always-start-light — confirm in review). The slideshow stage stays charcoal in
+`localStorage`; **default follows the device `prefers-color-scheme`** (a manual
+toggle overrides and is remembered). The slideshow stage stays charcoal in
 both themes. The map swaps to dark tiles in dark mode.
 
 **Light tokens** (from `design.md`): `--bg #f6f1ea`, `--surface #ffffff`,
@@ -70,9 +70,9 @@ toggle lives in the action group.
 Core card for home / country / album-list grids: full-bleed cover photo,
 ~6px radius, a bottom gradient scrim, white label bottom-right (name + optional
 count/dates). **Metadata reveal:** on desktop the count (and album dates) fade in
-on **hover**; resting state shows just the name. On phone (no hover) the name
-shows always; count/dates appear small (open: always-on vs only on the
-destination screen — confirm in review).
+on **hover**; resting state shows just the name. On phone (no hover) the tile
+shows just the name; **count/dates appear only on the destination screen** (the
+country / album page), not on the tile.
 
 ### Icon set (chosen; final vectors to refine)
 SVG line icons in the accent colour: **slideshow = photo-stack**, **map =
@@ -130,10 +130,14 @@ Slim header + back. Map fills the area; floating **מפה / גלובוס** segme
 (terra-cotta active) top-centre. Pins use the 7 distinct country colours.
 
 - **Map:** **real Hebrew city/POI names** via a keyed Hebrew tile provider (e.g.
-  MapTiler `language=he`) — replaces the label-free `light_nolabels` base. ⚠️
-  Requires an **API key** (free tier exists); the key lives in **config, not
-  code** (setup task — user provides). Keeps the green→terracotta trail + direction
-  arrows, hover tooltips, popups. Dark mode → dark tiles.
+  MapTiler `language=he`) — replaces the label-free `light_nolabels` base.
+  Requires a tile **API key** (free tier exists). **Wired via a Caddy tile-proxy**
+  (like `/img/`): browser → `/tiles/{z}/{x}/{y}` → Caddy adds the key → MapTiler,
+  so the key stays **server-side**, never shipped to the browser, never committed.
+  (Alternative considered: client-side key restricted to the site domain — not
+  chosen.) User creates a free MapTiler key; it's set in the Caddy config on the
+  VPS. Keeps the green→terracotta trail + direction arrows, hover tooltips,
+  popups. Dark mode → dark tiles.
 - **Globe:** keeps the 3D globe + trail. Upgrades: **comet trail** (a glowing dot
   travels each leg in order — easier to follow); **map-style pins** (teardrop
   markers in country colours, size ∝ days) replacing the windowed boxes;
@@ -183,11 +187,14 @@ slideshow.
 Back is always reachable: top-right link on every sub-screen; the slideshow's `→`
 closes to the album; home is the root.
 
-## Deferred / open (settle in plan or review)
+## Decisions (resolved in review)
+- **Theme default:** follow the device `prefers-color-scheme`; manual toggle overrides + persists.
+- **Phone tile metadata:** count/dates only on the destination screen, not on the tile.
+- **Map key wiring:** Caddy tile-proxy (key server-side).
+
+## Deferred / open (settle in plan or implementation)
 - Final **icon vectors** (concepts chosen; refine strokes/details).
-- **Theme default:** follow system vs always-start-light.
-- **Phone tile metadata:** always-small vs only on the destination screen.
-- **Map tile API key** (MapTiler or similar) — user to obtain; wired via config.
+- **Map tile API key** — user to create a free MapTiler key + add to Caddy config (action item, not a design decision).
 - Per-country **texture strength** fine-tuning.
 - **Sticky day headers** on/off (album grid + timeline).
 
