@@ -130,14 +130,16 @@ Slim header + back. Map fills the area; floating **מפה / גלובוס** segme
 (terra-cotta active) top-centre. Pins use the 7 distinct country colours.
 
 - **Map:** **real Hebrew city/POI names** via a keyed Hebrew tile provider (e.g.
-  MapTiler `language=he`) — replaces the label-free `light_nolabels` base.
-  Requires a tile **API key** (free tier exists). **Wired via a Caddy tile-proxy**
-  (like `/img/`): browser → `/tiles/{z}/{x}/{y}` → Caddy adds the key → MapTiler,
-  so the key stays **server-side**, never shipped to the browser, never committed.
-  (Alternative considered: client-side key restricted to the site domain — not
-  chosen.) User creates a free MapTiler key; it's set in the Caddy config on the
-  VPS. Keeps the green→terracotta trail + direction arrows, hover tooltips,
-  popups. Dark mode → dark tiles.
+  a Hebrew-labelled MapTiler style) — replaces the label-free `light_nolabels` base.
+  Uses a **client-side MapTiler key restricted to `hermantrip.tomhe.app`** (the
+  origin allowlist + free-tier quota are the protection; safe to ship in client
+  code). **Labels:** raster tiles carry whatever language the *style* was rendered
+  in, so we use a **custom MapTiler style with Language = Hebrew** (one light, one
+  dark) — `?language=he` alone on a default raster style does NOT relabel under
+  Leaflet. **Dev origins** (`localhost`, `127.0.0.1`, the LAN IP for phone testing)
+  must also be allowlisted or the map is blank locally. Keep MapTiler + OSM
+  attribution (licence). Keeps the green→terracotta trail + direction arrows, hover
+  tooltips, popups. Dark mode → the dark Hebrew style.
 - **Globe:** keeps the 3D globe + trail. Upgrades: **comet trail** (a glowing dot
   travels each leg in order — easier to follow); **map-style pins** (teardrop
   markers in country colours, size ∝ days) replacing the windowed boxes;
@@ -190,11 +192,11 @@ closes to the album; home is the root.
 ## Decisions (resolved in review)
 - **Theme default:** follow the device `prefers-color-scheme`; manual toggle overrides + persists.
 - **Phone tile metadata:** count/dates only on the destination screen, not on the tile.
-- **Map key wiring:** Caddy tile-proxy (key server-side).
+- **Map key wiring:** client-side MapTiler key, **restricted to the site domain** (+ dev origins allowlisted); Hebrew labels come from a **custom Hebrew-language style** (light + dark), not a runtime param.
 
 ## Deferred / open (settle in plan or implementation)
 - Final **icon vectors** (concepts chosen; refine strokes/details).
-- **Map tile API key** — user to create a free MapTiler key + add to Caddy config (action item, not a design decision).
+- **Map setup:** MapTiler frontend key created + domain-restricted ✓. Remaining: create the **Hebrew-language custom style** (light + dark) and **allowlist dev origins**; keep vs drop the manual `country-labels.js` once the style's labels show.
 - Per-country **texture strength** fine-tuning.
 - **Sticky day headers** on/off (album grid + timeline).
 

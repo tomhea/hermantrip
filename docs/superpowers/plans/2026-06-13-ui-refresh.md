@@ -33,7 +33,8 @@
 - `home-layout.js` — split the 7 countries into the desktop (2/2/3) and phone (2/2/2/1) layer groups. (M2)
 - `scrubber.js` — build the chronological timeline scrubber segments. (M8)
 - `country-motifs.js` — per-country SVG `<pattern>` defs for the timeline textures. (M8)
-- `tile-proxy.js` — build the same-origin `/tiles/{z}/{x}/{y}` URL for the map. (M6)
+- `map-tiles.js` — build the MapTiler raster tile URL for a (Hebrew) style; map attribution. (M6)
+- `config.js` — public, domain-restricted MapTiler frontend key + light/dark Hebrew style IDs. (M6)
 
 **New `src/styles/`:** `*-css.test.mjs` guards per milestone (theme, home-fit, justified, slideshow, timeline-rail).
 
@@ -858,37 +859,78 @@ test('no glassmorphism in slideshow chrome (design.md)', () => {
 
 # Milestone 6 — Map / Globe upgrades
 
-**Branch:** `m6-map`. Real Hebrew city labels via a Caddy tile-proxy; new country colours on pins; globe comet trail; map-style globe pins; starfield-loads-immediately fix. **Functionality preserved.**
+**Branch:** `m6-map`. Real Hebrew city labels via a domain-restricted MapTiler client key + a Hebrew custom style; new country colours on pins; globe comet trail; map-style globe pins; starfield-loads-immediately fix. **Functionality preserved.**
 
-### Task 6.1 — Tile-proxy URL helper + Caddy route
+### Task 6.1 — Map tiles config (domain-restricted client key, Hebrew style)
 
-**Files:** Create `src/lib/tile-proxy.js` + test; deploy-side Caddy config (documented).
+**Files:** Create `src/lib/map-tiles.js` + test, and `src/config.js`. No server
+proxy — the key is a **domain-restricted MapTiler frontend key** (safe in client
+code; protected by the origin allowlist + quota).
+
+> **Setup (user, before this task):** in MapTiler Cloud create a **custom style
+> with Language = Hebrew** — one light, one dark — and note their style IDs.
+> `?language=he` on a default raster style does NOT relabel under Leaflet, so the
+> Hebrew labels must be baked into the style. The frontend key is restricted to
+> `hermantrip.tomhe.app`; **also allowlist dev origins** (`http://localhost`,
+> `http://127.0.0.1`, and the LAN IP used to test on a phone) or the map is blank
+> locally. Set a usage alert in the dashboard.
 
 - [ ] **Step 1: Failing test**
 
 ```js
-// src/lib/tile-proxy.test.mjs
+// src/lib/map-tiles.test.mjs
 import { test } from 'node:test'; import { strict as assert } from 'node:assert';
-import { tileUrlTemplate } from './tile-proxy.js';
-test('returns a same-origin /tiles template with z/x/y + retina', () => {
-  assert.equal(tileUrlTemplate(), '/tiles/{z}/{x}/{y}{r}.png');
+import { tileUrl, MAP_ATTRIBUTION } from './map-tiles.js';
+test('builds the MapTiler raster URL for the chosen style + key', () => {
+  assert.equal(tileUrl({ style: 'STYLE_LIGHT', key: 'K' }),
+    'https://api.maptiler.com/maps/STYLE_LIGHT/{z}/{x}/{y}.png?key=K');
+});
+test('attribution credits MapTiler + OpenStreetMap (licence)', () => {
+  assert.match(MAP_ATTRIBUTION, /MapTiler/);
+  assert.match(MAP_ATTRIBUTION, /OpenStreetMap/);
 });
 ```
 
-- [ ] **Step 2-4:** `export function tileUrlTemplate(){ return '/tiles/{z}/{x}/{y}{r}.png'; }`. In `main.js` `initLeafletMap`, replace the CARTO `light_nolabels` `L.tileLayer(...)` with `L.tileLayer(tileUrlTemplate(), { subdomains:'abcd', attribution:'… © MapTiler © OpenStreetMap', maxZoom:19 })`. For dark mode pass a dark style via the proxy (`/tiles-dark/...`). Remove the manual Hebrew `country-labels.js` overlay (now redundant) **or** keep country labels and rely on the keyed tiles for cities — decide in review; default: keep country labels, add city labels from tiles.
-- [ ] **Step 5: Caddy** (on the VPS, documented in PR + `docs/HANDOFF.md`):
+- [ ] **Step 2: Run — FAIL** · **Step 3: Implement**
 
-```
-# Caddyfile — Hebrew map tiles, key stays server-side
-handle_path /tiles/* {
-  rewrite * /maps/streets/{path}?key={$MAPTILER_KEY}&language=he
-  reverse_proxy https://api.maptiler.com {
-    header_up Host api.maptiler.com
-  }
+```js
+// src/lib/map-tiles.js
+// MapTiler raster tiles for a (Hebrew-labelled) custom style. The key is a
+// domain-restricted frontend key — safe in client code; the origin allowlist +
+// free-tier quota are the protection. Key + style IDs live in src/config.js.
+export const MAP_ATTRIBUTION =
+  '© <a href="https://www.maptiler.com/copyright/">MapTiler</a> · © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>';
+export function tileUrl({ style, key }) {
+  return `https://api.maptiler.com/maps/${style}/{z}/{x}/{y}.png?key=${key}`;
 }
 ```
 
-Set `MAPTILER_KEY` in the server environment (systemd/`Caddyfile` env). **Action item: user creates the free MapTiler key.** Commit (`feat(m6): Hebrew map tiles via same-origin tile proxy`).
+- [ ] **Step 4: Run — PASS**
+- [ ] **Step 5: Config + wire.** Create `src/config.js` (committed — the key is
+  domain-restricted, so this is safe):
+
+```js
+// src/config.js — public, domain-restricted MapTiler frontend key + Hebrew styles.
+export const MAPTILER_KEY = 'PASTE_KEY';                 // restricted to hermantrip.tomhe.app (+ dev origins)
+export const MAP_STYLE_LIGHT = 'PASTE_LIGHT_STYLE_ID';   // custom style, Language = Hebrew
+export const MAP_STYLE_DARK  = 'PASTE_DARK_STYLE_ID';    // custom dark style, Language = Hebrew
+```
+
+  In `main.js` `initLeafletMap`, replace the CARTO `light_nolabels` `L.tileLayer(...)`
+  (around line 816) with the MapTiler layer, choosing light/dark by theme:
+
+```js
+import { tileUrl, MAP_ATTRIBUTION } from './lib/map-tiles.js';
+import { MAPTILER_KEY, MAP_STYLE_LIGHT, MAP_STYLE_DARK } from './config.js';
+// …inside initLeafletMap, replacing the CARTO tileLayer:
+const style = currentTheme() === 'dark' ? MAP_STYLE_DARK : MAP_STYLE_LIGHT;
+L.tileLayer(tileUrl({ style, key: MAPTILER_KEY }),
+  { attribution: MAP_ATTRIBUTION, maxZoom: 19 }).addTo(map);
+```
+
+  The Hebrew labels now come from the style, so the manual `country-labels.js`
+  overlay is optional — keep it for the big country names or drop it (decide in
+  review). Commit (`feat(m6): MapTiler Hebrew tiles via domain-restricted client key`).
 
 ### Task 6.2 — Country colours on pins + globe map-style pins
 
@@ -901,7 +943,7 @@ Set `MAPTILER_KEY` in the server environment (systemd/`Caddyfile` env). **Action
 **Files:** Modify `src/main.js`.
 
 - [ ] **Comet:** keep `arcsData(...)`; raise `arcDashAnimateTime`, set a single travelling dash (`arcDashLength(0.25).arcDashGap(4)`) so a bright segment runs each leg in order (the "comet"). Brighten `arcColor`. (Unit-test any new pure helper if extracted; otherwise R2 DOM/accessor probe.)
-- [ ] **Starfield fix:** in `initGlobeView`, move `container.innerHTML = globeLoadingHTML();` to the **first line** of the function, *before* `await loadGlobe()`, so the starfield paints during the heavy download instead of after. Verify: entering the globe shows stars immediately (no black gap). Commit (`fix(m6): paint globe starfield before the globe.gl download`). SW bump → `v71`, add `tile-proxy.js` + `globe-pins.js`, remove `globe-buildings.js`/`country-labels.js` if dropped. PR → CR-ist → `v0.M67` → deploy. **Eyeball the globe live** (WebGL not screenshot-able).
+- [ ] **Starfield fix:** in `initGlobeView`, move `container.innerHTML = globeLoadingHTML();` to the **first line** of the function, *before* `await loadGlobe()`, so the starfield paints during the heavy download instead of after. Verify: entering the globe shows stars immediately (no black gap). Commit (`fix(m6): paint globe starfield before the globe.gl download`). SW bump → `v71`, add `map-tiles.js` + `config.js` + `globe-pins.js`, remove `globe-buildings.js` (and `country-labels.js` if dropped). PR → CR-ist → `v0.M67` → deploy. **Eyeball the globe live** (WebGL not screenshot-able); verify the map shows Hebrew city labels and that dev-origin tiles load locally.
 
 ---
 
