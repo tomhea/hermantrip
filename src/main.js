@@ -42,6 +42,28 @@ import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, rende
 import { renderTimeline, dayStripHTML } from './views/timeline.js';
 import { buildTimeline, sliderValueToBucketIndex, scrollYToBucketIndex } from './lib/timeline.js';
 import { eligibleAlbums, albumChoices, scoreCountry, scoreAlbum, generateRounds, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
+import { resolveTheme, nextTheme } from './lib/theme.js';
+
+const THEME_KEY = 'hermantrip:theme';
+function currentTheme() {
+  let stored = null;
+  try { stored = localStorage.getItem(THEME_KEY); } catch { /* blocked */ }
+  return resolveTheme(stored, window.matchMedia('(prefers-color-scheme: dark)').matches);
+}
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : '');
+  if (theme !== 'dark') document.documentElement.removeAttribute('data-theme');
+}
+function toggleTheme() {
+  const next = nextTheme(currentTheme());
+  try { localStorage.setItem(THEME_KEY, next); } catch { /* blocked */ }
+  applyTheme(next);
+  render(); // re-render so the ☾/☀ glyph flips
+}
+window.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-theme-toggle]');
+  if (t) { e.preventDefault(); toggleTheme(); }
+});
 
 // Clean-path routes (M12; album NAME slugs since M23). Order matters: literal
 // first segments are listed before the /:country catch-all, and the more
