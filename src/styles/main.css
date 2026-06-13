@@ -1467,3 +1467,13 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   [data-layers="desktop"] { display: none; }  /* keep desktop set hidden in portrait (explicit, after the wide query so the guard test matches) */
   [data-layers="phone"] { display: flex; }
 }
+/* Home no-scroll fit — escape main#app's page padding + 64rem max-width so the
+   7 tiles fill the viewport edge-to-edge. The header is flex:0 (natural height),
+   the fit flex:1, so the fill is robust to the taller phone-portrait header
+   without a magic calc() offset (the base .home-fit calc is the no-:has fallback). */
+main#app:has(.home-fit) {
+  padding: 0; max-width: none; height: 100svh; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+main#app:has(.home-fit) .home-header { margin: 0; flex: 0 0 auto; }
+main#app:has(.home-fit) .home-fit { flex: 1 1 auto; height: auto; }

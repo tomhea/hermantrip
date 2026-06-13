@@ -22,3 +22,10 @@ test('country-tile name sits on the photo with a scrim', () => {
 test('count is hidden until hover (desktop)', () => {
   assert.match(css, /\.country-tile-count\s*\{[^}]*opacity:\s*0/);
 });
+test('the home escapes main#app padding/max-width so it fills the viewport (no scroll)', () => {
+  // main#app has page padding + a 64rem max-width; the home must escape both or
+  // the 7-tile no-scroll fit overflows. The header is flex:0, the fit flex:1 so
+  // the fill is robust to the taller phone-portrait header (no magic calc number).
+  assert.match(css, /main#app:has\(\.home-fit\)\s*\{[^}]*padding:\s*0/);
+  assert.match(css, /main#app:has\(\.home-fit\)\s*\{[^}]*height:\s*100svh/);
+});
