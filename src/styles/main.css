@@ -34,6 +34,22 @@
   --space-7: 4rem;
 }
 
+:root { --stage: #efe7da; } /* slideshow stage — light theme */
+
+[data-theme="dark"] {
+  --bg: #1b1815;
+  --surface: #262220;
+  --text: #f3ece1;
+  --text-muted: #b3a899;
+  --accent: #cf7a4e;
+  --accent-dim: #b9633a;
+  --divider: #3a3531;
+  --error: #c97b6b;
+  --stage: #211e1b;
+}
+
+body { transition: background-color .2s ease, color .2s ease; }
+
 /* Reset */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
