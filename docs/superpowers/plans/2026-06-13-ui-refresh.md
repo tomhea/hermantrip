@@ -25,6 +25,31 @@ You are a fresh session with no prior context. Before touching code:
 
 ---
 
+## Milestones at a glance (M0–M8)
+
+| # | Milestone | Ships | Tag |
+|---|---|---|---|
+| **M0** | Prep & setup | docs on `main`, dev env green, MapTiler styles/key ready | — |
+| **M1** | Foundations | light+dark tokens, theme toggle, slim header, icon set, 7 country colours | `v0.M62` |
+| **M2** | Home | 2/2/3 desktop · 2/2/2/1 phone · landscape=desktop; photo-overlaid tiles | `v0.M63` |
+| **M3** | Country page | featured-first + overlay album grid | `v0.M64` |
+| **M4** | Album grid | rows-by-day + sticky day headers | `v0.M65` |
+| **M5** | Slideshow | charcoal stage, centred photo, floating auto-hide controls, filmstrip | `v0.M66` |
+| **M6** | Map / Globe | Hebrew tiles (client key), country colours, comet trail, map-style pins, starfield fix | `v0.M67` |
+| **M7** | Game | progress strip + photo-forward restyle + landscape | `v0.M68` |
+| **M8** | Timeline | chronological textured scrubber/rail + hold tooltip + feed | `v0.M69` |
+
+Tag numbers continue the existing ladder — **run `git tag --list 'v0.*'` and confirm the next number before tagging** (this assumes the latest is `v0.M61`).
+
+## Risks & watch-list (slow down here)
+
+- **M5 is the riskiest milestone.** It rewires live slideshow behaviour (auto-hide, fullscreen, share, info, filmstrip). Keep the **existing** `slideshow.test.mjs` and `controls-timer.test.mjs` green — don't just add new tests — and do not regress fullscreen or the share/info panels.
+- **M8 scrubber is data-dependent.** `SHARED_ORDER` (album 37 → cn·th·au; album 1 → th·np) is a heuristic; real recurrence + proportions depend on the manifest's dates + `album.countries`. **Visually sanity-check** the rendered scrubber against real data (does תאילנד recur at the right spots? are widths ~proportional?), not only via unit tests.
+- **Justified/true-aspect rows need photo dimensions (M4 + the M8 feed).** Aspect-preserving rows require each photo's `w`/`h`. If the manifest lacks them, ship the **uniform-aspect fallback** (M4) and treat true-justified as a follow-up that needs a `scripts/build-manifest.mjs` change to record dimensions.
+- **Theme toggle while on the map page.** Leaflet reuses its instance, so toggling light↔dark won't hot-swap tiles mid-view — see M6 (swap the tile layer on theme change, or accept it updates on next visit).
+- **Home no-scroll fit.** `calc(100svh − …)` header offset is a starting value; the phone-portrait header is taller (title + nav row). Measure on the smallest phone and tune so it never scrolls.
+- **View/CSS milestones (M3–M7)** give real snippets + the project's test patterns, not always a full-file rewrite. **Read the current file first** and match its style.
+
 ## Conventions for every milestone
 
 - **Branch:** `git checkout -b mN-<slug>` off `main`.
@@ -52,6 +77,17 @@ You are a fresh session with no prior context. Before touching code:
 **New `src/styles/`:** `*-css.test.mjs` guards per milestone (theme, home-fit, justified, slideshow, timeline-rail).
 
 **Modified:** `src/styles/main.css` (every milestone), `src/main.js` (theme toggle, slideshow controls, map/globe, scrubber wiring), `src/views/country-list.js`, `album-list.js`, `album-grid.js`, `slideshow.js`, `game.js`, `timeline.js`, `map.js`, `index.html` (theme boot), `sw.js` (cache bump + new files).
+
+---
+
+# Milestone 0 — Prep & setup (no app code, no tag)
+
+Clears the runway before any feature work.
+
+- [ ] **Docs on `main`:** ensure `ui-refresh-spec` (this plan + the spec) is merged into `main`, so every milestone branch forks from a base that contains the plan. (Docs-only.)
+- [ ] **Dev env:** `npm install` (Node 20+). Confirm `npm test` is **green on a clean `main`** (record the baseline pass count) and `npx eslint@9 --max-warnings=0 .` is clean. Confirm `node scripts/serve.mjs` serves the site locally with the `/img/` proxy, and the preview tooling can open it.
+- [ ] **MapTiler (needed by M6 — can be prepared any time before then):** owner creates a free key restricted to `hermantrip.tomhe.app` (✓ done) **plus a Hebrew-language custom style — light and dark** — and notes the two style IDs; **allowlist dev origins** (`localhost`, `127.0.0.1`, the phone-test LAN IP). Hand the key + style IDs to the M6 executor to paste into `src/config.js`.
+- [ ] **Confirm the ladder position:** `git tag --list 'v0.*'` → adjust the `v0.MN` numbers in this plan if the ladder has moved past `v0.M61`.
 
 ---
 
@@ -591,9 +627,9 @@ function escapeHTML(s){return String(s).replace(/[&<>"']/g,(c)=>({'&':'&amp;','<
 
 function navHTML() {
   return `
-    <a class="slim-nav" href="${randomPath()}" data-random-play data-href="${randomPath()}">${icon('slideshow')} מצגת אקראית</a>
+    <a class="slim-nav" href="${randomPath()}" data-random-play data-href="${randomPath()}">${icon('slideshow')} מצגת<span class="nav-long"> אקראית</span></a>
     <a class="slim-nav" href="/map">${icon('map')} מפה</a>
-    <a class="slim-nav" href="/game">${icon('game')} משחק ניחושים</a>
+    <a class="slim-nav" href="/game">${icon('game')} משחק<span class="nav-long"> ניחושים</span></a>
     <a class="slim-nav" href="/timeline">${icon('timeline')} ציר זמן</a>
     <button type="button" class="slim-nav slim-toggle" data-theme-toggle aria-label="מצב בהיר/כהה">${icon('moon')}${icon('sun')}</button>
   `;
@@ -726,6 +762,7 @@ test('count is hidden until hover (desktop)', () => {
   .home-header { flex-direction: column; align-items: stretch; gap: var(--space-1); }
   .slim-actions { justify-content: space-between; }
   .slim-nav { flex: 1; justify-content: center; padding: .35em .2em; }
+  .nav-long { display: none; }  /* phone: short labels (מצגת · מפה · משחק · ציר זמן) so 4 fit one row */
 }
 ```
 
@@ -806,7 +843,9 @@ test('.day-header sticks while scrolling', () => {
 });
 ```
 
-- [ ] **Step 2-4:** Implement justified rows. Simplest robust approach that needs no JS: fixed-height rows, each photo `flex: 1 1 auto; height: <row>; width: auto;` won't justify without intrinsic ratios. Use the standard trick: wrap each photo so the `<img>` sets the width via its aspect at a fixed row height.
+- [ ] **Step 2-4:** Implement the day rows.
+
+> **Dimension dependency — read before coding.** *True* aspect-preserving justified rows (Flickr-style, no crop) require each photo's intrinsic `w`/`h` so the row can size widths by ratio. Check the manifest: if `photo.w`/`photo.h` (or similar) exist, set each tile `flex-grow` from its aspect and skip `object-fit: cover`. **If the manifest has no dimensions** (likely — the fixtures carry only `id`/`name`), ship the **uniform-height fallback below** (fixed row height + `object-fit: cover`, which crops slightly) and log a follow-up: "true-justified rows need `scripts/build-manifest.mjs` to record image dimensions." Do **not** block this milestone on the build-manifest change. The CSS test + the CSS below encode the fallback.
 
 ```css
 .day-group { margin-bottom: var(--space-4); }
@@ -866,7 +905,7 @@ test('no glassmorphism in slideshow chrome (design.md)', () => {
 
 **Files:** Modify `src/main.js` (`wireSlideshow`): wire `[data-filmstrip-toggle]` to show/hide `.slideshow-filmstrip` and populate neighbour thumbnails; ensure `applyControls()` auto-hide runs in the windowed (non-fullscreen) viewer too (today the bar is constant when not fullscreen — change `controlsVisible` call site so the windowed viewer also hides after idle). Verify via live probe (controls fade after idle, return on move/tap/key; filmstrip toggles). Commit (`feat(m5): filmstrip toggle + windowed auto-hide`). SW bump → `v70`. PR → CR-ist → `v0.M66` → deploy.
 
-> Note: `controls-timer.js` `controlsVisible({fullscreen,…})` currently keeps the bar constant when `!fullscreen`. Add a unit test in `controls-timer.test.mjs` for a new `windowedAutoHide` flag (default true) so the windowed viewer hides on idle, then thread it through. Keep the fullscreen behaviour identical.
+> Note: `controls-timer.js` `controlsVisible({fullscreen,…})` currently keeps the bar constant when `!fullscreen`. Add a new `windowedAutoHide` flag that **defaults to `false` (current behaviour — keeps every existing `controls-timer.test.mjs` case green)**; the slideshow passes `windowedAutoHide: true` to opt the windowed viewer into idle-hiding. Add new test cases for the `true` path only. Fullscreen behaviour stays identical.
 
 ---
 
@@ -943,7 +982,11 @@ L.tileLayer(tileUrl({ style, key: MAPTILER_KEY }),
 
   The Hebrew labels now come from the style, so the manual `country-labels.js`
   overlay is optional — keep it for the big country names or drop it (decide in
-  review). Commit (`feat(m6): MapTiler Hebrew tiles via domain-restricted client key`).
+  review).
+- [ ] **Live theme swap:** keep a reference to the tile layer; in the theme-toggle
+  handler (M1.6 `toggleTheme`), if the map is mounted, `map.removeLayer(tiles)` and
+  add the other-style layer — otherwise toggling light↔dark while on `/map` leaves
+  the old tiles until the next visit. Commit (`feat(m6): MapTiler Hebrew tiles via domain-restricted client key`).
 
 ### Task 6.2 — Country colours on pins + globe map-style pins
 
@@ -1113,9 +1156,11 @@ test('motifFill references the pattern', () => { assert.equal(motifFill('np'), '
 - [ ] **Step 1: Failing CSS test**
 
 ```js
-test('portrait phone: scrubber becomes a 13px vertical rail on the RIGHT', () => {
-  assert.match(css, /orientation:\s*portrait[^]*\.tl-scrubber\[data-orient="rail"\]\s*\{[^}]*width:\s*13px/);
-  assert.match(css, /\.tl-scrubber\[data-orient="rail"\]\s*\{[^}]*order:\s*2/); // sits after feed → right edge in RTL? use right placement
+test('portrait phone: scrubber becomes a 13px vertical rail', () => {
+  // RTL right-edge placement is verified live (DOM probe); here just assert the
+  // rail variant is a 13px-wide column under portrait. Exact flex order/placement
+  // is an impl detail the executor confirms in the browser.
+  assert.match(css, /\.tl-scrubber\[data-orient="rail"\]\s*\{[^}]*width:\s*13px/);
 });
 test('desktop/landscape: scrubber is a horizontal bar on top', () => {
   assert.match(css, /\.tl-scrubber\[data-orient="bar"\]\s*\{[^}]*flex-direction:\s*row/);
