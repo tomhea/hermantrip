@@ -1422,3 +1422,48 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .slim-back { display: block; font-size: var(--type-small); color: var(--accent-dim); text-decoration: none; }
 .slim-actions { display: flex; gap: var(--space-2); align-items: center; }
 .nav-icon { vertical-align: -0.12em; }
+
+/* Home — fit all 7 on one screen */
+.home-header { /* slim; shares .slim-header */ }
+.home-fit {
+  height: calc(100svh - 3rem);  /* minus the slim header */
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  padding: var(--space-1); gap: var(--space-1);
+}
+.home-layers { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); min-height: 0; }
+.home-layer { flex: 1; display: flex; gap: var(--space-1); min-height: 0; }
+.home-layer[data-finale] { flex: 1.5; }
+
+.country-tile {
+  flex: 1; position: relative; min-width: 0; border-radius: 6px; overflow: hidden;
+  background-size: cover; background-position: center; text-decoration: none;
+  display: block;
+}
+.country-tile-scrim { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(20,18,15,.62), rgba(20,18,15,0) 58%); }
+.country-tile-name { position: absolute; bottom: var(--space-2); inset-inline-end: var(--space-2); color: #fff; font-weight: 700; font-size: var(--type-h2); text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; }
+.country-tile-count { position: absolute; bottom: var(--space-1); inset-inline-end: var(--space-2); color: #fff; font-size: var(--type-small); font-weight: 300; text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; opacity: 0; transition: opacity .15s; }
+.country-tile:hover .country-tile-count, .country-tile:focus-within .country-tile-count { opacity: .95; }
+
+/* default (phone portrait): show phone layers, hide desktop */
+[data-layers="desktop"] { display: none; }
+[data-layers="phone"] { display: flex; }
+/* desktop + landscape phone (wide): show desktop 2/2/3, hide phone stack */
+@media (min-width: 769px), (orientation: landscape) {
+  [data-layers="desktop"] { display: flex; }
+  [data-layers="phone"] { display: none; }
+}
+/* nav: icon+label pills; phone shows a compact row */
+.slim-nav { display: inline-flex; align-items: center; gap: .3em; font-size: var(--type-small); color: var(--accent-dim); text-decoration: none; background: var(--surface); border: 1px solid var(--divider); border-radius: 16px; padding: .25em .7em; white-space: nowrap; }
+.slim-toggle { cursor: pointer; }
+.slim-toggle .nav-icon:last-child { display: none; }       /* show moon in light */
+[data-theme="dark"] .slim-toggle .nav-icon:first-child { display: none; }
+[data-theme="dark"] .slim-toggle .nav-icon:last-child { display: inline; } /* sun in dark */
+@media (max-width: 768px) and (orientation: portrait) {
+  .home-header { flex-direction: column; align-items: stretch; gap: var(--space-1); }
+  .slim-actions { justify-content: space-between; }
+  .slim-nav { flex: 1; justify-content: center; padding: .35em .2em; }
+  .nav-long { display: none; }  /* phone: short labels so 4 fit one row */
+  [data-layers="desktop"] { display: none; }  /* keep desktop set hidden in portrait (explicit, after the wide query so the guard test matches) */
+  [data-layers="phone"] { display: flex; }
+}
