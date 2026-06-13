@@ -12,6 +12,19 @@
 
 ---
 
+## Before you start (executor prerequisites — read this first)
+
+You are a fresh session with no prior context. Before touching code:
+
+- **Read** `docs/HANDOFF.md` (architecture, the exact **deploy** command + how to assemble `dist/`, the SW `SHELL_CACHE`/`SHELL_FILES` rule) and `docs/cr-rules.md` (the CR-ist review rules; the R2 anti-AI checklist lives in `docs/design.md`).
+- **Branch base:** this plan + the spec live on the **`ui-refresh-spec`** branch. Each milestone below branches off **`main`**. Either merge `ui-refresh-spec` into `main` first (it's docs-only), or read the plan via `git show ui-refresh-spec:docs/superpowers/plans/2026-06-13-ui-refresh.md` while working off `main`.
+- **Run + verify locally:** `node scripts/serve.mjs` serves the site and the `/img/` proxy (HANDOFF). Use the preview tooling to eyeball screens. Tests: `npm test`; lint: `npx eslint@9 --max-warnings=0 .` (must be 0 / 0).
+- **Per milestone:** build `dist/`, bump `sw.js` `SHELL_CACHE` + add any new module to `SHELL_FILES`, then PR → spawn the CR-ist (`Agent`, `subagent_type: crist`) → merge only on **APPROVED** → tag `v0.MN` → archive → deploy → verify live.
+- **Secrets (Milestone 6 only):** the MapTiler **key** and the **light/dark Hebrew style IDs** are intentionally NOT in the repo. Ask the owner for them and fill `src/config.js` at M6. (The key is a domain-restricted frontend key — safe to commit once provided.)
+- **Existing tests:** M2 replaces the home DOM — update any `country-list.test.mjs` assertions that reference the old `.country-card` / `.home-globe` / `.home-actions` structure. More generally, **read the current file before editing it** and match its established style; the view/CSS tasks give real snippets + the project's test patterns, not always a full file rewrite.
+
+---
+
 ## Conventions for every milestone
 
 - **Branch:** `git checkout -b mN-<slug>` off `main`.
