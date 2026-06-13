@@ -1408,3 +1408,17 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 /* Reverse the range slider so the trip START (value 0) sits on the RIGHT,
    matching the right-side start label and RTL reading direction. */
 .tl-slider { direction: rtl; }
+
+/* Slim header — shared across screens */
+.slim-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-3);
+  background: color-mix(in srgb, var(--bg) 85%, var(--surface));
+  border-bottom: 1px solid var(--divider);
+  padding: var(--space-2) var(--space-3);
+}
+.slim-title { font-size: var(--type-h1); font-weight: 700; margin: 0; white-space: nowrap; }
+.slim-sub { font-size: var(--type-small); font-weight: 300; color: var(--text-muted); margin-inline-start: var(--space-2); }
+.slim-back { display: block; font-size: var(--type-small); color: var(--accent-dim); text-decoration: none; }
+.slim-actions { display: flex; gap: var(--space-2); align-items: center; }
+.nav-icon { vertical-align: -0.12em; }
