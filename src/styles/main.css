@@ -552,15 +552,36 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 }
 .slideshow-zone-next { inset-inline-start: 0; }   /* left in RTL */
 .slideshow-zone-prev { inset-inline-end: 0; }      /* right in RTL */
-/* M5: ONE floating control row that OVERLAYS the bottom of the photo (so the
-   image fills the whole stage) and auto-hides after idle — in the windowed
-   viewer as well as fullscreen. main.js toggles .controls-visible from the
-   pure controls-timer predicate (windowedAutoHide:true). */
-.slideshow-bar {
+/* M5 + slideshow-ux #3: the control row AND the on-demand filmstrip live in ONE
+   bottom DOCK that overlays the photo and auto-hides after idle (windowed +
+   fullscreen). The filmstrip sits ABOVE the bar inside the dock, so it can never
+   collide with the (wrapping, multi-row on phone) control bar. main.js toggles
+   .controls-visible from the pure controls-timer predicate (windowedAutoHide). */
+.slideshow-dock {
   position: absolute;
   inset-inline: 0;
   bottom: 0;
   z-index: 2;
+  display: flex;
+  flex-direction: column;       /* filmstrip on top, bar below */
+  /* auto-hide default state; .controls-visible reveals it */
+  opacity: 0;
+  transform: translateY(100%);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.slideshow-shell.controls-visible .slideshow-dock {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  .slideshow-dock { transition: opacity 0.25s ease; }
+}
+/* Hide the cursor while the controls are hidden — immersive, both modes. */
+.slideshow-shell:not(.controls-visible) { cursor: none; }
+
+.slideshow-bar {
   display: flex;
   align-items: center;
   /* WRAP so every control stays visible on a narrow phone (M30 / ask #2):
@@ -578,22 +599,7 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   font-size: var(--type-small);
   /* keep clear of the iOS home indicator / notch */
   padding-bottom: max(var(--space-3), env(safe-area-inset-bottom));
-  /* auto-hide default state; .controls-visible reveals it */
-  opacity: 0;
-  transform: translateY(100%);
-  pointer-events: none;
-  transition: opacity 0.25s ease, transform 0.25s ease;
 }
-.slideshow-shell.controls-visible .slideshow-bar {
-  opacity: 1;
-  transform: none;
-  pointer-events: auto;
-}
-@media (prefers-reduced-motion: reduce) {
-  .slideshow-bar { transition: opacity 0.25s ease; }
-}
-/* Hide the cursor while the controls are hidden — immersive, both modes. */
-.slideshow-shell:not(.controls-visible) { cursor: none; }
 
 /* Control groups: visually cluster nav / config / actions within the one bar. */
 .slideshow-group {
@@ -641,22 +647,27 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .slideshow-strip-btn:focus-visible { color: #fff; }
 .slideshow-strip-btn[aria-expanded="true"] { color: var(--earth-ochre); }
 
-/* On-demand filmstrip: a horizontally-scrollable rail of the album's photos,
-   sitting just above the control bar (main.js populates it lazily on toggle). */
+/* On-demand filmstrip (slideshow-ux #2/#3/#4): a horizontally-scrollable rail of
+   the album's photos, full-width ABOVE the bar inside the dock. main.js builds
+   it lazily on toggle, persists open/closed across slide advances, and adds
+   drag-to-scroll. NO scrollbar — scroll by two-finger / drag / swipe instead. */
 .slideshow-filmstrip {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 4.5rem;
-  z-index: 2;
   display: flex;
   gap: var(--space-1);
+  width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
   padding: var(--space-2) var(--space-3);
   background: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
-  scrollbar-width: thin;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-x;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;                 /* Firefox: no scrollbar */
 }
+.slideshow-filmstrip::-webkit-scrollbar { display: none; }  /* WebKit/Blink: no scrollbar */
+.slideshow-filmstrip.is-dragging { cursor: grabbing; }
 .slideshow-filmstrip[hidden] { display: none; }
 .filmstrip-thumb {
   flex: 0 0 auto;
@@ -665,18 +676,17 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   height: 3rem;
   border-radius: 3px;
   overflow: hidden;
-  opacity: 0.6;
+  /* fully opaque — every thumbnail reads at full colour (slideshow-ux #4);
+     the current photo is marked only by the accent outline. */
   outline: 2px solid transparent;
-  transition: opacity 0.15s ease;
 }
-.filmstrip-thumb:hover,
-.filmstrip-thumb:focus-visible { opacity: 1; }
-.filmstrip-thumb.is-active { opacity: 1; outline-color: var(--earth-ochre); }
+.filmstrip-thumb.is-active { outline-color: var(--earth-ochre); }
 .filmstrip-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  -webkit-user-drag: none;
 }
 .slideshow-close {
   flex: 0 0 auto;

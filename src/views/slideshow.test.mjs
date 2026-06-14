@@ -14,6 +14,7 @@ const manifest = {
   albums: [
     { id: 1, name: '01. נפאל - קטמנדו', slug: 'bangkok-kathmandu', primary: 'np', countries: ['np'], photos: photos(5) },
     { id: 2, name: '02. ריק', slug: 'chitwan', primary: 'np', countries: ['np'], photos: [] },
+    { id: 3, name: '03. פוקרה', slug: 'pokhara-rafting', primary: 'np', countries: ['np'], photos: photos(3) },
   ],
 };
 
@@ -267,4 +268,54 @@ test('M5: the single bar still carries every existing control (no regression)', 
   ]) {
     assert.ok(html.includes(hook), `missing control: ${hook}`);
   }
+});
+
+// ── slideshow-ux #1: symmetric cross-album prev/next in continue mode ──
+test('uxfix1: continue at FIRST photo links prev → previous album LAST photo (wraps to last album)', () => {
+  // np order [1,2,3]; album 1 at idx 0, continue → prev wraps to album 3 (last),
+  // landing on ITS last photo (3 photos → idx 2).
+  const html = renderSlideshow({ manifest, id: '1', idx: '0', loopMode: 'continue' });
+  assert.match(html, /data-prev="\/nepal\/pokhara-rafting\/2"/);
+});
+
+test('uxfix1: continue at LAST photo links next → next album FIRST photo (unchanged)', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '4', loopMode: 'continue' });
+  assert.match(html, /data-next="\/nepal\/chitwan\/0"/);
+});
+
+test('uxfix1: back-and-forth across an album boundary is a deterministic round-trip', () => {
+  const m = {
+    countries: [{ code: 'np', he: 'נפאל', en: 'Nepal' }],
+    albums: [
+      { id: 1, name: 'A', slug: 'bangkok-kathmandu', primary: 'np', countries: ['np'], photos: photos(2) },
+      { id: 2, name: 'B', slug: 'chitwan', primary: 'np', countries: ['np'], photos: photos(2) },
+    ],
+  };
+  // B/0 --prev--> A/last(1)
+  assert.match(renderSlideshow({ manifest: m, id: '2', idx: '0', loopMode: 'continue' }),
+    /data-prev="\/nepal\/bangkok-kathmandu\/1"/);
+  // A/last(1) --next--> B/0  (returns exactly where we came from)
+  assert.match(renderSlideshow({ manifest: m, id: '1', idx: '1', loopMode: 'continue' }),
+    /data-next="\/nepal\/chitwan\/0"/);
+});
+
+// ── slideshow-ux #5: emit neighbour image URLs for preload + autoplay load-gate ──
+test('uxfix5: emits data-next-img / data-prev-img for the neighbour slides', () => {
+  // idx 2 of 5 → next photo p003, prev photo p001 (slide intent, phone → /520)
+  const html = renderSlideshow({ manifest, id: '1', idx: '2', viewport: 'phone' });
+  assert.match(html, /data-next-img="\/img\/p003\/520"/);
+  assert.match(html, /data-prev-img="\/img\/p001\/520"/);
+});
+
+test('uxfix5: continue at first photo preloads the previous album LAST photo', () => {
+  // album 1 at idx 0, continue → prev wraps to album 3 (pokhara, 3 photos) last = p002
+  const html = renderSlideshow({ manifest, id: '1', idx: '0', loopMode: 'continue', viewport: 'phone' });
+  assert.match(html, /data-prev-img="\/img\/p002\/520"/);
+});
+
+test('uxfix1: repeat mode (default) still wraps prev/next WITHIN the album', () => {
+  const atFirst = renderSlideshow({ manifest, id: '1', idx: '0', loopMode: 'repeat' });
+  assert.match(atFirst, /data-prev="\/nepal\/bangkok-kathmandu\/4"/); // same album last
+  const atLast = renderSlideshow({ manifest, id: '1', idx: '4', loopMode: 'repeat' });
+  assert.match(atLast, /data-next="\/nepal\/bangkok-kathmandu\/0"/); // same album first
 });

@@ -50,6 +50,21 @@ export function nextAlbumInCountry(manifest, countryCode, currentId) {
   return list[(i + 1) % list.length];
 }
 
+// The previous album before `currentId` within a country's ordered list — the
+// mirror of nextAlbumInCountry, also WRAPPING (slideshow-ux #1, "continue"
+// mode going backwards). At the FIRST album it wraps round to the LAST so a
+// back-and-forth across album boundaries is a deterministic round-trip. Returns
+// the previous album object, or null if the country has 0/1 albums or the
+// current id isn't in it.
+export function prevAlbumInCountry(manifest, countryCode, currentId) {
+  const list = albumsForCountry(manifest, countryCode);
+  if (list.length <= 1) return null;
+  const numId = typeof currentId === 'number' ? currentId : Number.parseInt(currentId, 10);
+  const i = list.findIndex((a) => a.id === numId);
+  if (i === -1) return null;
+  return list[(i - 1 + list.length) % list.length];
+}
+
 // The next album after `currentId` within a country's ordered list, WITHOUT
 // wrapping (M55 / #6). Returns the next album, or null when `currentId` is the
 // LAST album in the country (or the country/id is unknown). Used for the
