@@ -13,7 +13,7 @@ import { transitionClass, transitionLabel } from '../lib/slideshow-transition.js
 import { shareMenuHTML } from '../lib/share-menu.js';
 import { formatHebrewDate, hebrewWeekday, formatClock } from '../lib/photo-date.js';
 import { COUNTRIES } from '../lib/countries.js';
-import { albumPath } from '../lib/paths.js';
+import { albumPath, countryPath } from '../lib/paths.js';
 
 const COUNTRY_HE = new Map(COUNTRIES.map((c) => [c.code, c.he]));
 
@@ -49,7 +49,7 @@ function infoPanel(album, photo) {
 
 export function renderRandomShow({
   manifest, item, scope, autoplay = false, speed = 4000, dpr = 1, viewport = 'phone',
-  transition = 'fade', error, exitHref = '/',
+  transition = 'fade', error, exitHref = '/', nextImg = '', prevImg = '',
 }) {
   if (error) {
     return `<div class="slideshow-shell">${errorHTML('לא הצלחנו לטעון את התמונות. נסו לרענן.')}</div>`;
@@ -72,13 +72,18 @@ export function renderRandomShow({
   const playLabel = autoplay ? 'השהיית מצגת' : 'הפעלת מצגת';
   const downloadHref = imageUrl(photo.id, 'download');
   // The bar shows the source album (links to it) since a random photo's
-  // position has no meaning.
+  // position has no meaning. For "random all", a country button precedes it so
+  // you can see WHERE the current photo is from (slideshow-ux-2 #6).
   const albumTitle = album.title ?? albumPlace(album.name);
   const albumHref = albumPath(album.primary, album.slug);
+  const countryHe = COUNTRY_HE.get(album.primary);
+  const countryBtn = (scope === 'all' && countryHe)
+    ? `<a class="slideshow-place-btn slideshow-country" href="${countryPath(album.primary)}">${escapeHTML(countryHe)}</a>`
+    : '';
 
   return `
     <div class="slideshow-shell ${transitionClass(transition)}" data-slideshow data-random="${escapeHTML(scope)}"
-         data-exit="${escapeHTML(exitHref)}"
+         data-exit="${escapeHTML(exitHref)}" data-next-img="${escapeHTML(nextImg)}" data-prev-img="${escapeHTML(prevImg)}"
          data-autoplay-on="${autoplay ? 'true' : 'false'}" data-speed="${speed}"
          data-transition="${escapeHTML(transition)}" style="--kb-dwell:${speed}ms">
       <div class="slideshow-stage">
@@ -101,7 +106,8 @@ export function renderRandomShow({
            aria-label="הורדת התמונה המקורית">⬇</a>
         ${shareMenuHTML()}
         ${infoPanel(album, photo)}
-        <a class="slideshow-title" href="${albumHref}">${escapeHTML(albumTitle)}</a>
+        ${countryBtn}
+        <a class="slideshow-place-btn slideshow-title" href="${albumHref}">${escapeHTML(albumTitle)}</a>
         </div>
       </div>
     </div>

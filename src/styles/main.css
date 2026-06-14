@@ -679,6 +679,7 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   /* fully opaque — every thumbnail reads at full colour (slideshow-ux #4);
      the current photo is marked only by the accent outline. */
   outline: 2px solid transparent;
+  -webkit-user-drag: none;   /* drag scrolls the rail, not a ghost image (#2b) */
 }
 .filmstrip-thumb.is-active { outline-color: var(--earth-ochre); }
 .filmstrip-thumb img {
@@ -886,14 +887,27 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   font-variant-numeric: tabular-nums;
   opacity: 0.85;
 }
-.slideshow-title {
-  flex: 1 1 auto;
+/* Random-viewer place buttons (slideshow-ux-2 #6): album name (+ country name
+   for "random all") as VISIBLE pills with a background, so they read over a
+   bright photo instead of disappearing as bare light text. */
+.slideshow-place-btn {
+  flex: 0 1 auto;
+  max-width: 42vw;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  opacity: 0.7;
-  text-align: start;
+  color: #f2ece2;
+  text-decoration: none;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(242, 236, 226, 0.25);
+  border-radius: 16px;
+  padding: 0.35em 0.8em;
+  font-size: var(--type-small);
+  line-height: 1.2;
 }
+.slideshow-place-btn:hover,
+.slideshow-place-btn:focus-visible { background: rgba(0, 0, 0, 0.65); color: #fff; }
+.slideshow-country { font-weight: 500; }
 
 /* ── Map view (M18) ─────────────────────────────────────────── */
 .map-page {
