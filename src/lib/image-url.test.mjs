@@ -30,6 +30,18 @@ test('card intent caps at 720 even at DPR 3', () => {
   assert.equal(imageUrl('abc', 'card', { dpr: 3 }), '/img/abc/720');
 });
 
+test('hero intent: /720 at DPR 1 (large desktop home tile — crisp, not upscaled)', () => {
+  assert.equal(imageUrl('abc', 'hero'), '/img/abc/720');
+});
+
+test('hero intent: /1440 at DPR 2', () => {
+  assert.equal(imageUrl('abc', 'hero', { dpr: 2 }), '/img/abc/1440');
+});
+
+test('hero intent caps at 1440 even at DPR 3', () => {
+  assert.equal(imageUrl('abc', 'hero', { dpr: 3 }), '/img/abc/1440');
+});
+
 test('pin intent: /120 default', () => {
   assert.equal(imageUrl('xyz', 'pin'), '/img/xyz/120');
 });
