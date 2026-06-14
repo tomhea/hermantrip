@@ -1433,7 +1433,6 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 }
 .home-layers { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); min-height: 0; }
 .home-layer { flex: 1; display: flex; gap: var(--space-1); min-height: 0; }
-.home-layer[data-finale] { flex: 1.5; }
 
 .country-tile {
   flex: 1; position: relative; min-width: 0; border-radius: 6px; overflow: hidden;
@@ -1441,8 +1440,8 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   display: block;
 }
 .country-tile-scrim { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(20,18,15,.62), rgba(20,18,15,0) 58%); }
-.country-tile-name { position: absolute; bottom: var(--space-2); inset-inline-end: var(--space-2); color: #fff; font-weight: 700; font-size: var(--type-h2); text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; }
-.country-tile-count { position: absolute; bottom: var(--space-1); inset-inline-end: var(--space-2); color: #fff; font-size: var(--type-small); font-weight: 300; text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; opacity: 0; transition: opacity .15s; }
+.country-tile-name { position: absolute; bottom: var(--space-2); inset-inline-start: var(--space-2); color: #fff; font-weight: 700; font-size: var(--type-h2); text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; }
+.country-tile-count { position: absolute; bottom: var(--space-1); inset-inline-start: var(--space-2); color: #fff; font-size: var(--type-small); font-weight: 300; text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; opacity: 0; transition: opacity .15s; }
 .country-tile:hover .country-tile-count, .country-tile:focus-within .country-tile-count { opacity: .95; }
 
 /* default (phone portrait): show phone layers, hide desktop */
@@ -1477,3 +1476,28 @@ main#app:has(.home-fit) {
 }
 main#app:has(.home-fit) .home-header { margin: 0; flex: 0 0 auto; }
 main#app:has(.home-fit) .home-fit { flex: 1 1 auto; height: auto; }
+
+/* Home bento mosaic (desktop / landscape) — varied tile sizes in trip order.
+   Tiles are emitted np,in,vn,cn,au,nz,th; nth-child maps each to a named area.
+   In RTL the first area column renders on the right, so np (the hero, 2x2) sits
+   top-right and the flow reads right->left, top->bottom. */
+.home-bento {
+  gap: var(--space-1);
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-areas:
+    "np np in vn"
+    "np np cn au"
+    "nz th th au";
+}
+.home-bento .country-tile { flex: none; min-width: 0; min-height: 0; }
+.home-bento .country-tile:nth-child(1) { grid-area: np; }
+.home-bento .country-tile:nth-child(2) { grid-area: in; }
+.home-bento .country-tile:nth-child(3) { grid-area: vn; }
+.home-bento .country-tile:nth-child(4) { grid-area: cn; }
+.home-bento .country-tile:nth-child(5) { grid-area: au; }
+.home-bento .country-tile:nth-child(6) { grid-area: nz; }
+.home-bento .country-tile:nth-child(7) { grid-area: th; }
+@media (min-width: 769px), (orientation: landscape) {
+  .home-bento[data-layers="desktop"] { display: grid; flex: 1 1 auto; min-height: 0; }
+}
