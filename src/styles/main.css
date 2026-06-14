@@ -1431,8 +1431,9 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   display: flex; flex-direction: column;
   padding: var(--space-1); gap: var(--space-1);
 }
-.home-layers { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); min-height: 0; }
-.home-layer { flex: 1; display: flex; gap: var(--space-1); min-height: 0; }
+/* The trip's 4 parts (np·in / vn·cn / au·nz / th); each part is a row of tiles. */
+.home-part { display: flex; gap: var(--space-1); min-width: 0; min-height: 0; }
+.home-part .country-tile { flex: 1; }
 
 .country-tile {
   flex: 1; position: relative; min-width: 0; border-radius: 6px; overflow: hidden;
@@ -1440,17 +1441,25 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   display: block;
 }
 .country-tile-scrim { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(20,18,15,.62), rgba(20,18,15,0) 58%); }
-.country-tile-name { position: absolute; bottom: var(--space-2); inset-inline-start: var(--space-2); color: #fff; font-weight: 700; font-size: var(--type-h2); text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; }
-.country-tile-count { position: absolute; bottom: var(--space-1); inset-inline-start: var(--space-2); color: #fff; font-size: var(--type-small); font-weight: 300; text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; opacity: 0; transition: opacity .15s; }
+.country-tile-name { position: absolute; bottom: var(--space-2); inset-inline-start: var(--space-2); color: #fff; font-weight: 700; font-size: var(--type-h2); text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; transition: bottom .15s ease; }
+.country-tile-count { position: absolute; bottom: var(--space-2); inset-inline-start: var(--space-2); color: #fff; font-size: var(--type-small); font-weight: 300; text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; opacity: 0; transition: opacity .15s; }
+/* on hover the count fades in at the bottom and the name lifts ~one line up so they never collide */
+.country-tile:hover .country-tile-name, .country-tile:focus-within .country-tile-name { bottom: calc(var(--space-2) + 1.35em); }
 .country-tile:hover .country-tile-count, .country-tile:focus-within .country-tile-count { opacity: .95; }
 
-/* default (phone portrait): show phone layers, hide desktop */
+/* default (phone portrait): show the phone stack, hide the desktop grid */
 [data-layers="desktop"] { display: none; }
 [data-layers="phone"] { display: flex; }
-/* desktop + landscape phone (wide): show desktop 2/2/3, hide phone stack */
+.home-parts[data-layers="phone"] { flex: 1; flex-direction: column; gap: var(--space-1); min-height: 0; }
+.home-parts[data-layers="phone"] .home-part { flex: 1; }
+/* desktop + landscape phone (wide): show the 2x2 parts grid, hide the phone stack */
 @media (min-width: 769px), (orientation: landscape) {
-  [data-layers="desktop"] { display: flex; }
   [data-layers="phone"] { display: none; }
+  .home-parts[data-layers="desktop"] {
+    display: grid; flex: 1 1 auto; min-height: 0;
+    grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: var(--space-2);
+  }
+  .home-parts[data-layers="desktop"] .home-part { min-height: 0; }
 }
 /* nav: icon+label pills; phone shows a compact row */
 .slim-nav { display: inline-flex; align-items: center; gap: .3em; font-size: var(--type-small); color: var(--accent-dim); text-decoration: none; background: var(--surface); border: 1px solid var(--divider); border-radius: 16px; padding: .25em .7em; white-space: nowrap; }
@@ -1477,27 +1486,3 @@ main#app:has(.home-fit) {
 main#app:has(.home-fit) .home-header { margin: 0; flex: 0 0 auto; }
 main#app:has(.home-fit) .home-fit { flex: 1 1 auto; height: auto; }
 
-/* Home bento mosaic (desktop / landscape) — varied tile sizes in trip order.
-   Tiles are emitted np,in,vn,cn,au,nz,th; nth-child maps each to a named area.
-   In RTL the first area column renders on the right, so np (the hero, 2x2) sits
-   top-right and the flow reads right->left, top->bottom. */
-.home-bento {
-  gap: var(--space-1);
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  grid-template-areas:
-    "np np in vn"
-    "np np cn au"
-    "nz th th au";
-}
-.home-bento .country-tile { flex: none; min-width: 0; min-height: 0; }
-.home-bento .country-tile:nth-child(1) { grid-area: np; }
-.home-bento .country-tile:nth-child(2) { grid-area: in; }
-.home-bento .country-tile:nth-child(3) { grid-area: vn; }
-.home-bento .country-tile:nth-child(4) { grid-area: cn; }
-.home-bento .country-tile:nth-child(5) { grid-area: au; }
-.home-bento .country-tile:nth-child(6) { grid-area: nz; }
-.home-bento .country-tile:nth-child(7) { grid-area: th; }
-@media (min-width: 769px), (orientation: landscape) {
-  .home-bento[data-layers="desktop"] { display: grid; flex: 1 1 auto; min-height: 0; }
-}

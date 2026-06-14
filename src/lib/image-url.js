@@ -26,6 +26,7 @@ const FILE_ID_RE = /^[A-Za-z0-9_-]+$/;
 const INTENTS = {
   thumb:    { base: 140, cap: 280 },
   card:     { base: 360, cap: 720 },
+  hero:     { base: 720, cap: 1440 },  // large desktop home tiles (~360-720px CSS, DPR-aware)
   pin:      { base: 120, cap: 240 },
   slidePhone:   { base: 520, cap: 1080 },
   slideTablet:  { base: 760, cap: 1520 },

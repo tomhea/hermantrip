@@ -40,12 +40,12 @@ test('home renders desktop + phone layer sets (both present; CSS shows one)', ()
   assert.match(html, /data-layers="phone"/);
 });
 
-test('the desktop set is a bento mosaic with all 7 tiles', () => {
+test('the desktop set groups the trip into 4 parts (np·in / vn·cn / au·nz / th)', () => {
   const html = renderCountryList({ manifest, dpr: 1 });
-  assert.match(html, /class="home-bento" data-layers="desktop"/);
-  const bento = html.slice(html.indexOf('home-bento'));
-  const tilesInBento = (bento.slice(0, bento.indexOf('data-layers="phone"')).match(/class="country-tile"/g) || []).length;
-  assert.equal(tilesInBento, 7);
+  assert.match(html, /class="home-parts" data-layers="desktop"/);
+  const desktop = html.slice(html.indexOf('data-layers="desktop"'), html.indexOf('data-layers="phone"'));
+  assert.equal((desktop.match(/class="home-part"/g) || []).length, 4); // the 4 logical parts
+  assert.equal((desktop.match(/class="country-tile"/g) || []).length, 7);
 });
 
 test('nav uses the icon set + a theme toggle', () => {
@@ -66,10 +66,10 @@ test('tiles link to each country page in trip order', () => {
   assert.ok(html.indexOf('/nepal') < html.indexOf('/thailand'));
 });
 
-test('photo tiles use the curated hero photo via the /img/ proxy (never raw Google URL)', () => {
+test('desktop tiles use the curated hero photo at the larger hero size (720, crisp — not the 360 card upscaled)', () => {
   const html = renderCountryList({ manifest, dpr: 1 });
   const np = heroPhotoId('np');
-  assert.match(html, new RegExp(`background-image:url\\('/img/${np}/360'\\)`));
+  assert.match(html, new RegExp(`background-image:url\\('/img/${np}/720'\\)`)); // 'hero' intent on desktop
   assert.equal(/googleusercontent|drive\.google/.test(html), false);
 });
 
@@ -79,15 +79,15 @@ test('the hero override beats the auto-pick (uses the chosen id, not album photo
   assert.equal(html.includes('/img/photo-np/'), false);
 });
 
-test('DPR is passed through to the tile background image', () => {
+test('DPR is passed through (desktop hero → 1440 at DPR2)', () => {
   const html = renderCountryList({ manifest, dpr: 2 });
-  assert.match(html, new RegExp(`background-image:url\\('/img/${heroPhotoId('np')}/720'\\)`));
+  assert.match(html, new RegExp(`background-image:url\\('/img/${heroPhotoId('np')}/1440'\\)`));
 });
 
 test('every country renders its own curated hero photo', () => {
   const html = renderCountryList({ manifest, dpr: 1 });
   for (const code of ['np', 'in', 'vn', 'cn', 'au', 'nz', 'th']) {
-    assert.match(html, new RegExp(`/img/${heroPhotoId(code)}/360`), `${code} hero missing`);
+    assert.match(html, new RegExp(`/img/${heroPhotoId(code)}/\\d`), `${code} hero missing`);
   }
 });
 
