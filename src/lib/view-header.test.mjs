@@ -10,6 +10,11 @@ test('renders title + inline subtitle on the right', () => {
   assert.match(html, /6 אלבומים · 849/);
 });
 
+test('subtitleHTML is inserted raw inside .slim-sub (caller-trusted, for structured subtitles)', () => {
+  const html = viewHeader({ title: 'x', subtitleHTML: '<span class="sub-count">5 · </span><span class="sub-dates">May</span>' });
+  assert.match(html, /<span class="slim-sub"><span class="sub-count">5 · <\/span><span class="sub-dates">May<\/span><\/span>/);
+});
+
 test('renders a back link top-right when back is given', () => {
   const html = viewHeader({ title: 'נפאל', back: { href: '/', label: 'דף הבית' } });
   assert.match(html, /class="slim-back"[^>]*href="\/"/);
