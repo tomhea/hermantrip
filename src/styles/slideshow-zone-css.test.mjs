@@ -46,3 +46,9 @@ test('.slideshow-zone suppresses the iOS long-press callout', () => {
 test('.slideshow-zone is not text-selectable (no long-press selection)', () => {
   assert.match(zoneRuleBody(), /user-select:\s*none/);
 });
+
+// slideshow-ux-3 #1 — each side tap-zone is 25% wide, leaving a neutral middle
+// 50% that doesn't navigate (was 40%, which made the middle too easy to misfire).
+test('.slideshow-zone is 25% wide (neutral middle 50%)', () => {
+  assert.match(zoneRuleBody(), /width:\s*25%/);
+});
