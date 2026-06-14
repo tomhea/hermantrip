@@ -227,3 +227,44 @@ test('M44: loop button has a title tooltip + glyph wrapped for mirroring (#7)', 
   const cont = renderSlideshow({ manifest, id: '1', idx: '2', loopMode: 'continue' });
   assert.match(cont, /title="ממשיך לאלבום הבא"/);
 });
+
+// ── M5: single grouped control row + on-demand filmstrip ─────────────
+test('M5: exactly ONE control row (.slideshow-bar)', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2' });
+  const count = (html.match(/class="slideshow-bar"/g) || []).length;
+  assert.equal(count, 1);
+});
+
+test('M5: controls are organised into logical groups', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2' });
+  assert.match(html, /class="slideshow-group/);
+});
+
+test('M5: prev/next nav buttons in the bar link to the neighbour slides', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2' });
+  assert.match(html, /class="slideshow-nav-btn slideshow-nav-prev"[^>]*href="\/nepal\/bangkok-kathmandu\/1"/);
+  assert.match(html, /class="slideshow-nav-btn slideshow-nav-next"[^>]*href="\/nepal\/bangkok-kathmandu\/3"/);
+});
+
+test('M5: filmstrip toggle button present', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2' });
+  assert.match(html, /data-filmstrip-toggle/);
+  assert.match(html, /aria-expanded="false"/); // collapsed by default
+});
+
+test('M5: a hidden filmstrip container is rendered (populated by main.js)', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2' });
+  assert.match(html, /class="slideshow-filmstrip"[^>]*\bhidden\b/);
+  assert.match(html, /data-filmstrip\b/);
+});
+
+test('M5: the single bar still carries every existing control (no regression)', () => {
+  const html = renderSlideshow({ manifest, id: '1', idx: '2' });
+  for (const hook of [
+    'slideshow-close', 'data-autoplay-toggle', 'data-speed-toggle',
+    'data-transition-toggle', 'data-loop-toggle', 'data-fullscreen-toggle',
+    'slideshow-dl', 'slideshow-share', 'slideshow-info', 'slideshow-counter',
+  ]) {
+    assert.ok(html.includes(hook), `missing control: ${hook}`);
+  }
+});

@@ -45,4 +45,24 @@ test.describe('controlsVisible', () => {
   test('fullscreen + hovering bar → visible even when idle', () => {
     assert.equal(controlsVisible({ fullscreen: true, lastActivityAt: 0, now: 999999, hoveringBar: true }), true);
   });
+
+  // M5: the windowed (non-fullscreen) viewer can also auto-hide its floating
+  // bar when windowedAutoHide is opted in. The flag DEFAULTS to false so every
+  // pre-M5 caller (and the test cases above) keep the "constant bar" behaviour.
+  test('M5: windowed + windowedAutoHide off (default) → always visible', () => {
+    assert.equal(controlsVisible({ fullscreen: false, lastActivityAt: 0, now: 999999, windowedAutoHide: false }), true);
+  });
+  test('M5: windowed + windowedAutoHide on + recent activity → visible', () => {
+    assert.equal(controlsVisible({ fullscreen: false, lastActivityAt: 1000, now: 3000, windowedAutoHide: true }), true);
+  });
+  test('M5: windowed + windowedAutoHide on + idle past window → hidden', () => {
+    assert.equal(controlsVisible({ fullscreen: false, lastActivityAt: 0, now: 5000, windowedAutoHide: true }), false);
+  });
+  test('M5: windowed + windowedAutoHide on + hovering bar → visible even when idle', () => {
+    assert.equal(controlsVisible({ fullscreen: false, lastActivityAt: 0, now: 999999, hoveringBar: true, windowedAutoHide: true }), true);
+  });
+  test('M5: fullscreen path is unaffected by windowedAutoHide', () => {
+    assert.equal(controlsVisible({ fullscreen: true, lastActivityAt: 0, now: 5000, windowedAutoHide: true }), false);
+    assert.equal(controlsVisible({ fullscreen: true, lastActivityAt: 1000, now: 3000, windowedAutoHide: false }), true);
+  });
 });

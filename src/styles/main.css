@@ -469,7 +469,12 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: #14110e;          /* deep near-black so the photo reads */
+  /* M5: the stage is ALWAYS the warm charcoal, in both themes — a photo
+     viewer wants a neutral dark surround regardless of the site theme. The
+     local --stage override beats the light/dark token so the slideshow never
+     turns paper-white in light mode. */
+  --stage: #211e1b;
+  background: var(--stage);
   display: flex;
   flex-direction: column;
 }
@@ -547,49 +552,132 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 }
 .slideshow-zone-next { inset-inline-start: 0; }   /* left in RTL */
 .slideshow-zone-prev { inset-inline-end: 0; }      /* right in RTL */
-/* Default (NOT fullscreen): the bar is CONSTANT — in normal flow below the
-   photo, always visible (M11). */
+/* M5: ONE floating control row that OVERLAYS the bottom of the photo (so the
+   image fills the whole stage) and auto-hides after idle — in the windowed
+   viewer as well as fullscreen. main.js toggles .controls-visible from the
+   pure controls-timer predicate (windowedAutoHide:true). */
 .slideshow-bar {
-  flex: 0 0 auto;
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   /* WRAP so every control stays visible on a narrow phone (M30 / ask #2):
-     7 controls today, 9 after the transition + loop toggles land — a single
-     non-wrapping row overflowed and clipped the end buttons on a 390px
-     portrait screen. Wrapping reflows them onto a second centred row and
-     keeps each ≥44px touch target intact. On ≥600px the row has room and
-     never wraps. */
+     the control GROUPS reflow onto a second centred row rather than clipping
+     the end buttons on a ~390px portrait screen, each ≥44px touch target
+     intact. On ≥600px the row has room and never wraps. */
   flex-wrap: wrap;
   justify-content: center;
   gap: var(--space-2) var(--space-3);
   padding: var(--space-3) var(--space-3);
   color: #f2ece2;
-  background: rgba(0, 0, 0, 0.35);
+  /* plain gradient scrim (design.md: no blur/glassmorphism) so controls read
+     over bright photos. */
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0));
   font-size: var(--type-small);
   /* keep clear of the iOS home indicator / notch */
   padding-bottom: max(var(--space-3), env(safe-area-inset-bottom));
-}
-/* Fullscreen: the bar OVERLAYS the photo (so the image fills the screen) and
-   auto-hides — main.js toggles .is-fullscreen + .controls-visible. */
-.slideshow-shell.is-fullscreen .slideshow-bar {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  z-index: 2;
-  /* scrim so controls read over bright photos */
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
+  /* auto-hide default state; .controls-visible reveals it */
   opacity: 0;
   transform: translateY(100%);
   pointer-events: none;
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
-.slideshow-shell.is-fullscreen.controls-visible .slideshow-bar {
+.slideshow-shell.controls-visible .slideshow-bar {
   opacity: 1;
   transform: none;
   pointer-events: auto;
 }
-/* Hide the cursor only while fullscreen AND controls hidden — immersive. */
-.slideshow-shell.is-fullscreen:not(.controls-visible) { cursor: none; }
+@media (prefers-reduced-motion: reduce) {
+  .slideshow-bar { transition: opacity 0.25s ease; }
+}
+/* Hide the cursor while the controls are hidden — immersive, both modes. */
+.slideshow-shell:not(.controls-visible) { cursor: none; }
+
+/* Control groups: visually cluster nav / config / actions within the one bar. */
+.slideshow-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.slideshow-nav-btn {
+  flex: 0 0 auto;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: none;
+  color: #f2ece2;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  width: 2.75rem;               /* ≥44px touch target */
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.slideshow-nav-btn:hover,
+.slideshow-nav-btn:focus-visible { color: #fff; }
+.slideshow-strip-btn {
+  flex: 0 0 auto;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: none;
+  color: #f2ece2;
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  min-width: 2.5rem;
+  height: 2.75rem;             /* ≥44px touch target */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family);
+}
+.slideshow-strip-btn:hover,
+.slideshow-strip-btn:focus-visible { color: #fff; }
+.slideshow-strip-btn[aria-expanded="true"] { color: var(--earth-ochre); }
+
+/* On-demand filmstrip: a horizontally-scrollable rail of the album's photos,
+   sitting just above the control bar (main.js populates it lazily on toggle). */
+.slideshow-filmstrip {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 4.5rem;
+  z-index: 2;
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: var(--space-2) var(--space-3);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+.slideshow-filmstrip[hidden] { display: none; }
+.filmstrip-thumb {
+  flex: 0 0 auto;
+  display: block;
+  width: 4.5rem;
+  height: 3rem;
+  border-radius: 3px;
+  overflow: hidden;
+  opacity: 0.6;
+  outline: 2px solid transparent;
+  transition: opacity 0.15s ease;
+}
+.filmstrip-thumb:hover,
+.filmstrip-thumb:focus-visible { opacity: 1; }
+.filmstrip-thumb.is-active { opacity: 1; outline-color: var(--earth-ochre); }
+.filmstrip-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .slideshow-close {
   flex: 0 0 auto;
   color: #f2ece2;
