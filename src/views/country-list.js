@@ -37,12 +37,15 @@ function navHTML() {
   `;
 }
 
-function tile(country, manifest, dpr, intent) {
+function tile(country, manifest, dpr) {
   // Prefer the hand-picked hero photo (M63.1); fall back to the auto-pick.
   const heroId = heroPhotoId(country.code);
   const thumb = heroId ? { id: heroId } : pickCountryThumb(manifest, country.code);
+  // Paint the tiny thumb instantly; main.js progressively upgrades it (thumb →
+  // card → hero, hero skipped on phones) using data-img-id (M63.3). Colour
+  // fallback when the country has no photo at all.
   const bg = thumb
-    ? `style="background-image:url('${imageUrl(thumb.id, intent, { dpr })}')"`
+    ? `style="background-image:url('${imageUrl(thumb.id, 'thumb', { dpr })}')" data-img-id="${thumb.id}"`
     : `style="background:${countryColor(country.code)}"`;
   const total = manifest.albums
     .filter((a) => a.countries.includes(country.code))
@@ -58,11 +61,9 @@ function tile(country, manifest, dpr, intent) {
 // Both layouts share one structure: the trip's 4 parts (np·in / vn·cn / au·nz /
 // th), each a row of its country tiles, in trip order. CSS arranges the parts as
 // a 2x2 grid on desktop/landscape (each part a quadrant, clear RTL order) and as
-// a vertical 2/2/2/1 stack on phone-portrait. Desktop tiles use the larger
-// 'hero' image intent (crisp big tiles); phone uses 'card'. Only the visible set
-// loads its images (the hidden one is display:none).
+// a vertical 2/2/2/1 stack on phone-portrait. Every tile starts as a small thumb
+// and is upgraded by main.js (phones stop at card; desktop reaches hero).
 function partsHTML(manifest, dpr, mode) {
-  const intent = mode === 'desktop' ? 'hero' : 'card';
   const byCode = new Map(manifest.countries.map((c) => [c.code, c]));
   const ordered = COUNTRY_ORDER.filter((code) => byCode.has(code));
   const parts = homeLayers(ordered, 'phone'); // [[np,in],[vn,cn],[au,nz],[th]]
@@ -70,7 +71,7 @@ function partsHTML(manifest, dpr, mode) {
     parts.map((part) => {
       const tiles = part
         .filter((code) => byCode.has(code))
-        .map((code) => tile(byCode.get(code), manifest, dpr, intent))
+        .map((code) => tile(byCode.get(code), manifest, dpr))
         .join('');
       return tiles ? `<div class="home-part">${tiles}</div>` : '';
     }).join('')
