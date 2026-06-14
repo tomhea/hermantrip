@@ -239,6 +239,10 @@ let autoplayTimer = null;
 let autoplaySpeed = 4000; // ms between auto-advances; cycled by the speed button
 let slideTransition = DEFAULT_TRANSITION; // entry animation, cycled by the transition button (M31)
 let slideLoopMode = DEFAULT_LOOP; // 'repeat' | 'continue', cycled by the loop button (M32)
+// M5: true while the previous render was a slideshow. Lets render() reveal the
+// floating bar on FRESH entry (reset the idle clock) without resetting it on
+// every slide-to-slide advance (which would re-pin the bar during autoplay).
+let lastRenderInSlideshow = false;
 
 // Persist the slideshow config picks (speed / transition / loop) across
 // sessions (M32 / ask #4). localStorage access lives here in the wiring layer
@@ -460,6 +464,7 @@ function wireSlideshow() {
 
   wireShare(shell);
   wireInfoSize(shell);
+  wireFilmstrip(shell);
   wireControls(shell);
 
   // (Re)schedule the auto-advance while autoplay is on. Each slide render
@@ -568,11 +573,52 @@ function wireShare(shell) {
   });
 }
 
-// Control-bar visibility (M10 + M11).
-//   - NOT fullscreen: the bar is CONSTANT (always shown, below the photo).
-//   - Fullscreen: the bar auto-hides CONTROLS_HIDE_MS after the LAST REAL
-//     pointer activity (mouse move / tap / hovering the bar) — crucially NOT
-//     reset by slide re-renders, so autoplay no longer keeps it pinned on.
+// On-demand filmstrip (M5). The view ships an empty hidden `.slideshow-filmstrip`;
+// the toggle reveals it and we build the album's thumbnail rail lazily on the
+// first open (so a big album doesn't pay for thumbnails nobody asked for). Each
+// thumb is a plain <a href> to its slide — the global link handler does the SPA
+// nav. Album slideshow only; the random viewer has no per-album order.
+function wireFilmstrip(shell) {
+  const toggle = shell.querySelector('[data-filmstrip-toggle]');
+  const strip = shell.querySelector('[data-filmstrip]');
+  if (!toggle || !strip) return;
+  let built = false;
+  toggle.addEventListener('click', () => {
+    const show = strip.hidden;
+    strip.hidden = !show;
+    toggle.setAttribute('aria-expanded', show ? 'true' : 'false');
+    if (show && !built) { buildFilmstrip(strip); built = true; }
+    if (show) noteActivity(); // keep the bar alive while the rail is open
+  });
+}
+
+function buildFilmstrip(strip) {
+  const match = router.match(currentPath());
+  if (!match || match.name !== 'slide' || !manifest) return;
+  const code = codeFromSlug(match.params.country);
+  const res = albumBySlug(manifest, code, match.params.album);
+  if (!res) return;
+  const album = res.album;
+  const photos = sortPhotosByDate(album.photos);
+  if (photos.length === 0) return;
+  const navCode = code || album.primary;
+  const cur = Math.max(0, Math.min(photos.length - 1, Number.parseInt(match.params.idx, 10) || 0));
+  strip.innerHTML = photos.map((p, idx) => {
+    const u = imageUrl(p.id, 'thumb', { dpr: dpr() });
+    const href = slidePath(navCode, album.slug, idx);
+    const active = idx === cur ? ' is-active' : '';
+    return `<a class="filmstrip-thumb${active}" href="${href}" aria-label="תמונה ${idx + 1}" aria-current="${idx === cur ? 'true' : 'false'}"><img src="${u}" alt="" loading="lazy" decoding="async" onerror="this.closest('.filmstrip-thumb').classList.add('photo-broken')"></a>`;
+  }).join('');
+  const activeEl = strip.querySelector('.filmstrip-thumb.is-active');
+  if (activeEl) activeEl.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+
+// Control-bar visibility (M10 + M11 + M5).
+//   - The floating bar auto-hides CONTROLS_HIDE_MS after the LAST REAL pointer
+//     activity (mouse move / tap / hovering the bar) — in BOTH the windowed and
+//     fullscreen viewers (M5: windowedAutoHide:true). It's crucially NOT reset
+//     by slide re-renders, so autoplay no longer keeps it pinned on; render()
+//     reveals it once on fresh slideshow entry.
 // Activity state lives at module scope so it persists across the innerHTML
 // re-render that every slide advance performs.
 let lastPointerActivityAt = 0;
@@ -586,12 +632,13 @@ function applyControls() {
   shell.classList.toggle('is-fullscreen', fs);
   const vis = controlsVisible({
     fullscreen: fs, lastActivityAt: lastPointerActivityAt,
-    now: performance.now(), hoveringBar,
+    now: performance.now(), hoveringBar, windowedAutoHide: true,
   });
   shell.classList.toggle('controls-visible', vis);
-  // While fullscreen + visible, keep polling so it hides once idle elapses.
+  // While the bar is visible, keep polling so it hides once idle elapses
+  // (windowed too now). When hidden, polling stops; pointer activity restarts it.
   if (controlsPollTimer !== null) { clearTimeout(controlsPollTimer); controlsPollTimer = null; }
-  if (fs && vis) controlsPollTimer = setTimeout(applyControls, 400);
+  if (vis) controlsPollTimer = setTimeout(applyControls, 400);
 }
 
 function noteActivity() {
@@ -608,8 +655,8 @@ function wireControls(shell) {
     bar.addEventListener('mouseleave', () => { hoveringBar = false; noteActivity(); });
   }
   // Apply persisted state to this freshly-rendered shell WITHOUT resetting
-  // the activity clock (the bug fix). In non-fullscreen this shows the
-  // constant bar; in fullscreen it respects time since the last real move.
+  // the activity clock (the bug fix) — render() already revealed it on fresh
+  // entry; here we just respect the time since the last real move.
   applyControls();
 }
 
@@ -1389,6 +1436,11 @@ function render() {
   // slideshow entirely turns autoplay back off so it doesn't silently resume.
   stopAutoplayTimer();
   const inSlideshow = match && ['slide', 'random', 'country-random'].includes(match.name);
+  // M5: entering the slideshow fresh reveals the floating bar for the hide
+  // window; advancing slide→slide does NOT reset the clock (keeps autoplay from
+  // pinning the bar — the M11 fix).
+  if (inSlideshow && !lastRenderInSlideshow) lastPointerActivityAt = performance.now();
+  lastRenderInSlideshow = !!inSlideshow;
   if (!inSlideshow) {
     autoplayOn = false;
     // Leaving the slideshow: drop out of fullscreen so the album/home view

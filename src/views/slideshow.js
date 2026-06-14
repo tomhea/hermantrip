@@ -126,23 +126,34 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
       </div>
       <div class="slideshow-bar">
         <a class="slideshow-close" href="${exitHref}" aria-label="סגירה וחזרה לאלבום">✕</a>
-        <button type="button" class="slideshow-play" data-autoplay-toggle
-                aria-label="${playLabel}" aria-pressed="${autoplay ? 'true' : 'false'}">${playGlyph}</button>
-        <button type="button" class="slideshow-loop-btn" data-loop-toggle
-                aria-label="${escapeHTML(loopAriaLabel(loop))}" title="${escapeHTML(loopAriaLabel(loop))}"
-                aria-pressed="${loop === 'continue' ? 'true' : 'false'}"><span class="loop-glyph">${loopGlyph(loop)}</span></button>
-        <button type="button" class="slideshow-speed-btn" data-speed-toggle
-                aria-label="מהירות מצגת">${escapeHTML(speedLabel(speed))}</button>
-        <button type="button" class="slideshow-tr-btn" data-transition-toggle
-                aria-label="מעבר בין תמונות">${escapeHTML(transitionLabel(transition))}</button>
-        <button type="button" class="slideshow-fs" data-fullscreen-toggle
-                aria-label="מסך מלא">⛶</button>
-        <a class="slideshow-dl" href="${downloadHref}" download="${escapeHTML(photo.name)}"
-           aria-label="הורדת התמונה המקורית">⬇</a>
-        ${shareMenuHTML()}
-        ${infoPanel(album, photo, i, photos.length)}
+        <div class="slideshow-group slideshow-group-nav">
+          <a class="slideshow-nav-btn slideshow-nav-prev" href="${prevHref}" aria-label="התמונה הקודמת">‹</a>
+          <button type="button" class="slideshow-play" data-autoplay-toggle
+                  aria-label="${playLabel}" aria-pressed="${autoplay ? 'true' : 'false'}">${playGlyph}</button>
+          <a class="slideshow-nav-btn slideshow-nav-next" href="${nextHref}" aria-label="התמונה הבאה">›</a>
+        </div>
+        <div class="slideshow-group slideshow-group-config">
+          <button type="button" class="slideshow-speed-btn" data-speed-toggle
+                  aria-label="מהירות מצגת">${escapeHTML(speedLabel(speed))}</button>
+          <button type="button" class="slideshow-tr-btn" data-transition-toggle
+                  aria-label="מעבר בין תמונות">${escapeHTML(transitionLabel(transition))}</button>
+          <button type="button" class="slideshow-loop-btn" data-loop-toggle
+                  aria-label="${escapeHTML(loopAriaLabel(loop))}" title="${escapeHTML(loopAriaLabel(loop))}"
+                  aria-pressed="${loop === 'continue' ? 'true' : 'false'}"><span class="loop-glyph">${loopGlyph(loop)}</span></button>
+        </div>
+        <div class="slideshow-group slideshow-group-actions">
+          ${shareMenuHTML()}
+          ${infoPanel(album, photo, i, photos.length)}
+          <a class="slideshow-dl" href="${downloadHref}" download="${escapeHTML(photo.name)}"
+             aria-label="הורדת התמונה המקורית">⬇</a>
+          <button type="button" class="slideshow-fs" data-fullscreen-toggle
+                  aria-label="מסך מלא">⛶</button>
+        </div>
+        <button type="button" class="slideshow-strip-btn" data-filmstrip-toggle
+                aria-label="רצועת תמונות" aria-expanded="false">▦</button>
         <span class="slideshow-counter" dir="ltr">${counter}</span>
       </div>
+      <div class="slideshow-filmstrip" data-filmstrip hidden></div>
     </div>
   `;
 }
