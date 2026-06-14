@@ -44,24 +44,38 @@ test('photo is centred & contained', () => {
   assert.match(photo, /object-fit:\s*contain/);
 });
 
-test('the control bar is ONE floating overlay on a plain gradient scrim', () => {
+test('the control dock is ONE floating overlay; the bar carries a plain gradient scrim', () => {
+  const dock = block('.slideshow-dock');
+  assert.ok(dock, '.slideshow-dock rule present');
+  assert.match(dock, /position:\s*absolute/);
+  assert.match(dock, /bottom:\s*0/);
+  assert.match(dock, /flex-direction:\s*column/); // filmstrip stacks above the bar
   const bar = block('.slideshow-bar');
   assert.ok(bar, '.slideshow-bar rule present');
-  assert.match(bar, /position:\s*absolute/);
-  assert.match(bar, /bottom:\s*0/);
   assert.match(bar, /linear-gradient/);
 });
 
-test('the bar auto-hides by default and shows only with .controls-visible', () => {
-  const bar = block('.slideshow-bar');
-  assert.match(bar, /opacity:\s*0/);
-  assert.match(bar, /pointer-events:\s*none/);
+test('the dock auto-hides by default and shows only with .controls-visible', () => {
+  const dock = block('.slideshow-dock');
+  assert.match(dock, /opacity:\s*0/);
+  assert.match(dock, /pointer-events:\s*none/);
   // gated reveal works in the WINDOWED viewer too (no .is-fullscreen prefix)
-  assert.match(css, /\.slideshow-shell\.controls-visible\s+\.slideshow-bar\s*\{[^}]*opacity:\s*1/);
+  assert.match(css, /\.slideshow-shell\.controls-visible\s+\.slideshow-dock\s*\{[^}]*opacity:\s*1/);
 });
 
-test('an on-demand filmstrip rail exists', () => {
-  assert.ok(block('.slideshow-filmstrip'), '.slideshow-filmstrip rule present');
+test('an on-demand filmstrip rail exists, has NO scrollbar, and supports drag', () => {
+  const strip = block('.slideshow-filmstrip');
+  assert.ok(strip, '.slideshow-filmstrip rule present');
+  assert.match(strip, /scrollbar-width:\s*none/);                 // Firefox: hidden
+  assert.match(css, /\.slideshow-filmstrip::-webkit-scrollbar\s*\{[^}]*display:\s*none/); // WebKit: hidden
+  assert.match(strip, /cursor:\s*grab/);                          // drag affordance
+});
+
+test('filmstrip thumbnails are fully opaque (current marked by outline only)', () => {
+  const thumb = block('.filmstrip-thumb');
+  assert.ok(thumb, '.filmstrip-thumb rule present');
+  assert.equal(/opacity:\s*0?\.\d/.test(thumb), false, 'no fractional opacity dimming');
+  assert.match(css, /\.filmstrip-thumb\.is-active\s*\{[^}]*outline-color/);
 });
 
 test('no glassmorphism anywhere in the slideshow chrome (design.md)', () => {

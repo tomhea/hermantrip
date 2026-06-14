@@ -87,7 +87,8 @@ export function renderRandomShow({
         <button type="button" class="slideshow-zone slideshow-zone-next" data-nav="next" aria-label="תמונה אקראית הבאה"></button>
         <button type="button" class="slideshow-zone slideshow-zone-prev" data-nav="prev" aria-label="התמונה הקודמת"></button>
       </div>
-      <div class="slideshow-bar">
+      <div class="slideshow-dock">
+        <div class="slideshow-bar">
         <a class="slideshow-close" href="${escapeHTML(exitHref)}" aria-label="סגירה">✕</a>
         <button type="button" class="slideshow-play" data-autoplay-toggle
                 aria-label="${playLabel}" aria-pressed="${autoplay ? 'true' : 'false'}">${playGlyph}</button>
@@ -101,6 +102,7 @@ export function renderRandomShow({
         ${shareMenuHTML()}
         ${infoPanel(album, photo)}
         <a class="slideshow-title" href="${albumHref}">${escapeHTML(albumTitle)}</a>
+        </div>
       </div>
     </div>
   `;

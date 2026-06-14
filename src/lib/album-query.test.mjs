@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
 import {
   albumsForCountry, albumById, albumBySlug, nextAlbumInCountry, slideIndexInAlbum,
-  albumAfterInCountry,
+  albumAfterInCountry, prevAlbumInCountry,
 } from './album-query.js';
 
 const manifest = {
@@ -98,6 +98,34 @@ test('albumAfterInCountry accepts a string id', () => {
 test('albumAfterInCountry returns null for unknown country / id not in it', () => {
   assert.equal(albumAfterInCountry(manifest, 'xx', 1), null);
   assert.equal(albumAfterInCountry(manifest, 'np', 999), null);
+});
+
+// ── prevAlbumInCountry (slideshow-ux #1) — mirror of nextAlbumInCountry, wraps ──
+test('prevAlbumInCountry steps back by id order within the country (np: 3→2→1)', () => {
+  assert.equal(prevAlbumInCountry(manifest, 'np', 3).id, 2);
+  assert.equal(prevAlbumInCountry(manifest, 'np', 2).id, 1);
+});
+
+test('prevAlbumInCountry wraps the first album back to the last', () => {
+  assert.equal(prevAlbumInCountry(manifest, 'np', 1).id, 3); // first → last
+});
+
+test('prevAlbumInCountry accepts a string id', () => {
+  assert.equal(prevAlbumInCountry(manifest, 'np', '2').id, 1);
+});
+
+test('prevAlbumInCountry uses the country-scoped list (th: 19→1→19)', () => {
+  assert.equal(prevAlbumInCountry(manifest, 'th', 19).id, 1);
+  assert.equal(prevAlbumInCountry(manifest, 'th', 1).id, 19); // first → last (wrap)
+});
+
+test('prevAlbumInCountry returns null for a single-album / unknown country', () => {
+  assert.equal(prevAlbumInCountry(manifest, 'xx', 1), null);
+  assert.equal(prevAlbumInCountry({ albums: [{ id: 5, countries: ['zz'] }] }, 'zz', 5), null);
+});
+
+test('prevAlbumInCountry returns null when current id is not in the country', () => {
+  assert.equal(prevAlbumInCountry(manifest, 'np', 999), null);
 });
 
 test('albumById returns the matching album', () => {

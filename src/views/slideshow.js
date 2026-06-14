@@ -6,7 +6,7 @@
 // reads to wire keyboard + swipe via slideshow-nav's pure mappers.
 
 import { errorHTML, loadingHTML } from '../lib/loading.js';
-import { albumById, nextAlbumInCountry } from '../lib/album-query.js';
+import { albumById, nextAlbumInCountry, prevAlbumInCountry } from '../lib/album-query.js';
 import { sortPhotosByDate } from '../lib/ordering.js';
 import { imageUrl } from '../lib/image-url.js';
 import { clampIndex, nextIndex, prevIndex } from '../lib/slideshow-nav.js';
@@ -88,18 +88,40 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
   const i = clampIndex(idx, photos.length);
   const photo = photos[i];
   const loop = normalizeLoop(loopMode);
-  // "Continue" (#3): at the album's LAST photo, forward nav jumps to the first
-  // photo of the next album in the country instead of wrapping to photo 0.
-  // Falls back to the in-album wrap when there is no next album (country has
-  // a single album). Prev always wraps within the album.
+  // "Continue" (#3, fixed slideshow-ux #1): the album boundaries chain
+  // symmetrically across the country (album order = albumsForCountry, by id,
+  // wrapping). At the LAST photo, FORWARD jumps to the NEXT album's FIRST photo;
+  // at the FIRST photo, BACK jumps to the PREVIOUS album's LAST photo. This makes
+  // a back-and-forth across a boundary a deterministic round-trip (e.g. B/0 ⇄
+  // A/last). The cross-album path keeps the URL's country (navCode) so the loop
+  // stays within the country you're browsing. Repeat mode wraps within the album.
   const atLast = i === photos.length - 1;
+  const atFirst = i === 0;
+  // Resolve the next/prev HREF *and* the target photo (so main.js can preload it
+  // and gate autoplay on its load — slideshow-ux #5). Mirrors the continue logic.
+  let nextPhoto = photos[nextIndex(i, photos.length)];
   let nextHref = slidePath(navCode, album.slug, nextIndex(i, photos.length));
   if (loop === 'continue' && atLast) {
     const nextAlbum = nextAlbumInCountry(manifest, navCode, album.id);
-    if (nextAlbum) nextHref = slidePath(nextAlbum.primary, nextAlbum.slug, 0);
+    if (nextAlbum) {
+      nextHref = slidePath(navCode, nextAlbum.slug, 0);
+      nextPhoto = sortPhotosByDate(nextAlbum.photos)[0] ?? nextPhoto;
+    }
   }
-  const prevHref = slidePath(navCode, album.slug, prevIndex(i, photos.length));
+  let prevPhoto = photos[prevIndex(i, photos.length)];
+  let prevHref = slidePath(navCode, album.slug, prevIndex(i, photos.length));
+  if (loop === 'continue' && atFirst) {
+    const prevAlbum = prevAlbumInCountry(manifest, navCode, album.id);
+    if (prevAlbum) {
+      const prevPhotos = sortPhotosByDate(prevAlbum.photos);
+      const prevLast = Math.max(0, prevPhotos.length - 1);
+      prevHref = slidePath(navCode, prevAlbum.slug, prevLast);
+      prevPhoto = prevPhotos[prevLast] ?? prevPhoto;
+    }
+  }
   const src = imageUrl(photo.id, 'slide', { dpr, viewport });
+  const nextImg = nextPhoto ? imageUrl(nextPhoto.id, 'slide', { dpr, viewport }) : '';
+  const prevImg = prevPhoto ? imageUrl(prevPhoto.id, 'slide', { dpr, viewport }) : '';
   // Same-origin /img/ proxy can't be ORB-blocked; onerror just shows the
   // placeholder on a genuine miss.
   const onerror = "this.classList.add('photo-broken')";
@@ -116,6 +138,7 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
   return `
     <div class="slideshow-shell ${transitionClass(transition)}" data-slideshow
          data-next="${nextHref}" data-prev="${prevHref}" data-exit="${exitHref}"
+         data-next-img="${nextImg}" data-prev-img="${prevImg}"
          data-autoplay-on="${autoplay ? 'true' : 'false'}" data-speed="${speed}"
          data-transition="${escapeHTML(transition)}" style="--kb-dwell:${speed}ms">
       <div class="slideshow-stage">
@@ -124,7 +147,9 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
         <a class="slideshow-zone slideshow-zone-next" href="${nextHref}" aria-label="התמונה הבאה"></a>
         <a class="slideshow-zone slideshow-zone-prev" href="${prevHref}" aria-label="התמונה הקודמת"></a>
       </div>
-      <div class="slideshow-bar">
+      <div class="slideshow-dock">
+        <div class="slideshow-filmstrip" data-filmstrip hidden></div>
+        <div class="slideshow-bar">
         <a class="slideshow-close" href="${exitHref}" aria-label="סגירה וחזרה לאלבום">✕</a>
         <div class="slideshow-group slideshow-group-nav">
           <a class="slideshow-nav-btn slideshow-nav-prev" href="${prevHref}" aria-label="התמונה הקודמת">‹</a>
@@ -152,8 +177,8 @@ export function renderSlideshow({ manifest, error, code, id, idx, dpr = 1, viewp
         <button type="button" class="slideshow-strip-btn" data-filmstrip-toggle
                 aria-label="רצועת תמונות" aria-expanded="false">▦</button>
         <span class="slideshow-counter" dir="ltr">${counter}</span>
+        </div>
       </div>
-      <div class="slideshow-filmstrip" data-filmstrip hidden></div>
     </div>
   `;
 }
