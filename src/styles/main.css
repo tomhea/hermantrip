@@ -1499,6 +1499,12 @@ main#app:has(.country-page) { padding: 0; max-width: none; }
 }
 @media (min-width: 769px) {
   .country-page { grid-template-columns: repeat(3, 1fr); }
+  /* Wide/short screens (desktop + phone-landscape): the first album is just a
+     normal 3-col cell so several albums show above the fold without scrolling.
+     The full-width 21/9 featured banner is kept only on tall phone-portrait.
+     Two-class selector so it beats the base .album-tile-featured rule that
+     follows it in source order (media queries add no specificity). */
+  .country-page .album-tile-featured { grid-column: auto; aspect-ratio: 4 / 3; }
 }
 .album-tile {
   position: relative; display: block; min-width: 0;
