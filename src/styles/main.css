@@ -1486,3 +1486,30 @@ main#app:has(.home-fit) {
 main#app:has(.home-fit) .home-header { margin: 0; flex: 0 0 auto; }
 main#app:has(.home-fit) .home-fit { flex: 1 1 auto; height: auto; }
 
+
+/* Country page — featured-first overlay album grid (M3).
+   Escapes main#app's page padding/max-width so the grid + slim header run
+   edge-to-edge; the page scrolls normally (no fixed height). */
+main#app:has(.country-page) { padding: 0; max-width: none; }
+.country-page {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+@media (min-width: 769px) {
+  .country-page { grid-template-columns: repeat(3, 1fr); }
+}
+.album-tile {
+  position: relative; display: block; min-width: 0;
+  aspect-ratio: 4 / 3; border-radius: 6px; overflow: hidden;
+  background: var(--divider); text-decoration: none;
+}
+.album-tile-featured { grid-column: 1 / -1; aspect-ratio: 21 / 9; }
+.album-tile-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.album-tile-scrim { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(20,18,15,.66), rgba(20,18,15,0) 55%); }
+.album-tile-name { position: absolute; bottom: calc(var(--space-2) + 1.4em); inset-inline-start: var(--space-3); color: #fff; font-weight: 700; font-size: var(--type-h2); text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; }
+.album-tile-sub { position: absolute; bottom: var(--space-2); inset-inline-start: var(--space-3); color: #fff; font-size: var(--type-small); font-weight: 300; text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; }
+@media (max-width: 768px) {
+  .album-tile-name { font-size: var(--type-body); bottom: calc(var(--space-2) + 1.3em); }
+}
