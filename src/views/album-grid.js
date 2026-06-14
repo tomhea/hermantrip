@@ -15,6 +15,8 @@ import { formatHebrewDate } from '../lib/photo-date.js';
 import { photoImgHTML } from '../lib/photo-img.js';
 import { homePath, countryPath, slidePath, albumPath } from '../lib/paths.js';
 import { albumDateLabel } from '../lib/album-dates.js';
+import { viewHeader } from '../lib/view-header.js';
+import { icon } from '../lib/nav-icons.js';
 
 const EAGER_COUNT = 12;
 
@@ -25,13 +27,8 @@ function escapeHTML(s) {
 }
 
 function header(title, backHref, backLabel, subtitle) {
-  return `
-    <header class="view-header">
-      <a class="back-link" href="${escapeHTML(backHref)}" aria-label="${escapeHTML(backLabel)}">→ ${escapeHTML(backLabel)}</a>
-      <h1 class="h1">${escapeHTML(title)}</h1>
-      ${subtitle ? `<p class="muted small">${escapeHTML(subtitle)}</p>` : ''}
-    </header>
-  `;
+  const actions = `<button type="button" class="slim-nav slim-toggle" data-theme-toggle aria-label="מצב בהיר/כהה">${icon('moon')}${icon('sun')}</button>`;
+  return viewHeader({ title, subtitle, back: { href: backHref, label: backLabel }, actions });
 }
 
 export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
@@ -55,6 +52,7 @@ export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
   // the album's primary country if no context was passed.
   const backCode = code || album.primary;
   const backHref = countryPath(backCode);
+  const backLabel = manifest.countries?.find((c) => c.code === backCode)?.he ?? 'חזרה';
   // Chronological order so day groups are contiguous AND the slide index
   // (position in this list) matches what the slideshow uses.
   const photos = sortPhotosByDate(album.photos);
@@ -64,7 +62,7 @@ export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
     : `${photos.length.toLocaleString('he-IL')} תמונות`;
 
   if (photos.length === 0) {
-    return `${header(album.title ?? album.name, backHref, 'חזרה', subtitle)}<p class="muted">אין תמונות באלבום זה.</p>`;
+    return `${header(album.title ?? album.name, backHref, backLabel, subtitle)}<p class="muted">אין תמונות באלבום זה.</p>`;
   }
 
   // Group by day; render a section per day with a Hebrew date header. A
@@ -114,7 +112,7 @@ export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
     : '';
 
   return `
-    ${header(name, backHref, 'חזרה', subtitle)}
+    ${header(name, backHref, backLabel, subtitle)}
     ${playBtn}
     ${sections}
     ${nextBtn}

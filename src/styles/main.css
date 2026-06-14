@@ -415,37 +415,43 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .album-next:focus-visible { background: var(--accent); color: #fff; }
 
 /* Album day groups (M14): a date header above each day's photo grid. */
-.day-group { margin-bottom: var(--space-5); }
+.day-group { margin-bottom: var(--space-4); }
 .day-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--bg);
+  color: var(--accent);
   font-size: var(--type-h2);
   font-weight: 500;
-  color: var(--text-muted);
   margin: 0 0 var(--space-2);
-  padding-bottom: var(--space-1);
-  border-bottom: 1px solid var(--divider);
+  padding: var(--space-1) 0;
   font-variant-numeric: tabular-nums;
 }
 
-/* Album grid (photo tiles) */
+/* Album grid — justified rows by day. Uniform-height fallback: the manifest has
+   no per-photo w/h, so rows use a fixed height + object-fit:cover (slight crop)
+   rather than true aspect-preserving widths. Each tile has a real flex-basis so
+   the row actually wraps; flex-grow fills the row edge-to-edge; the ::after
+   sentinel keeps a short last row from stretching grotesquely. Revisit true
+   justified rows once scripts/build-manifest.mjs records image dimensions. */
 .photo-grid {
   list-style: none;
   padding: 0;
   margin: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-1);
 }
-@media (min-width: 540px) {
-  .photo-grid { grid-template-columns: repeat(4, 1fr); }
-}
-@media (min-width: 900px) {
-  .photo-grid { grid-template-columns: repeat(6, 1fr); }
-}
+.photo-grid::after { content: ''; flex-grow: 999999; }
 .photo-tile {
+  flex: 1 1 180px;
+  height: 150px;
   margin: 0;
 }
 .photo-tile a {
   display: block;
+  height: 100%;
   outline-offset: -2px;
 }
 .photo-tile a:hover,
@@ -455,9 +461,14 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .album-photo {
   display: block;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 150px;
   object-fit: cover;
+  border-radius: 4px;
   background: var(--earth-pale);
+}
+@media (max-width: 768px) {
+  .photo-tile { flex-basis: 110px; height: 110px; }
+  .album-photo { height: 110px; }
 }
 
 /* ---- M5: slideshow ---- */
