@@ -1,8 +1,8 @@
-# Handoff — UI refresh (continuing at M5)
+# Handoff — UI refresh (continuing at M6)
 
 _For a fresh session picking up the hermantrip UI-refresh. Read this, then the
-plan + spec + cr-rules (links below). Last updated after **M4 + polish shipped**;
-**next up is M5 (Slideshow)**._
+plan + spec + cr-rules (links below). Last updated after **M5 (Slideshow) shipped**;
+**next up is M6 (Map/Globe) — which is BLOCKED on the owner's MapTiler key/style IDs (see §8)**._
 
 ## 0. The one-paragraph orientation
 
@@ -25,43 +25,45 @@ Pure logic in `src/lib/` (unit-tested, no DOM/fetch), HTML-string view builders 
 | | |
 |---|---|
 | Branch | `main` (clean) |
-| Tests | **735 passing / 0 fail** (`npm test`) |
+| Tests | **752 passing / 0 fail** (`npm test`) |
 | Lint | clean (`npx eslint@9 --max-warnings=0 .`) |
-| SW cache | `hermantrip-shell-v78` (in `sw.js`) |
-| Latest milestone tag | `v0.M65` (M4). Next milestone = **M5 → `v0.M66`** |
-| Next SW bump | **v79** |
+| SW cache | `hermantrip-shell-v79` (in `sw.js`) |
+| Latest milestone tag | `v0.M66` (M5). Next milestone = **M6 → `v0.M67`** |
+| Next SW bump | **v80** |
 
-**Shipped milestones:** M1 Foundations (`v0.M62`, themes+toggle+slim header+icons+country colours) · M2 Home (`v0.M63`, photo-forward 4-parts bento-ish home) · M3 Country page (`v0.M64`, featured-first overlay grid) · M4 Album grid (`v0.M65`, justified rows + sticky day headers).
+**Shipped milestones:** M1 Foundations (`v0.M62`, themes+toggle+slim header+icons+country colours) · M2 Home (`v0.M63`, photo-forward 4-parts bento-ish home) · M3 Country page (`v0.M64`, featured-first overlay grid) · M4 Album grid (`v0.M65`, justified rows + sticky day headers) · M5 Slideshow (`v0.M66`, charcoal stage + floating auto-hide bar + on-demand filmstrip).
 **Polish hotfixes (all live):** `v0.M63.1/.2/.3` (home: hero photos, bento→even-order, names-right, progressive image load, landscape fullscreen) · `v0.M64.1` (country even-grid) · `v0.M65.1–.5` (album/country: justified→uniform tiles, sticky-on-phone, header overflow, one-line subtitle, count-drop-on-portrait, shrink-to-fit long dates).
 
-Tags continue the ladder — **before tagging, run `git tag --list 'v0.*'`** to confirm the next number. Sub-fixes use `v0.M65.N`; they do NOT consume the next milestone number (M5 is still `v0.M66`).
+Tags continue the ladder — **before tagging, run `git tag --list 'v0.*'`** to confirm the next number. Sub-fixes use `v0.M66.N`; they do NOT consume the next milestone number (M6 is `v0.M67`).
 
 ## 2. Per-milestone command sequence (this repo)
 
 ```bash
 git checkout main && git pull --ff-only origin main
-git checkout -b m5-slideshow                      # mN-slug / fix/slug
+git checkout -b m6-map-globe                       # mN-slug / fix/slug
 # … TDD task-by-task: write failing *.test.mjs, run (FAIL), implement, run (PASS) …
 npm test                                          # 0 fail; node --test over all *.test.mjs
 npx eslint@9 --max-warnings=0 .                   # exit 0
-# bump sw.js SHELL_CACHE (v78→v79) + add any NEW src/lib|views file to SHELL_FILES
-git commit … ; git push -u origin m5-slideshow
-gh pr create --base main --title "M5: Slideshow" --body-file <body>   # R1+R2 sections + R-by-R table
+# bump sw.js SHELL_CACHE (v79→v80) + add any NEW src/lib|views file to SHELL_FILES
+git commit … ; git push -u origin m6-map-globe
+gh pr create --base main --title "M6: Map / Globe" --body-file <body>   # R1+R2 sections + R-by-R table
 #   → spawn crist (Agent subagent_type: crist) → APPROVED only
+#   R2 body MUST include: 3 viewports (desktop+TABLET 820+phone) + a console-clean
+#   probe (preview_console_logs level=error → none) + the gzipped JS payload delta (R5)
 # build dist/ + archive, on the SAME branch:
 #   dist = index.html sw.js icon.svg manifest.webmanifest favicon.ico favicon.png favicon-32.png
 #          apple-touch-icon.png + data/manifest.json + src/ (minus *.test.mjs)
-mkdir -p versions/v0.M66 && tar czf versions/v0.M66/dist-M66.tar.gz -C dist .
-git add versions/v0.M66/dist-M66.tar.gz && git commit -m "Archive v0.M66 dist artifact to versions/" && git push
+mkdir -p versions/v0.M67 && tar czf versions/v0.M67/dist-M67.tar.gz -C dist .
+git add versions/v0.M67/dist-M67.tar.gz && git commit -m "Archive v0.M67 dist artifact to versions/" && git push
 #   → re-spawn crist (artifact-only re-review; dismiss_stale_reviews invalidated the approval)
 gh pr merge <N> --merge                           # LITERAL merge, never squash/rebase
 git checkout main && git pull --ff-only
-git tag -a v0.M66 -m "M5: Slideshow — …" <merge-sha> && git push origin v0.M66
+git tag -a v0.M67 -m "M6: Map / Globe — …" <merge-sha> && git push origin v0.M67
 # deploy:
 tar czf - -C dist . | ssh -o BatchMode=yes root@tomhe.app \
   'rm -rf /var/www/hermantrip/* && tar xzf - -C /var/www/hermantrip && echo DEPLOY_OK'
 # verify live (curl sw.js cache version, new files 200, served view contains new markers)
-git branch -d m5-slideshow && git push origin --delete m5-slideshow
+git branch -d m6-map-globe && git push origin --delete m6-map-globe
 ```
 
 **Methodology skills:** `superpowers:subagent-driven-development` (dispatch a fresh implementer subagent per task; pure-logic tasks are mechanical — a cheaper model is fine; integration/CSS that needs live iteration is often faster done directly) + `cr-tdd-ladder`. Pause and check with the owner at each milestone boundary.
@@ -98,19 +100,18 @@ SW is **network-first** for the shell (`src/lib/sw-strategy.js`) with `skipWaiti
 - **`#app` escape:** the home/country pages use `main#app:has(.home-fit|.country-page) { padding:0; max-width:none }` to run edge-to-edge.
 - The home is the trip's **4 parts** (np·in / vn·cn / au·nz / th); country colours/hero photos in `src/lib/country-colors.js` + `src/lib/country-hero.js`.
 
-## 7. Starting M5 (Slideshow) — the plan's RISKIEST milestone
+## 7. M5 (Slideshow) — SHIPPED ✓ (`v0.M66`, SW v79)
 
-**Branch `m5-slideshow`, tag `v0.M66`, SW v79.** Re-skin the live slideshow WITHOUT regressing behaviour (autoplay, speed, 5 transitions, loop, fullscreen, share menu, info panel, swipe, keyboard, next-album-at-end, scroll-restore, M59 landscape-phone fullscreen).
+Re-skinned the live slideshow without regressing behaviour. What landed (for reference if a follow-up hotfix is needed):
+- **CSS** (`src/styles/main.css` `/* ---- M5: slideshow ---- */`): `.slideshow-shell` pins `--stage:#211e1b` (charcoal in BOTH themes) + `background:var(--stage)`. The ONE `.slideshow-bar` is now a floating bottom overlay on a plain gradient scrim (no `backdrop-filter`) that **auto-hides in the windowed viewer too**, gated by `.controls-visible` (was fullscreen-only). Controls cluster into `.slideshow-group`s; cursor hides while controls hidden in both modes. New rail `.slideshow-filmstrip` + `.filmstrip-thumb`. Guard: `src/styles/slideshow-css.test.mjs`.
+- **View** (`src/views/slideshow.js`): one `.slideshow-bar` grouped prev/play/next · speed/transition/loop · share/info/fullscreen · `▦`; a hidden `.slideshow-filmstrip[data-filmstrip hidden]`. (random-slideshow.js was NOT changed — it shares the CSS so its bar floats + auto-hides too, just no filmstrip/groups.)
+- **Wiring** (`src/main.js`): `controls-timer.js` got a `windowedAutoHide` flag (default false → existing cases green); `applyControls` passes `true` and polls while visible in both modes. `render()` reveals the bar on FRESH slideshow entry only via a new `lastRenderInSlideshow` flag — NOT slide-to-slide (preserves the M11 autoplay-doesn't-pin-bar fix). `wireFilmstrip()`/`buildFilmstrip()` build the album's thumbnail rail lazily on first toggle (whole album, `imageUrl('thumb')`, active=current scrolled into view).
+- **crist lesson (new):** the first review was CHANGES_REQUESTED on **PR-body omissions only** — R2 wants an explicit **console-clean** confirmation (`preview_console_logs level=error` → none) and R5 wants the **gzipped JS payload delta** stated in the body — even when behaviour is unchanged. Add both to every view-touching PR body up front.
 
-**Non-negotiable:** keep the existing `src/views/slideshow.test.mjs` and `src/lib/controls-timer.test.mjs` **green** — add new cases, don't rewrite the existing ones. Do not regress fullscreen / share / info.
+## 8. Starting M6 (Map / Globe) — ⚠️ BLOCKED on the owner
 
-Tasks (full detail in the plan, M5 section):
-- **5.1 — CSS** (`main.css` + new `src/styles/slideshow-css.test.mjs`): `.slideshow-shell` always-charcoal `--stage: #211e1b` (both themes); `.slideshow-stage` centres the photo (`display:flex; align-items/justify-content:center`); `.slideshow-photo` `max-width/height:100%` contained; one floating `.slideshow-bar` on a **plain gradient scrim — NO `backdrop-filter`** (the test asserts no `backdrop-filter` in any `.slideshow-*` rule).
-- **5.2 — View** (`src/views/slideshow.js` + extend `slideshow.test.mjs`): reorder the existing controls into ONE `.slideshow-bar` (prev/play/next · speed/transition/loop · share/info/fullscreen · `▦` filmstrip-toggle); add a hidden `.slideshow-filmstrip[hidden]` + a `[data-filmstrip-toggle]`.
-- **5.3 — Wiring** (`src/main.js` `wireSlideshow`): wire the filmstrip toggle (populate neighbour thumbnails via `imageUrl`); extend auto-hide to the **windowed** (non-fullscreen) viewer. **`controls-timer.js`: add a `windowedAutoHide` flag defaulting to `false`** (keeps every existing `controls-timer.test.mjs` case green); the slideshow passes `windowedAutoHide:true`. Add new tests for the `true` path only; fullscreen behaviour unchanged.
+**Branch `m6-map-globe`, tag `v0.M67`, SW v80.** **STOP and ask the owner first:** M6 needs the **MapTiler domain-restricted key + the light/dark Hebrew style IDs**, pasted into a new `src/config.js` (the key is intentionally NOT in the repo). Don't start the map work until you have them.
 
-**Key files:** `src/views/slideshow.js`, `src/lib/controls-timer.js` (+ its test), `src/main.js` (the slideshow render/`wireSlideshow`/autoplay block — grep `slideshow`, `controlsVisible`, `applyControls`, `data-fullscreen-toggle`), `src/styles/main.css` (`/* ---- M5: slideshow ---- */` section). Verify live with the preview at 3 viewports: charcoal stage, centred photo, one control row that **auto-hides after idle and returns on move/tap/key** (now in the windowed viewer too), filmstrip toggles, and share/info/fullscreen still work.
+M6 ships: Hebrew tiles (client key), per-country colours on pins/markers, comet trail, map-style pins, starfield fix. See the plan's M6 section + Risks list for the gotchas (esp. **theme toggle won't hot-swap Leaflet tiles mid-view** — swap the tile layer on theme change or accept it updates on next visit).
 
-## 8. After M5
-
-M6 Map/Globe (`v0.M67`) **needs the MapTiler key + light/dark Hebrew style IDs from the owner** — pause and ask before M6; paste into `src/config.js` (see the plan's Risks list for the gotchas). Then M7 Game (`v0.M68`), M8 Timeline (`v0.M69`, data-dependent scrubber — visually sanity-check against real data).
+Then **M7 Game** (`v0.M68`, SW v81) and **M8 Timeline** (`v0.M69`, SW v82 — data-dependent scrubber; visually sanity-check against real manifest data, not only unit tests).
