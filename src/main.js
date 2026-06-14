@@ -288,6 +288,14 @@ let nextSlideImg = null;
 let prevSlideImg = null;
 let autoplayGen = 0;
 
+// Control-visibility state at module scope so it persists across the in-place
+// updates / re-renders that slide advances perform. lastPointerActivityAt is the
+// last REAL pointer activity (NOT reset by an advance), so autoplay auto-hides
+// after the window; render() reveals it once on fresh slideshow entry.
+let lastPointerActivityAt = 0;
+let hoveringBar = false;
+let controlsPollTimer = null;
+
 function stopAutoplayTimer() {
   if (autoplayTimer !== null) {
     clearTimeout(autoplayTimer);
@@ -303,14 +311,57 @@ function renderSlide(params) {
     window.history.replaceState({}, '', slidePath(code, res.album.slug, params.idx));
   }
   const id = res ? res.album.id : params.album;
-  app.innerHTML = renderSlideshow({
+  const html = renderSlideshow({
     manifest, error: manifestError, code, id, idx: params.idx,
     dpr: dpr(), viewport: viewportClass(), autoplay: autoplayOn, speed: autoplaySpeed,
     transition: slideTransition, loopMode: slideLoopMode,
   });
-  window.scrollTo(0, 0);
-  wireSlideshow();
+  mountSlideshow(html, 'album');
   preloadNeighbours({ id, idx: params.idx });
+}
+
+// Mount a slideshow's HTML. Advancing within the SAME slideshow (album↔album or
+// random→random) updates IN PLACE — only the photo + control bar are swapped, so
+// the dock + filmstrip stay standing (no "down & up" control flicker, no
+// filmstrip teardown/re-scroll; slideshow-ux-2 #2/#7). Entry/exit (or switching
+// flavour) does a full re-render.
+let lastSlideshowKind = null; // 'album' | 'random' | null
+
+function mountSlideshow(html, kind) {
+  const existing = app.querySelector('[data-slideshow]');
+  if (existing && lastSlideshowKind === kind && updateSlideInPlace(existing, html)) {
+    wireSlideParts(existing); // re-wire only the swapped stage + bar
+  } else {
+    app.innerHTML = html;
+    window.scrollTo(0, 0);
+    wireSlideshow(); // full mount
+  }
+  lastSlideshowKind = kind;
+}
+
+// Swap only the <stage> (fresh <img> so the entry transition replays) and the
+// control <bar> (reflects the new slide); copy the shell's data-*/style/class.
+// The .slideshow-dock and .slideshow-filmstrip elements are left untouched so
+// their visibility, scroll position and listeners survive the advance.
+function updateSlideInPlace(shell, html) {
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html.trim();
+  const fresh = tpl.content.querySelector('[data-slideshow]');
+  const newStage = fresh && fresh.querySelector('.slideshow-stage');
+  const newBar = fresh && fresh.querySelector('.slideshow-bar');
+  const oldStage = shell.querySelector('.slideshow-stage');
+  const oldBar = shell.querySelector('.slideshow-bar');
+  if (!fresh || !newStage || !newBar || !oldStage || !oldBar) return false;
+  // Keep the runtime classes main.js manages; take the rest (incl. tr-*) from fresh.
+  const managed = ['is-fullscreen', 'controls-visible'].filter((c) => shell.classList.contains(c));
+  shell.className = fresh.className;
+  managed.forEach((c) => shell.classList.add(c));
+  for (const a of Array.from(fresh.attributes)) {
+    if (a.name !== 'class') shell.setAttribute(a.name, a.value);
+  }
+  oldStage.replaceWith(newStage);
+  oldBar.replaceWith(newBar);
+  return true;
 }
 
 // Warm ±2 neighbour slide images into the browser cache so navigation
@@ -340,24 +391,25 @@ function renderRandom(scope, exitHref) {
     randomScope = scope;
   }
   const item = randomPlaylist && randomPlaylist.length ? randomPlaylist[randomPos] : null;
-  app.innerHTML = renderRandomShow({
-    manifest, error: manifestError, item, scope, exitHref,
-    autoplay: autoplayOn, speed: autoplaySpeed, dpr: dpr(), viewport: viewportClass(),
-    transition: slideTransition,
-  });
-  window.scrollTo(0, 0);
-  // Random has no per-photo URL, so tell wireSlideshow which images to warm +
-  // load-gate on by stamping the neighbour URLs from the in-memory playlist
-  // (slideshow-ux #5/#6 — the random viewer gets the same load-gated autoplay).
-  const shell = app.querySelector('[data-slideshow]');
-  if (shell && randomPlaylist && randomPlaylist.length > 1) {
-    const vp = viewportClass();
+  const vp = viewportClass();
+  // Random has no per-photo URL, so compute the neighbour image URLs from the
+  // in-memory playlist and pass them to the view (it emits data-next-img /
+  // data-prev-img like the album view) — that drives preload + the autoplay
+  // load-gate uniformly (slideshow-ux #5/#6).
+  let nextImg = '';
+  let prevImg = '';
+  if (randomPlaylist && randomPlaylist.length > 1) {
     const nxt = randomPlaylist[(randomPos + 1) % randomPlaylist.length];
     const prv = randomPlaylist[(randomPos - 1 + randomPlaylist.length) % randomPlaylist.length];
-    shell.dataset.nextImg = imageUrl(nxt.photo.id, 'slide', { dpr: dpr(), viewport: vp });
-    shell.dataset.prevImg = imageUrl(prv.photo.id, 'slide', { dpr: dpr(), viewport: vp });
+    nextImg = imageUrl(nxt.photo.id, 'slide', { dpr: dpr(), viewport: vp });
+    prevImg = imageUrl(prv.photo.id, 'slide', { dpr: dpr(), viewport: vp });
   }
-  wireSlideshow();
+  const html = renderRandomShow({
+    manifest, error: manifestError, item, scope, exitHref,
+    autoplay: autoplayOn, speed: autoplaySpeed, dpr: dpr(), viewport: vp,
+    transition: slideTransition, nextImg, prevImg,
+  });
+  mountSlideshow(html, 'random');
 }
 
 function advanceRandom(dir) {
@@ -373,28 +425,40 @@ function slideAdvance(shell, dir) {
   else go(dir > 0 ? shell.dataset.next : shell.dataset.prev);
 }
 
-// Attach swipe + autoplay-toggle handlers to the freshly-rendered slideshow.
-// Album click-zones are plain <a href>; random zones are <button data-nav>
-// wired here. Keyboard is global below.
+// Full mount of a freshly-rendered slideshow. Split so an in-place advance can
+// re-wire ONLY the swapped parts (wireSlideParts) without re-adding listeners on
+// the persistent shell/dock/filmstrip (wireShellLevel).
 function wireSlideshow() {
   const shell = app.querySelector('[data-slideshow]');
   if (!shell) return;
-  const hrefs = {
-    next: shell.dataset.next,
-    prev: shell.dataset.prev,
-    exit: shell.dataset.exit,
-  };
+  wireShellLevel(shell);
+  wireSlideParts(shell);
+}
 
+// Listeners on elements that SURVIVE an in-place slide advance — wired once per
+// full mount: pointer-activity on the shell, dock hover, and filmstrip drag.
+function wireShellLevel(shell) {
+  shell.addEventListener('mousemove', noteActivity);
+  shell.addEventListener('touchstart', noteActivity, { passive: true });
+  // Hover anywhere on the dock (bar OR filmstrip) keeps the controls alive.
+  const dock = shell.querySelector('.slideshow-dock');
+  if (dock) {
+    dock.addEventListener('mouseenter', () => { hoveringBar = true; noteActivity(); });
+    dock.addEventListener('mouseleave', () => { hoveringBar = false; noteActivity(); });
+  }
+  const strip = shell.querySelector('[data-filmstrip]');
+  if (strip) wireFilmstripDrag(strip);
+}
+
+// Handlers for the per-slide parts (stage + control bar) that get swapped on
+// every advance. Re-run on full mount AND after each in-place update.
+function wireSlideParts(shell) {
   // Random-mode prev/next zone buttons.
   for (const btn of shell.querySelectorAll('[data-nav]')) {
     btn.addEventListener('click', () => slideAdvance(shell, btn.dataset.nav === 'next' ? 1 : -1));
   }
 
   // M33 / ask #8 — explicit "nothing" handle for a long-press on the tap-zones.
-  // Long-pressing a side zone (an <a> in album mode, a <button> in random mode)
-  // otherwise pops the context menu / link preview and feels like the side
-  // grabbed the press. Swallow contextmenu on the zones so a long-press does
-  // exactly nothing; a normal tap still navigates (click is unaffected).
   for (const zone of shell.querySelectorAll('.slideshow-zone')) {
     zone.addEventListener('contextmenu', (e) => e.preventDefault());
   }
@@ -425,8 +489,7 @@ function wireSlideshow() {
     });
   }
 
-  // Speed button — cycle the auto-advance interval. Re-render so the label
-  // updates and (if playing) the timer below reschedules at the new speed.
+  // Speed button — cycle the auto-advance interval.
   const speedBtn = shell.querySelector('[data-speed-toggle]');
   if (speedBtn) {
     speedBtn.addEventListener('click', () => {
@@ -436,8 +499,7 @@ function wireSlideshow() {
     });
   }
 
-  // Transition button — cycle the entry animation (M31 / ask #1). Re-render so
-  // the label updates and the next slide mounts with the new tr-<name> class.
+  // Transition button — cycle the entry animation (M31 / ask #1).
   const trBtn = shell.querySelector('[data-transition-toggle]');
   if (trBtn) {
     trBtn.addEventListener('click', () => {
@@ -457,11 +519,8 @@ function wireSlideshow() {
     });
   }
 
-  // Fullscreen toggle. We fullscreen the PERSISTENT documentElement, not
-  // the shell — because each slide advance replaces #app's innerHTML, which
-  // would destroy a fullscreened shell and drop out of fullscreen. With
-  // <html> fullscreened, navigation/autoplay re-render freely inside it and
-  // fullscreen survives (fixes "slideshow doesn't work in fullscreen").
+  // Fullscreen toggle. We fullscreen the PERSISTENT documentElement, not the
+  // shell — navigation/autoplay re-render inside it and fullscreen survives.
   const fsBtn = shell.querySelector('[data-fullscreen-toggle]');
   if (fsBtn) {
     fsBtn.addEventListener('click', () => {
@@ -475,8 +534,11 @@ function wireSlideshow() {
 
   wireShare(shell);
   wireInfoSize(shell);
-  wireFilmstrip(shell);
-  wireControls(shell);
+  wireFilmstripToggle(shell);
+  updateFilmstrip(shell);
+  // Refresh control visibility on the persistent dock (no new listeners) — does
+  // NOT reset the idle clock, so autoplay still auto-hides after the window.
+  applyControls();
 
   // Warm the immediate next/prev slide images even when paused (slideshow-ux
   // #5b) and hold a ref to the next one for the autoplay load-gate below.
@@ -644,30 +706,52 @@ function wireShare(shell) {
 }
 
 // On-demand filmstrip (M5 + slideshow-ux #2). The view ships an empty hidden
-// `.slideshow-filmstrip`; the ▦ toggle reveals it and we build the album's
-// thumbnail rail lazily. The open/closed state PERSISTS across slide advances
-// (module scope) — once opened it stays open until the user re-presses ▦, and is
-// rebuilt on every render so the active thumb tracks the current slide. Each thumb
-// is a plain <a href> to its slide — the global link handler does the SPA nav.
-// Album slideshow only; the random viewer has no per-album order.
+// `.slideshow-filmstrip` inside the persistent dock; the ▦ toggle reveals it and
+// we build the album's thumbnail rail lazily. The open/closed state PERSISTS
+// across slide advances (module scope) — once opened it stays open until the user
+// re-presses ▦. Because the dock + strip survive an in-place advance, the strip
+// is NOT torn down: on a same-album advance we only move the active "yellow
+// frame" (no rebuild, no re-scroll — slideshow-ux-2 #2a); we rebuild only on
+// first open or when the album changes. Each thumb is a plain <a href> — the
+// global link handler does the SPA nav. Album slideshow only.
 let filmstripOpen = false;
 
-function wireFilmstrip(shell) {
+function wireFilmstripToggle(shell) {
   const toggle = shell.querySelector('[data-filmstrip-toggle]');
-  const strip = shell.querySelector('[data-filmstrip]');
-  if (!toggle || !strip) return;
-  const applyFilmstrip = () => {
-    strip.hidden = !filmstripOpen;
-    toggle.setAttribute('aria-expanded', filmstripOpen ? 'true' : 'false');
-    if (filmstripOpen) buildFilmstrip(strip);
-  };
+  if (!toggle) return;
   toggle.addEventListener('click', () => {
     filmstripOpen = !filmstripOpen;
-    applyFilmstrip();
+    updateFilmstrip(shell);
     noteActivity(); // user action keeps the dock alive
   });
-  wireFilmstripDrag(strip);
-  applyFilmstrip(); // re-apply the persisted open state to this fresh shell
+}
+
+function updateFilmstrip(shell) {
+  const strip = shell.querySelector('[data-filmstrip]');
+  const toggle = shell.querySelector('[data-filmstrip-toggle]');
+  if (!strip) return;
+  strip.hidden = !filmstripOpen;
+  if (toggle) toggle.setAttribute('aria-expanded', filmstripOpen ? 'true' : 'false');
+  if (!filmstripOpen) return;
+  const match = router.match(currentPath());
+  if (!match || match.name !== 'slide' || !manifest) return;
+  const code = codeFromSlug(match.params.country);
+  const res = albumBySlug(manifest, code, match.params.album);
+  if (!res) return;
+  const album = res.album;
+  const photos = sortPhotosByDate(album.photos);
+  if (photos.length === 0) return;
+  const cur = Math.max(0, Math.min(photos.length - 1, Number.parseInt(match.params.idx, 10) || 0));
+  if (strip.dataset.albumId !== String(album.id) || strip.children.length === 0) {
+    buildFilmstrip(strip); // first open or album changed → (re)build + centre active
+  } else {
+    // Same album → just move the yellow frame; DO NOT rebuild or re-scroll (#2a).
+    strip.querySelectorAll('.filmstrip-thumb').forEach((el, idx) => {
+      const on = idx === cur;
+      el.classList.toggle('is-active', on);
+      el.setAttribute('aria-current', on ? 'true' : 'false');
+    });
+  }
 }
 
 // Drag-to-scroll the filmstrip with a mouse (slideshow-ux #2). Touch already
@@ -693,6 +777,9 @@ function wireFilmstripDrag(strip) {
   const end = () => { down = false; strip.classList.remove('is-dragging'); };
   strip.addEventListener('pointerup', end);
   strip.addEventListener('pointercancel', end);
+  // Suppress native HTML drag-and-drop so dragging ON a thumbnail scrolls the
+  // rail instead of starting an image ghost-drag (slideshow-ux-2 #2b).
+  strip.addEventListener('dragstart', (e) => e.preventDefault());
   // Capture-phase: kill the click that ends a drag so it doesn't open a slide.
   strip.addEventListener('click', (e) => {
     if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
@@ -714,8 +801,11 @@ function buildFilmstrip(strip) {
     const u = imageUrl(p.id, 'thumb', { dpr: dpr() });
     const href = slidePath(navCode, album.slug, idx);
     const active = idx === cur ? ' is-active' : '';
-    return `<a class="filmstrip-thumb${active}" href="${href}" aria-label="תמונה ${idx + 1}" aria-current="${idx === cur ? 'true' : 'false'}"><img src="${u}" alt="" loading="lazy" decoding="async" onerror="this.closest('.filmstrip-thumb').classList.add('photo-broken')"></a>`;
+    // draggable="false" so dragging a thumb scrolls the rail (drag handler)
+    // instead of starting a native image ghost-drag (slideshow-ux-2 #2b).
+    return `<a class="filmstrip-thumb${active}" href="${href}" draggable="false" aria-label="תמונה ${idx + 1}" aria-current="${idx === cur ? 'true' : 'false'}"><img src="${u}" alt="" draggable="false" loading="lazy" decoding="async" onerror="this.closest('.filmstrip-thumb').classList.add('photo-broken')"></a>`;
   }).join('');
+  strip.dataset.albumId = String(album.id); // so updateFilmstrip can detect album changes
   const activeEl = strip.querySelector('.filmstrip-thumb.is-active');
   if (activeEl) activeEl.scrollIntoView({ inline: 'center', block: 'nearest' });
 }
@@ -726,12 +816,6 @@ function buildFilmstrip(strip) {
 //     fullscreen viewers (M5: windowedAutoHide:true). It's crucially NOT reset
 //     by slide re-renders, so autoplay no longer keeps it pinned on; render()
 //     reveals it once on fresh slideshow entry.
-// Activity state lives at module scope so it persists across the innerHTML
-// re-render that every slide advance performs.
-let lastPointerActivityAt = 0;
-let hoveringBar = false;
-let controlsPollTimer = null;
-
 function applyControls() {
   const shell = app.querySelector('[data-slideshow]');
   if (!shell) return;
@@ -750,21 +834,6 @@ function applyControls() {
 
 function noteActivity() {
   lastPointerActivityAt = performance.now();
-  applyControls();
-}
-
-function wireControls(shell) {
-  shell.addEventListener('mousemove', noteActivity);
-  shell.addEventListener('touchstart', noteActivity, { passive: true });
-  // Hover anywhere on the dock (bar OR filmstrip) keeps the controls alive.
-  const dock = shell.querySelector('.slideshow-dock');
-  if (dock) {
-    dock.addEventListener('mouseenter', () => { hoveringBar = true; noteActivity(); });
-    dock.addEventListener('mouseleave', () => { hoveringBar = false; noteActivity(); });
-  }
-  // Apply persisted state to this freshly-rendered shell WITHOUT resetting
-  // the activity clock (the bug fix) — render() already revealed it on fresh
-  // entry; here we just respect the time since the last real move.
   applyControls();
 }
 

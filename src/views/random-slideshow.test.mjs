@@ -39,9 +39,31 @@ test('info panel shows the source album, country, date', () => {
   assert.match(html, /23 ביולי 2011/); // date
 });
 
-test('bar links to the source album', () => {
+test('bar links to the source album (visible pill button)', () => {
   const html = renderRandomShow({ manifest, item, scope: 'all' });
-  assert.match(html, /class="slideshow-title" href="\/nepal\/poon-hill-trek"/);
+  assert.match(html, /class="slideshow-place-btn slideshow-title" href="\/nepal\/poon-hill-trek"/);
+});
+
+test('slideshow-ux-2 #6: "random all" shows a country pill BEFORE the album pill', () => {
+  const html = renderRandomShow({ manifest, item, scope: 'all' });
+  assert.match(html, /class="slideshow-place-btn slideshow-country" href="\/nepal"/);
+  assert.match(html, /נפאל/); // country he-name
+  // country button comes before the album button in source order
+  assert.ok(html.indexOf('slideshow-country') < html.indexOf('slideshow-title'));
+});
+
+test('slideshow-ux-2 #6: within-country random shows NO country pill (only album)', () => {
+  const html = renderRandomShow({ manifest, item, scope: 'np' });
+  assert.equal(/slideshow-country/.test(html), false);
+  assert.match(html, /class="slideshow-place-btn slideshow-title"/);
+});
+
+test('slideshow-ux-2 #5/#6: emits data-next-img / data-prev-img when given', () => {
+  const html = renderRandomShow({
+    manifest, item, scope: 'all', nextImg: '/img/pN/520', prevImg: '/img/pP/520',
+  });
+  assert.match(html, /data-next-img="\/img\/pN\/520"/);
+  assert.match(html, /data-prev-img="\/img\/pP\/520"/);
 });
 
 test('download link → original', () => {
