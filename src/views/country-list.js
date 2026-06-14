@@ -2,11 +2,12 @@
 //
 // Pure HTML-string builder: takes { manifest, error, dpr } and returns the HTML
 // for #app. The 7 countries fill one no-scroll screen as photo tiles with the
-// country name overlaid; a slim header carries the icon nav + theme toggle. Two
-// layouts are emitted and CSS shows one per viewport/orientation: a desktop /
-// landscape bento mosaic (.home-bento, varied tile sizes) and a phone-portrait
-// 2/2/2/1 stack (.home-layers). Tiles use a CSS background-image (not <img>),
-// preferring the curated per-country hero photo (country-hero.js).
+// country name overlaid; a slim header carries the icon nav + theme toggle. The
+// 7 countries are grouped into the trip's 4 parts (np·in / vn·cn / au·nz / th).
+// Two sets are emitted (desktop + phone) and CSS shows one: a 2x2 parts grid on
+// desktop/landscape and a 2/2/2/1 stack on phone. Tiles use a CSS background-
+// image (not <img>), preferring the curated per-country hero photo
+// (country-hero.js); desktop uses the larger 'hero' image intent.
 //
 // R3: no-data + fetch-failed render paths tested in country-list.test.mjs.
 
@@ -36,16 +37,16 @@ function navHTML() {
   `;
 }
 
-function tile(country, manifest, dpr) {
+function tile(country, manifest, dpr, intent) {
   // Prefer the hand-picked hero photo (M63.1); fall back to the auto-pick.
   const heroId = heroPhotoId(country.code);
   const thumb = heroId ? { id: heroId } : pickCountryThumb(manifest, country.code);
+  const bg = thumb
+    ? `style="background-image:url('${imageUrl(thumb.id, intent, { dpr })}')"`
+    : `style="background:${countryColor(country.code)}"`;
   const total = manifest.albums
     .filter((a) => a.countries.includes(country.code))
     .reduce((s, a) => s + a.photos.length, 0);
-  const bg = thumb
-    ? `style="background-image:url('${imageUrl(thumb.id, 'card', { dpr })}')"`
-    : `style="background:${countryColor(country.code)}"`;
   return `
     <a class="country-tile" href="${countryPath(country.code)}" data-code="${country.code}" ${bg}>
       <span class="country-tile-scrim" aria-hidden="true"></span>
@@ -54,30 +55,24 @@ function tile(country, manifest, dpr) {
     </a>`;
 }
 
-// Desktop / landscape: a flat bento mosaic of the 7 tiles in trip order
-// (varied sizes via CSS nth-child spans). Carries data-layers="desktop" so the
-// existing wide/portrait show-hide rules apply.
-function bentoHTML(manifest, dpr) {
+// Both layouts share one structure: the trip's 4 parts (np·in / vn·cn / au·nz /
+// th), each a row of its country tiles, in trip order. CSS arranges the parts as
+// a 2x2 grid on desktop/landscape (each part a quadrant, clear RTL order) and as
+// a vertical 2/2/2/1 stack on phone-portrait. Desktop tiles use the larger
+// 'hero' image intent (crisp big tiles); phone uses 'card'. Only the visible set
+// loads its images (the hidden one is display:none).
+function partsHTML(manifest, dpr, mode) {
+  const intent = mode === 'desktop' ? 'hero' : 'card';
   const byCode = new Map(manifest.countries.map((c) => [c.code, c]));
   const ordered = COUNTRY_ORDER.filter((code) => byCode.has(code));
-  return `<div class="home-bento" data-layers="desktop">${
-    ordered.map((code) => tile(byCode.get(code), manifest, dpr)).join('')
-  }</div>`;
-}
-
-// Phone portrait: the stacked 2/2/2/1 layer groups.
-function layersHTML(manifest, dpr, mode) {
-  const byCode = new Map(manifest.countries.map((c) => [c.code, c]));
-  const ordered = COUNTRY_ORDER.filter((code) => byCode.has(code));
-  const layers = homeLayers(ordered, mode);
-  return `<div class="home-layers" data-layers="${mode}">${
-    layers.map((row) => {
-      const tiles = row
+  const parts = homeLayers(ordered, 'phone'); // [[np,in],[vn,cn],[au,nz],[th]]
+  return `<div class="home-parts" data-layers="${mode}">${
+    parts.map((part) => {
+      const tiles = part
         .filter((code) => byCode.has(code))
-        .map((code) => tile(byCode.get(code), manifest, dpr))
+        .map((code) => tile(byCode.get(code), manifest, dpr, intent))
         .join('');
-      if (!tiles) return '';
-      return `<div class="home-layer">${tiles}</div>`;
+      return tiles ? `<div class="home-part">${tiles}</div>` : '';
     }).join('')
   }</div>`;
 }
@@ -101,7 +96,7 @@ export function renderCountryList({ manifest, error, dpr = 1 }) {
   }
   return `${header}
     <main class="home-fit">
-      ${bentoHTML(manifest, dpr)}
-      ${layersHTML(manifest, dpr, 'phone')}
+      ${partsHTML(manifest, dpr, 'desktop')}
+      ${partsHTML(manifest, dpr, 'phone')}
     </main>`;
 }
