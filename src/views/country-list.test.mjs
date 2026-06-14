@@ -66,28 +66,31 @@ test('tiles link to each country page in trip order', () => {
   assert.ok(html.indexOf('/nepal') < html.indexOf('/thailand'));
 });
 
-test('desktop tiles use the curated hero photo at the larger hero size (720, crisp — not the 360 card upscaled)', () => {
+test('tiles paint a tiny thumb instantly and carry data-img-id for the progressive upgrade', () => {
   const html = renderCountryList({ manifest, dpr: 1 });
   const np = heroPhotoId('np');
-  assert.match(html, new RegExp(`background-image:url\\('/img/${np}/720'\\)`)); // 'hero' intent on desktop
+  // instant background is the small thumb (140 at DPR1), NOT the heavy hero
+  assert.match(html, new RegExp(`background-image:url\\('/img/${np}/140'\\)`));
+  // main.js reads data-img-id to upgrade thumb → card → hero
+  assert.match(html, new RegExp(`data-img-id="${np}"`));
   assert.equal(/googleusercontent|drive\.google/.test(html), false);
 });
 
 test('the hero override beats the auto-pick (uses the chosen id, not album photo-np)', () => {
   const html = renderCountryList({ manifest, dpr: 1 });
-  assert.match(html, new RegExp(`/img/${heroPhotoId('np')}/`));
+  assert.match(html, new RegExp(`data-img-id="${heroPhotoId('np')}"`));
   assert.equal(html.includes('/img/photo-np/'), false);
 });
 
-test('DPR is passed through (desktop hero → 1440 at DPR2)', () => {
+test('DPR scales the instant thumb (280 at DPR2)', () => {
   const html = renderCountryList({ manifest, dpr: 2 });
-  assert.match(html, new RegExp(`background-image:url\\('/img/${heroPhotoId('np')}/1440'\\)`));
+  assert.match(html, new RegExp(`background-image:url\\('/img/${heroPhotoId('np')}/280'\\)`));
 });
 
-test('every country renders its own curated hero photo', () => {
+test('every country carries its curated hero id for the upgrade', () => {
   const html = renderCountryList({ manifest, dpr: 1 });
   for (const code of ['np', 'in', 'vn', 'cn', 'au', 'nz', 'th']) {
-    assert.match(html, new RegExp(`/img/${heroPhotoId(code)}/\\d`), `${code} hero missing`);
+    assert.match(html, new RegExp(`data-img-id="${heroPhotoId(code)}"`), `${code} hero id missing`);
   }
 });
 

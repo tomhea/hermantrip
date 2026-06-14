@@ -21,7 +21,8 @@ import { shouldReloadForController } from './lib/sw-update.js';
 import { rememberScroll, recallScroll, isSlideOf } from './lib/scroll-store.js';
 import { globeLoadingHTML } from './lib/loading.js';
 import { countryMapLabels } from './lib/country-labels.js';
-import { landscapeFullscreenAction, LANDSCAPE_PHONE_MEDIA } from './lib/fullscreen-policy.js';
+import { landscapeFullscreenAction, LANDSCAPE_PHONE_MEDIA, shouldExitFullscreenOnNav } from './lib/fullscreen-policy.js';
+import { progressiveChain } from './lib/progressive-img.js';
 import { allPhotos, countryPhotos } from './lib/photo-pool.js';
 import { renderCountryList } from './views/country-list.js';
 import { renderAlbumList } from './views/album-list.js';
@@ -126,6 +127,29 @@ const dpr = () => window.devicePixelRatio || 1;
 
 function renderHome() {
   app.innerHTML = renderCountryList({ manifest, error: manifestError, dpr: dpr() });
+  upgradeTileImages();
+}
+
+// Progressive home tiles (M63.3): each tile paints a tiny thumb immediately,
+// then we preload the card and (on non-phones) the full-res hero and swap the
+// background in as each finishes. Only the visible layout's tiles upgrade, and
+// phones stop at the card to save data.
+function upgradeTileImages() {
+  const includeHero = !window.matchMedia('(max-width: 768px), (max-height: 500px)').matches;
+  app.querySelectorAll('.country-tile[data-img-id]').forEach((tileEl) => {
+    if (tileEl.offsetParent === null) return; // hidden set (display:none) — don't fetch
+    const steps = progressiveChain(tileEl.getAttribute('data-img-id'), { dpr: dpr(), includeHero });
+    let i = 1; // step 0 (thumb) is already the inline background
+    const next = () => {
+      if (i >= steps.length) return;
+      const url = steps[i++];
+      const pre = new Image();
+      pre.onload = () => { tileEl.style.backgroundImage = `url('${url}')`; next(); };
+      pre.onerror = next; // a broken step shouldn't stall the chain
+      pre.src = url;
+    };
+    next();
+  });
 }
 
 function renderCountry(params) {
@@ -609,9 +633,13 @@ function evaluateLandscapeFullscreen() {
     armedFsGesture = () => {
       disarmFsGesture();
       if (!window.matchMedia(LANDSCAPE_PHONE_MEDIA).matches || document.fullscreenElement) return;
+      // Claim ownership BEFORE the async request: tapping a home tile both enters
+      // fullscreen and navigates, and the route handler exits fullscreen on a
+      // non-slideshow nav — guarding on this flag stops that race from undoing us
+      // (the "every 2nd press" bug). Reset if the request is refused.
+      landscapeFsOwned = true;
       document.documentElement.requestFullscreen?.()
-        .then(() => { landscapeFsOwned = true; })
-        .catch(() => { /* gesture/permission refused — non-fatal */ });
+        .catch(() => { landscapeFsOwned = false; });
     };
     document.addEventListener('click', armedFsGesture, true);
     document.addEventListener('touchend', armedFsGesture, true);
@@ -1346,8 +1374,16 @@ function render() {
     autoplayOn = false;
     // Leaving the slideshow: drop out of fullscreen so the album/home view
     // isn't stuck filling the screen, and forget the random playlist so the
-    // next random visit reshuffles ("random each time").
-    if (document.fullscreenElement) document.exitFullscreen?.();
+    // next random visit reshuffles ("random each time"). But never exit a
+    // fullscreen the landscape policy owns — that would undo the just-entered
+    // phone-landscape fullscreen on the very tap that navigated (M63.3).
+    if (shouldExitFullscreenOnNav({
+      leavingToNonSlideshow: !inSlideshow,
+      isFullscreen: !!document.fullscreenElement,
+      landscapeOwned: landscapeFsOwned,
+    })) {
+      document.exitFullscreen?.();
+    }
     randomPlaylist = null;
     randomScope = null;
   }

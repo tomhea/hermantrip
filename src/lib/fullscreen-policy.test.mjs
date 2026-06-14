@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { landscapeFullscreenAction, LANDSCAPE_PHONE_MEDIA } from './fullscreen-policy.js';
+import { landscapeFullscreenAction, LANDSCAPE_PHONE_MEDIA, shouldExitFullscreenOnNav } from './fullscreen-policy.js';
 
 test('enter: phone in landscape, not yet fullscreen', () => {
   assert.equal(landscapeFullscreenAction({ landscapePhone: true, isFullscreen: false, ownedByLandscape: false }), 'enter');
@@ -25,4 +25,16 @@ test('no action: portrait, not fullscreen', () => {
 test('media query targets short landscape viewports (phones)', () => {
   assert.match(LANDSCAPE_PHONE_MEDIA, /orientation: landscape/);
   assert.match(LANDSCAPE_PHONE_MEDIA, /max-height: 500px/);
+});
+
+test('nav exits fullscreen only for the slideshow, never a landscape-owned one', () => {
+  // leaving the slideshow (its own fullscreen) → exit so the album isn't stuck
+  assert.equal(shouldExitFullscreenOnNav({ leavingToNonSlideshow: true, isFullscreen: true, landscapeOwned: false }), true);
+  // home → country navigation while the LANDSCAPE policy owns fullscreen → keep it
+  // (the M63.3 every-other-tap fix: don't let navigation race the just-entered FS)
+  assert.equal(shouldExitFullscreenOnNav({ leavingToNonSlideshow: true, isFullscreen: true, landscapeOwned: true }), false);
+  // not fullscreen → nothing to exit
+  assert.equal(shouldExitFullscreenOnNav({ leavingToNonSlideshow: true, isFullscreen: false, landscapeOwned: false }), false);
+  // staying within the slideshow → don't exit
+  assert.equal(shouldExitFullscreenOnNav({ leavingToNonSlideshow: false, isFullscreen: true, landscapeOwned: false }), false);
 });
