@@ -25,16 +25,16 @@ Pure logic in `src/lib/` (unit-tested, no DOM/fetch), HTML-string view builders 
 | | |
 |---|---|
 | Branch | `main` (clean) |
-| Tests | **766 passing / 0 fail** (`npm test`) |
+| Tests | **769 passing / 0 fail** (`npm test`) |
 | Lint | clean (`npx eslint@9 --max-warnings=0 .`) |
-| SW cache | `hermantrip-shell-v80` (in `sw.js`) |
-| Latest tag | `v0.M66.1` (M5 + slideshow-UX hotfix). Next milestone = **M6 → `v0.M67`** |
-| Next SW bump | **v81** |
+| SW cache | `hermantrip-shell-v81` (in `sw.js`) |
+| Latest tag | `v0.M66.2` (M5 + 2 slideshow-UX hotfixes). Next milestone = **M6 → `v0.M67`** |
+| Next SW bump | **v82** |
 
 **Shipped milestones:** M1 Foundations (`v0.M62`, themes+toggle+slim header+icons+country colours) · M2 Home (`v0.M63`, photo-forward 4-parts bento-ish home) · M3 Country page (`v0.M64`, featured-first overlay grid) · M4 Album grid (`v0.M65`, justified rows + sticky day headers) · M5 Slideshow (`v0.M66`, charcoal stage + floating auto-hide bar + on-demand filmstrip).
-**Polish hotfixes (all live):** `v0.M63.1/.2/.3` (home: hero photos, bento→even-order, names-right, progressive image load, landscape fullscreen) · `v0.M64.1` (country even-grid) · `v0.M65.1–.5` (album/country: justified→uniform tiles, sticky-on-phone, header overflow, one-line subtitle, count-drop-on-portrait, shrink-to-fit long dates) · `v0.M66.1` (slideshow: symmetric cross-album continue-loop, persistent draggable filmstrip above the bar, opaque thumbs, load-gated autoplay — applied to the random viewers too).
+**Polish hotfixes (all live):** `v0.M63.1/.2/.3` (home: hero photos, bento→even-order, names-right, progressive image load, landscape fullscreen) · `v0.M64.1` (country even-grid) · `v0.M65.1–.5` (album/country: justified→uniform tiles, sticky-on-phone, header overflow, one-line subtitle, count-drop-on-portrait, shrink-to-fit long dates) · `v0.M66.1` (slideshow: symmetric cross-album continue-loop, persistent draggable filmstrip above the bar, opaque thumbs, load-gated autoplay — applied to the random viewers too) · `v0.M66.2` (slideshow: in-place slide advance so the dock/filmstrip don't re-render on swap — no control flicker, filmstrip keeps scroll, phone autoplay auto-hides; drag-over-thumbnail; visible album/country pill buttons in the random viewers).
 
-Tags continue the ladder — **before tagging, run `git tag --list 'v0.*'`** to confirm the next number. Sub-fixes use `v0.M66.N` (next would be `v0.M66.2`); they do NOT consume the next milestone number (M6 is `v0.M67`).
+Tags continue the ladder — **before tagging, run `git tag --list 'v0.*'`** to confirm the next number. Sub-fixes use `v0.M66.N` (next would be `v0.M66.3`); they do NOT consume the next milestone number (M6 is `v0.M67`).
 
 ## 2. Per-milestone command sequence (this repo)
 
@@ -44,7 +44,7 @@ git checkout -b m6-map-globe                       # mN-slug / fix/slug
 # … TDD task-by-task: write failing *.test.mjs, run (FAIL), implement, run (PASS) …
 npm test                                          # 0 fail; node --test over all *.test.mjs
 npx eslint@9 --max-warnings=0 .                   # exit 0
-# bump sw.js SHELL_CACHE (v80→v81) + add any NEW src/lib|views file to SHELL_FILES
+# bump sw.js SHELL_CACHE (v81→v82) + add any NEW src/lib|views file to SHELL_FILES
 git commit … ; git push -u origin m6-map-globe
 gh pr create --base main --title "M6: Map / Globe" --body-file <body>   # R1+R2 sections + R-by-R table
 #   → spawn crist (Agent subagent_type: crist) → APPROVED only
@@ -110,8 +110,8 @@ Re-skinned the live slideshow without regressing behaviour. What landed (for ref
 
 ## 8. Starting M6 (Map / Globe) — ⚠️ BLOCKED on the owner
 
-**Branch `m6-map-globe`, tag `v0.M67`, SW v81.** **STOP and ask the owner first:** M6 needs the **MapTiler domain-restricted key + the light/dark Hebrew style IDs**, pasted into a new `src/config.js` (the key is intentionally NOT in the repo). Don't start the map work until you have them.
+**Branch `m6-map-globe`, tag `v0.M67`, SW v82.** **STOP and ask the owner first:** M6 needs the **MapTiler domain-restricted key + the light/dark Hebrew style IDs**, pasted into a new `src/config.js` (the key is intentionally NOT in the repo). Don't start the map work until you have them.
 
 M6 ships: Hebrew tiles (client key), per-country colours on pins/markers, comet trail, map-style pins, starfield fix. See the plan's M6 section + Risks list for the gotchas (esp. **theme toggle won't hot-swap Leaflet tiles mid-view** — swap the tile layer on theme change or accept it updates on next visit).
 
-Then **M7 Game** (`v0.M68`, SW v82) and **M8 Timeline** (`v0.M69`, SW v83 — data-dependent scrubber; visually sanity-check against real manifest data, not only unit tests).
+Then **M7 Game** (`v0.M68`, SW v83) and **M8 Timeline** (`v0.M69`, SW v84 — data-dependent scrubber; visually sanity-check against real manifest data, not only unit tests).
