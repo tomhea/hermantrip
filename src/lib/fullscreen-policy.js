@@ -22,6 +22,15 @@ export function landscapeFullscreenAction({ landscapePhone, isFullscreen, ownedB
   return null;
 }
 
+// On in-app navigation we drop out of fullscreen ONLY when it's the slideshow's
+// (so the album/home isn't left stuck full-screen). A fullscreen the landscape
+// policy owns must SURVIVE navigation — otherwise tapping a home tile, which
+// BOTH enters landscape-fullscreen and navigates, races the exit and the URL bar
+// flickers back roughly every other tap (the M63.3 "every 2nd press" bug).
+export function shouldExitFullscreenOnNav({ leavingToNonSlideshow, isFullscreen, landscapeOwned }) {
+  return leavingToNonSlideshow && isFullscreen && !landscapeOwned;
+}
+
 // The media query that defines "phone in landscape". Exported so main.js and
 // the test share one definition.
 export const LANDSCAPE_PHONE_MEDIA = '(orientation: landscape) and (max-height: 500px)';
