@@ -26,9 +26,9 @@ function escapeHTML(s) {
   }[c]));
 }
 
-function header(title, backHref, backLabel, subtitle) {
+function header(title, backHref, backLabel, subtitleHTML) {
   const actions = `<button type="button" class="slim-nav slim-toggle" data-theme-toggle aria-label="מצב בהיר/כהה">${icon('moon')}${icon('sun')}</button>`;
-  return viewHeader({ title, subtitle, back: { href: backHref, label: backLabel }, actions });
+  return viewHeader({ title, subtitleHTML, back: { href: backHref, label: backLabel }, actions });
 }
 
 export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
@@ -57,12 +57,17 @@ export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
   // (position in this list) matches what the slideshow uses.
   const photos = sortPhotosByDate(album.photos);
   const dateLabel = albumDateLabel(album.photos);
-  const subtitle = dateLabel
-    ? `${photos.length.toLocaleString('he-IL')} תמונות · ${dateLabel}`
-    : `${photos.length.toLocaleString('he-IL')} תמונות`;
+  const count = `${photos.length.toLocaleString('he-IL')} תמונות`;
+  // Structured so CSS can drop the count on phone-portrait (date span only) and
+  // keep it on landscape/desktop. The " · " lives inside .sub-count so hiding
+  // the count drops the separator too. No date → count goes in .sub-dates so it
+  // stays visible even on portrait.
+  const subtitleHTML = dateLabel
+    ? `<span class="sub-count">${escapeHTML(count)} · </span><span class="sub-dates">${escapeHTML(dateLabel)}</span>`
+    : `<span class="sub-dates">${escapeHTML(count)}</span>`;
 
   if (photos.length === 0) {
-    return `${header(album.title ?? album.name, backHref, backLabel, subtitle)}<p class="muted">אין תמונות באלבום זה.</p>`;
+    return `${header(album.title ?? album.name, backHref, backLabel, subtitleHTML)}<p class="muted">אין תמונות באלבום זה.</p>`;
   }
 
   // Group by day; render a section per day with a Hebrew date header. A
@@ -112,7 +117,7 @@ export function renderAlbumGrid({ manifest, error, code, id, dpr = 1 }) {
     : '';
 
   return `
-    ${header(name, backHref, backLabel, subtitle)}
+    ${header(name, backHref, backLabel, subtitleHTML)}
     ${playBtn}
     ${sections}
     ${nextBtn}

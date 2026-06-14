@@ -23,3 +23,9 @@ test('.slim-actions is a flex action group', () => {
   assert.ok(b, '.slim-actions rule missing');
   assert.match(b, /display:\s*flex/);
 });
+
+test('phone-portrait: the subtitle is one line (nowrap) and the photo count is hidden (M65.3)', () => {
+  // album header on portrait → date span only, exactly one line; count + dates on landscape/desktop
+  assert.match(css, /max-width:\s*768px\)\s*and\s*\(orientation:\s*portrait\)[^]*\.slim-sub\s*\{[^}]*white-space:\s*nowrap/);
+  assert.match(css, /max-width:\s*768px\)\s*and\s*\(orientation:\s*portrait\)[^]*\.sub-count\s*\{[^}]*display:\s*none/);
+});

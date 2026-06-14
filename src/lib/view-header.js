@@ -6,11 +6,15 @@ function escapeHTML(s) {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
   }[c]));
 }
-export function viewHeader({ title, subtitle = '', back = null, actions = '' }) {
+// subtitle: a plain string (escaped here). subtitleHTML: pre-built, caller-
+// trusted markup (the caller escapes its own dynamic parts) — used when the
+// subtitle needs structure, e.g. separately-targetable count/date spans.
+export function viewHeader({ title, subtitle = '', subtitleHTML = '', back = null, actions = '' }) {
   const backHTML = back
     ? `<a class="slim-back" href="${escapeHTML(back.href)}" aria-label="${escapeHTML(back.label)}">→ ${escapeHTML(back.label)}</a>`
     : '';
-  const sub = subtitle ? `<span class="slim-sub">${escapeHTML(subtitle)}</span>` : '';
+  const subInner = subtitleHTML || (subtitle ? escapeHTML(subtitle) : '');
+  const sub = subInner ? `<span class="slim-sub">${subInner}</span>` : '';
   return `
     <header class="slim-header">
       <div class="slim-title-wrap">
