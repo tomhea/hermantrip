@@ -13,8 +13,16 @@ test('desktop layers hidden on phone, phone layers hidden on desktop', () => {
   assert.match(css, /\[data-layers="phone"\]\s*\{[^}]*display:\s*none/);
   assert.match(css, /min-width:\s*769px[^]*\[data-layers="desktop"\]\s*\{[^}]*display:\s*none/);
 });
-test('the finale desktop layer grows taller', () => {
-  assert.match(css, /\.home-layer\[data-finale\]\s*\{[^}]*flex:\s*1\.5/);
+test('desktop set is a bento grid with named areas, shown on wide viewports', () => {
+  const b = block('.home-bento'); assert.ok(b, '.home-bento rule missing');
+  assert.match(b, /grid-template-areas/);
+  assert.match(css, /\.home-bento\[data-layers="desktop"\]\s*\{[^}]*display:\s*grid/);
+});
+test('country-tile name + count sit on the RTL start (right) of the photo', () => {
+  // RTL: inset-inline-start is the right edge (the M63.1 fix — was inset-inline-end = left).
+  const name = block('.country-tile-name'); assert.ok(name);
+  assert.match(name, /inset-inline-start/);
+  assert.equal(/inset-inline-end/.test(name), false);
 });
 test('country-tile name sits on the photo with a scrim', () => {
   assert.ok(block('.country-tile-name')); assert.ok(block('.country-tile-scrim'));
