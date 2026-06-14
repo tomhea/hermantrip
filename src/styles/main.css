@@ -429,29 +429,22 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   font-variant-numeric: tabular-nums;
 }
 
-/* Album grid — justified rows by day. Uniform-height fallback: the manifest has
-   no per-photo w/h, so rows use a fixed height + object-fit:cover (slight crop)
-   rather than true aspect-preserving widths. Each tile has a real flex-basis so
-   the row actually wraps; flex-grow fills the row edge-to-edge; the ::after
-   sentinel keeps a short last row from stretching grotesquely. Revisit true
-   justified rows once scripts/build-manifest.mjs records image dimensions. */
+/* Album grid — uniform-width tiles in an auto-fill grid so EVERY photo (incl.
+   the last row of each day) is exactly the same width; full rows fill the row,
+   the last row simply leaves trailing space rather than slimming its tiles.
+   Fixed row height + object-fit:cover (the manifest has no per-photo w/h; true
+   aspect-justified rows remain a follow-up needing build-manifest dimensions). */
 .photo-grid {
   list-style: none;
   padding: 0;
   margin: 0;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: var(--space-1);
 }
-.photo-grid::after { content: ''; flex-grow: 999999; }
-.photo-tile {
-  flex: 1 1 180px;
-  height: 150px;
-  margin: 0;
-}
+.photo-tile { margin: 0; }
 .photo-tile a {
   display: block;
-  height: 100%;
   outline-offset: -2px;
 }
 .photo-tile a:hover,
@@ -467,8 +460,12 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   background: var(--earth-pale);
 }
 @media (max-width: 768px) {
-  .photo-tile { flex-basis: 110px; height: 110px; }
+  .photo-grid { grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); }
   .album-photo { height: 110px; }
+  /* The mobile URL bar fights position:sticky on scroll-up, leaving the date
+     header half-hidden; keep it static on phones (sticky stays on desktop +
+     landscape where it works cleanly). */
+  .day-header { position: static; }
 }
 
 /* ---- M5: slideshow ---- */
@@ -1428,7 +1425,8 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   border-bottom: 1px solid var(--divider);
   padding: var(--space-2) var(--space-3);
 }
-.slim-title { font-size: var(--type-h1); font-weight: 700; margin: 0; white-space: nowrap; }
+.slim-title-wrap { min-width: 0; }
+.slim-title { font-size: var(--type-h1); font-weight: 700; margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .slim-sub { font-size: var(--type-small); font-weight: 300; color: var(--text-muted); margin-inline-start: var(--space-2); }
 .slim-back { display: block; font-size: var(--type-small); color: var(--accent-dim); text-decoration: none; }
 .slim-actions { display: flex; gap: var(--space-2); align-items: center; }
@@ -1485,6 +1483,9 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   .nav-long { display: none; }  /* phone: short labels so 4 fit one row */
   [data-layers="desktop"] { display: none; }  /* keep desktop set hidden in portrait (explicit, after the wide query so the guard test matches) */
   [data-layers="phone"] { display: flex; }
+  /* Sub-screen slim headers (country/album): drop the count·dates to its own
+     line under the title so the header never forces horizontal overflow (#3). */
+  .slim-sub { display: block; margin-inline-start: 0; }
 }
 /* Home no-scroll fit — escape main#app's page padding + 64rem max-width so the
    7 tiles fill the viewport edge-to-edge. The header is flex:0 (natural height),
