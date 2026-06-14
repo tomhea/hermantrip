@@ -23,6 +23,7 @@ import { globeLoadingHTML } from './lib/loading.js';
 import { countryMapLabels } from './lib/country-labels.js';
 import { landscapeFullscreenAction, LANDSCAPE_PHONE_MEDIA, shouldExitFullscreenOnNav } from './lib/fullscreen-policy.js';
 import { progressiveChain } from './lib/progressive-img.js';
+import { fitFontPx } from './lib/fit-text.js';
 import { allPhotos, countryPhotos } from './lib/photo-pool.js';
 import { renderCountryList } from './views/country-list.js';
 import { renderAlbumList } from './views/album-list.js';
@@ -157,7 +158,25 @@ function renderCountry(params) {
   const code = codeFromSlug(params.country);
   app.innerHTML = renderAlbumList({ manifest, error: manifestError, code, dpr: dpr() });
   window.scrollTo(0, 0);
+  fitTileSubs();
 }
+
+// Shrink any country-tile sub (count·dates) that would overflow its one line so
+// the full text fits by reducing the font, instead of ellipsis-truncating it
+// (M65.5). The proportional target is computed by the pure fitFontPx; we measure
+// and apply here. Re-run on resize/orientation and once the web font loads (text
+// width depends on the loaded font). No-op off the country page.
+function fitTileSubs() {
+  document.querySelectorAll('.album-tile-sub').forEach((el) => {
+    el.style.fontSize = ''; // reset to the CSS default before measuring
+    const cur = parseFloat(getComputedStyle(el).fontSize) || 14;
+    const px = fitFontPx(el.scrollWidth, el.clientWidth, cur);
+    if (px < cur) el.style.fontSize = `${px}px`;
+  });
+}
+window.addEventListener('resize', fitTileSubs, { passive: true });
+window.addEventListener('orientationchange', fitTileSubs);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTileSubs);
 
 function renderAlbum(params, fromPath) {
   const code = codeFromSlug(params.country);
