@@ -13,10 +13,15 @@ test('.country-page is a grid — 2 cols on phone, 3 on desktop', () => {
   assert.match(css, /min-width:\s*769px[^]*\.country-page\s*\{[^}]*grid-template-columns:\s*repeat\(3/);
 });
 
-test('the featured tile spans the full row and is wide (21/9)', () => {
+test('phone-portrait: the featured tile spans the full row and is wide (21/9)', () => {
   const b = block('.album-tile-featured'); assert.ok(b, '.album-tile-featured rule missing');
   assert.match(b, /grid-column:\s*1\s*\/\s*-1/);
   assert.match(b, /aspect-ratio:\s*21\s*\/\s*9/);
+});
+
+test('desktop/landscape: the featured tile is a normal grid cell (even 3-col grid, no full-width banner)', () => {
+  // at ≥769px the first album is just a normal tile so several albums show without scrolling
+  assert.match(css, /min-width:\s*769px[^]*\.album-tile-featured\s*\{[^}]*grid-column:\s*auto/);
 });
 
 test('album tiles overlay the name + sub on the cover photo (with a scrim)', () => {
