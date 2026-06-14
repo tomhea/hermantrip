@@ -1,14 +1,19 @@
-// Album list view: #/country/{code} → the albums in that country.
+// Album list view (country page): /{country} → its albums.
 //
-// Pure HTML-string builder. Navigation is plain <a href> so the hash
-// router handles it; no event wiring needed. R3-tested for loading /
-// fetch-failed / unknown-country paths.
+// M3 refresh: a slim header (back-to-home + a country-random pill + theme
+// toggle), the FIRST album a wide FEATURED overlay tile, the rest an overlay
+// grid. Each tile overlays the album name + count·dates on its cover photo.
+// Pure HTML-string builder; navigation via <a href>. Tiles use lazy <img>
+// (photoImgHTML → loading="lazy" + onerror, R4/R5). R3-tested for
+// loading / fetch-failed / unknown-country / empty paths.
 
 import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { albumsForCountry } from '../lib/album-query.js';
 import { photoImgHTML } from '../lib/photo-img.js';
-import { homePath, albumPath, countryRandomPath, slidePath } from '../lib/paths.js';
+import { albumPath, countryRandomPath } from '../lib/paths.js';
 import { albumDateLabel } from '../lib/album-dates.js';
+import { viewHeader } from '../lib/view-header.js';
+import { icon } from '../lib/nav-icons.js';
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -16,79 +21,52 @@ function escapeHTML(s) {
   }[c]));
 }
 
-function backHeader(title, subtitle) {
-  return `
-    <header class="view-header">
-      <a class="back-link" href="${homePath()}" aria-label="חזרה לדף הבית">→ דף הבית</a>
-      <h1 class="h1">${escapeHTML(title)}</h1>
-      ${subtitle ? `<p class="muted small">${escapeHTML(subtitle)}</p>` : ''}
-    </header>
-  `;
+const BACK = { href: '/', label: 'דף הבית' };
+
+function header(country, subtitle, code) {
+  const actions = `
+    <a class="slim-nav" href="${countryRandomPath(code)}" data-random-play data-href="${countryRandomPath(code)}">${icon('slideshow')} מצגת<span class="nav-long"> אקראית</span></a>
+    <button type="button" class="slim-nav slim-toggle" data-theme-toggle aria-label="מצב בהיר/כהה">${icon('moon')}${icon('sun')}</button>`;
+  return viewHeader({ title: country.he, subtitle, back: BACK, actions });
 }
 
-function albumCard(album, code, dpr) {
+function albumTile(album, code, dpr, featured) {
   const first = album.photos[0];
   const count = album.photos.length;
   const dateLabel = albumDateLabel(album.photos);
-  const thumb = first
-    ? photoImgHTML(first, { intent: 'card', dpr, className: 'album-thumb' })
-    : '<div class="album-thumb photo-broken" aria-hidden="true"></div>';
-  // Play button (M34 / ask #6): jumps straight to the album's first photo and
-  // starts the slideshow in fullscreen (wired in main.js via data-album-play).
-  // Only shown when the album actually has photos. It's a sibling of the card
-  // link (interactive elements can't nest inside an <a>).
   const name = album.title ?? album.name;
-  const play = count > 0
-    ? `<button type="button" class="album-play" data-album-play
-               data-slide-href="${slidePath(code, album.slug, 0)}"
-               aria-label="הפעלת מצגת — ${escapeHTML(name)}">▶</button>`
-    : '';
+  const sub = `${count.toLocaleString('he-IL')} תמונות${dateLabel ? ` · ${escapeHTML(dateLabel)}` : ''}`;
+  const img = first
+    ? photoImgHTML(first, { intent: featured ? 'hero' : 'card', dpr, className: 'album-tile-img' })
+    : '<div class="album-tile-img photo-broken" aria-hidden="true"></div>';
   return `
-    <li class="album-card">
-      <a class="album-card-link" href="${albumPath(code, album.slug)}">
-        ${thumb}
-        <div class="album-card-meta">
-          <span class="album-name">${escapeHTML(name)}</span>
-          <span class="album-count">${count.toLocaleString('he-IL')} תמונות</span>
-          ${dateLabel ? `<span class="album-dates">${escapeHTML(dateLabel)}</span>` : ''}
-        </div>
-      </a>
-      ${play}
-    </li>
-  `;
+    <a class="album-tile${featured ? ' album-tile-featured' : ''}" href="${albumPath(code, album.slug)}">
+      ${img}
+      <span class="album-tile-scrim" aria-hidden="true"></span>
+      <span class="album-tile-name">${escapeHTML(name)}</span>
+      <span class="album-tile-sub">${sub}</span>
+    </a>`;
 }
 
 export function renderAlbumList({ manifest, error, code, dpr = 1 }) {
   if (error) {
-    return `${backHeader('אלבומים', '')}${errorHTML('לא הצלחנו לטעון את האלבומים. נסו לרענן.')}`;
+    return `${viewHeader({ title: 'אלבומים', back: BACK })}${errorHTML('לא הצלחנו לטעון את האלבומים. נסו לרענן.')}`;
   }
   if (!manifest) {
-    return `${backHeader('אלבומים', '')}${loadingHTML()}`;
+    return `${viewHeader({ title: 'אלבומים', back: BACK })}${loadingHTML()}`;
   }
-
   const country = manifest.countries?.find((c) => c.code === code);
   if (!country) {
-    return `
-      ${backHeader('מדינה לא נמצאה', '')}
-      <p class="muted">המדינה המבוקשת לא נמצאה. <a href="${homePath()}">חזרה לדף הבית</a>.</p>
-    `;
+    return `${viewHeader({ title: 'מדינה לא נמצאה', back: BACK })}<p class="muted">המדינה המבוקשת לא נמצאה. <a href="/">חזרה לדף הבית</a>.</p>`;
   }
-
   const albums = albumsForCountry(manifest, code);
   const totalPhotos = albums.reduce((s, a) => s + a.photos.length, 0);
   const subtitle = `${albums.length} אלבומים · ${totalPhotos.toLocaleString('he-IL')} תמונות`;
-
   if (albums.length === 0) {
-    return `${backHeader(country.he, subtitle)}<p class="muted">אין אלבומים להצגה.</p>`;
+    return `${header(country, subtitle, code)}<p class="muted">אין אלבומים להצגה.</p>`;
   }
-
-  return `
-    ${backHeader(country.he, subtitle)}
-    <nav class="home-actions">
-      <a class="action-link" href="${countryRandomPath(code)}" data-random-play data-href="${countryRandomPath(code)}">▷ מצגת אקראית · ${escapeHTML(country.he)}</a>
-    </nav>
-    <ul class="album-grid-list" aria-label="אלבומים">
-      ${albums.map((a) => albumCard(a, code, dpr)).join('')}
-    </ul>
-  `;
+  return `${header(country, subtitle, code)}
+    <main class="country-page">
+      ${albums.map((a, i) => albumTile(a, code, dpr, i === 0)).join('')}
+    </main>`;
 }
