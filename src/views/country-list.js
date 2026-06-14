@@ -1,11 +1,12 @@
-// Country list view — the photo-forward home page (M2 redesign).
+// Country list view — the photo-forward home page (M2 redesign; M63.1 polish).
 //
 // Pure HTML-string builder: takes { manifest, error, dpr } and returns the HTML
 // for #app. The 7 countries fill one no-scroll screen as photo tiles with the
-// country name overlaid; a slim header carries the icon nav + theme toggle. Both
-// the desktop (2/2/3) and phone (2/2/2/1) layer sets are emitted; CSS shows the
-// right one per viewport/orientation (see main.css .home-layers). Tiles use a
-// CSS background-image (not <img>), so there is no per-tile onerror hop.
+// country name overlaid; a slim header carries the icon nav + theme toggle. Two
+// layouts are emitted and CSS shows one per viewport/orientation: a desktop /
+// landscape bento mosaic (.home-bento, varied tile sizes) and a phone-portrait
+// 2/2/2/1 stack (.home-layers). Tiles use a CSS background-image (not <img>),
+// preferring the curated per-country hero photo (country-hero.js).
 //
 // R3: no-data + fetch-failed render paths tested in country-list.test.mjs.
 
@@ -16,6 +17,7 @@ import { countryPath, randomPath } from '../lib/paths.js';
 import { countryColor } from '../lib/country-colors.js';
 import { icon } from '../lib/nav-icons.js';
 import { homeLayers } from '../lib/home-layout.js';
+import { heroPhotoId } from '../lib/country-hero.js';
 import { COUNTRY_ORDER } from '../lib/countries.js';
 
 function escapeHTML(s) {
@@ -35,7 +37,9 @@ function navHTML() {
 }
 
 function tile(country, manifest, dpr) {
-  const thumb = pickCountryThumb(manifest, country.code);
+  // Prefer the hand-picked hero photo (M63.1); fall back to the auto-pick.
+  const heroId = heroPhotoId(country.code);
+  const thumb = heroId ? { id: heroId } : pickCountryThumb(manifest, country.code);
   const total = manifest.albums
     .filter((a) => a.countries.includes(country.code))
     .reduce((s, a) => s + a.photos.length, 0);
@@ -43,26 +47,37 @@ function tile(country, manifest, dpr) {
     ? `style="background-image:url('${imageUrl(thumb.id, 'card', { dpr })}')"`
     : `style="background:${countryColor(country.code)}"`;
   return `
-    <a class="country-tile" href="${countryPath(country.code)}" ${bg}>
+    <a class="country-tile" href="${countryPath(country.code)}" data-code="${country.code}" ${bg}>
       <span class="country-tile-scrim" aria-hidden="true"></span>
       <span class="country-tile-name">${escapeHTML(country.he)}</span>
       <span class="country-tile-count">${total.toLocaleString('he-IL')} תמונות</span>
     </a>`;
 }
 
+// Desktop / landscape: a flat bento mosaic of the 7 tiles in trip order
+// (varied sizes via CSS nth-child spans). Carries data-layers="desktop" so the
+// existing wide/portrait show-hide rules apply.
+function bentoHTML(manifest, dpr) {
+  const byCode = new Map(manifest.countries.map((c) => [c.code, c]));
+  const ordered = COUNTRY_ORDER.filter((code) => byCode.has(code));
+  return `<div class="home-bento" data-layers="desktop">${
+    ordered.map((code) => tile(byCode.get(code), manifest, dpr)).join('')
+  }</div>`;
+}
+
+// Phone portrait: the stacked 2/2/2/1 layer groups.
 function layersHTML(manifest, dpr, mode) {
   const byCode = new Map(manifest.countries.map((c) => [c.code, c]));
   const ordered = COUNTRY_ORDER.filter((code) => byCode.has(code));
   const layers = homeLayers(ordered, mode);
   return `<div class="home-layers" data-layers="${mode}">${
-    layers.map((row, i) => {
+    layers.map((row) => {
       const tiles = row
         .filter((code) => byCode.has(code))
         .map((code) => tile(byCode.get(code), manifest, dpr))
         .join('');
       if (!tiles) return '';
-      const finale = i === layers.length - 1 && mode === 'desktop' ? ' data-finale' : '';
-      return `<div class="home-layer"${finale}>${tiles}</div>`;
+      return `<div class="home-layer">${tiles}</div>`;
     }).join('')
   }</div>`;
 }
@@ -86,7 +101,7 @@ export function renderCountryList({ manifest, error, dpr = 1 }) {
   }
   return `${header}
     <main class="home-fit">
-      ${layersHTML(manifest, dpr, 'desktop')}
+      ${bentoHTML(manifest, dpr)}
       ${layersHTML(manifest, dpr, 'phone')}
     </main>`;
 }

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { renderCountryList } from './country-list.js';
+import { heroPhotoId } from '../lib/country-hero.js';
 
 // Full 7-country fixture (codes must be in COUNTRY_ORDER so the home layers fill).
 const manifest = {
@@ -39,9 +40,12 @@ test('home renders desktop + phone layer sets (both present; CSS shows one)', ()
   assert.match(html, /data-layers="phone"/);
 });
 
-test('the desktop set has a tall finale layer (data-finale)', () => {
+test('the desktop set is a bento mosaic with all 7 tiles', () => {
   const html = renderCountryList({ manifest, dpr: 1 });
-  assert.match(html, /data-finale/);
+  assert.match(html, /class="home-bento" data-layers="desktop"/);
+  const bento = html.slice(html.indexOf('home-bento'));
+  const tilesInBento = (bento.slice(0, bento.indexOf('data-layers="phone"')).match(/class="country-tile"/g) || []).length;
+  assert.equal(tilesInBento, 7);
 });
 
 test('nav uses the icon set + a theme toggle', () => {
@@ -62,24 +66,29 @@ test('tiles link to each country page in trip order', () => {
   assert.ok(html.indexOf('/nepal') < html.indexOf('/thailand'));
 });
 
-test('photo tiles use the same-origin /img/ proxy as a background image (never raw Google URL)', () => {
+test('photo tiles use the curated hero photo via the /img/ proxy (never raw Google URL)', () => {
   const html = renderCountryList({ manifest, dpr: 1 });
-  assert.match(html, /background-image:url\('\/img\/photo-np\/360'\)/);
+  const np = heroPhotoId('np');
+  assert.match(html, new RegExp(`background-image:url\\('/img/${np}/360'\\)`));
   assert.equal(/googleusercontent|drive\.google/.test(html), false);
+});
+
+test('the hero override beats the auto-pick (uses the chosen id, not album photo-np)', () => {
+  const html = renderCountryList({ manifest, dpr: 1 });
+  assert.match(html, new RegExp(`/img/${heroPhotoId('np')}/`));
+  assert.equal(html.includes('/img/photo-np/'), false);
 });
 
 test('DPR is passed through to the tile background image', () => {
   const html = renderCountryList({ manifest, dpr: 2 });
-  assert.match(html, /background-image:url\('\/img\/photo-np\/720'\)/);
+  assert.match(html, new RegExp(`background-image:url\\('/img/${heroPhotoId('np')}/720'\\)`));
 });
 
-test('a country with no thumb falls back to its country colour', () => {
-  const m = {
-    countries: [{ code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [] }],
-    albums: [],
-  };
-  const html = renderCountryList({ manifest: m });
-  assert.match(html, /style="background:#4f7a8c"/); // nepal colour
+test('every country renders its own curated hero photo', () => {
+  const html = renderCountryList({ manifest, dpr: 1 });
+  for (const code of ['np', 'in', 'vn', 'cn', 'au', 'nz', 'th']) {
+    assert.match(html, new RegExp(`/img/${heroPhotoId(code)}/360`), `${code} hero missing`);
+  }
 });
 
 test('the all-countries random link triggers random-play (fullscreen+autostart)', () => {
