@@ -1532,7 +1532,7 @@ main#app:has(.country-page) { padding: 0; max-width: none; }
    upward and the name stays on top (M65.2 fix). */
 .album-tile-label { position: absolute; bottom: var(--space-2); inset-inline-start: var(--space-3); inset-inline-end: var(--space-3); z-index: 2; display: flex; flex-direction: column; gap: 1px; }
 .album-tile-name { color: #fff; font-weight: 700; font-size: var(--type-h2); text-shadow: 0 1px 4px rgba(0,0,0,.6); }
-.album-tile-sub { color: #fff; font-size: var(--type-small); font-weight: 300; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+.album-tile-sub { color: #fff; font-size: var(--type-small); font-weight: 300; text-shadow: 0 1px 4px rgba(0,0,0,.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 768px) {
   .album-tile-name { font-size: var(--type-body); }
 }

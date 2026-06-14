@@ -32,6 +32,24 @@ test('albums use overlaid labels (name + count·dates on the photo)', () => {
   assert.match(html, /02\. נפאל - פוקרה/);
 });
 
+test('tile sub is structured (count + date spans) so phone-portrait can drop the count', () => {
+  // a dated album → count goes in .sub-count (hidden on portrait), dates in .sub-dates
+  const m = {
+    countries: [{ code: 'np', he: 'נפאל', en: 'Nepal', primaryAlbums: [1] }],
+    albums: [{ id: 1, name: 'a', slug: 'a', primary: 'np', countries: ['np'],
+      photos: [{ id: 'p1', name: 'a.jpg', capturedAt: '2011-03-02T10:00:00' }] }],
+  };
+  const html = renderAlbumList({ manifest: m, code: 'np', dpr: 1 });
+  assert.match(html, /<span class="sub-count">[^<]*תמונות[^<]*·[^<]*<\/span>/);
+  assert.match(html, /class="sub-dates"/);
+});
+
+test('a date-less album keeps its count visible (in .sub-dates, not the portrait-hidden .sub-count)', () => {
+  const html = renderAlbumList({ manifest, code: 'np', dpr: 1 }); // shared fixture has no capturedAt
+  assert.match(html, /<span class="sub-dates">[^<]*תמונות[^<]*<\/span>/);
+  assert.equal(/class="sub-count"/.test(html), false);
+});
+
 test('order is preserved (not re-sorted by size)', () => {
   const html = renderAlbumList({ manifest, code: 'np', dpr: 1 });
   assert.ok(html.indexOf('bangkok-kathmandu') < html.indexOf('nagarkot-bhaktapur'));
