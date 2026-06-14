@@ -35,7 +35,13 @@ function albumTile(album, code, dpr, featured) {
   const count = album.photos.length;
   const dateLabel = albumDateLabel(album.photos);
   const name = album.title ?? album.name;
-  const sub = `${count.toLocaleString('he-IL')} תמונות${dateLabel ? ` · ${escapeHTML(dateLabel)}` : ''}`;
+  // Structured count/date spans (like the album header) so CSS keeps the sub to
+  // ONE line and drops the photo count on phone-portrait (date span only); the
+  // trailing " · " lives inside .sub-count so hiding it removes the separator.
+  const countStr = `${count.toLocaleString('he-IL')} תמונות`;
+  const sub = dateLabel
+    ? `<span class="sub-count">${escapeHTML(countStr)} · </span><span class="sub-dates">${escapeHTML(dateLabel)}</span>`
+    : `<span class="sub-dates">${escapeHTML(countStr)}</span>`;
   const img = first
     ? photoImgHTML(first, { intent: featured ? 'hero' : 'card', dpr, className: 'album-tile-img' })
     : '<div class="album-tile-img photo-broken" aria-hidden="true"></div>';

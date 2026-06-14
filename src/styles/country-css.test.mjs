@@ -37,6 +37,14 @@ test('name + sub stack in a bottom-anchored flex column (sub can wrap without co
   assert.match(b, /flex-direction:\s*column/);
 });
 
+test('the tile sub is kept to one line (nowrap + ellipsis); portrait drops the count via .sub-count', () => {
+  const b = block('.album-tile-sub'); assert.ok(b, '.album-tile-sub rule missing');
+  assert.match(b, /white-space:\s*nowrap/);
+  assert.match(b, /text-overflow:\s*ellipsis/);
+  // the existing portrait rule hides .sub-count → date span only on phone-portrait
+  assert.match(css, /max-width:\s*768px\)\s*and\s*\(orientation:\s*portrait\)[^]*\.sub-count\s*\{[^}]*display:\s*none/);
+});
+
 test('the tile photo fills the tile (object-fit cover)', () => {
   const b = block('.album-tile-img'); assert.ok(b, '.album-tile-img rule missing');
   assert.match(b, /object-fit:\s*cover/);
