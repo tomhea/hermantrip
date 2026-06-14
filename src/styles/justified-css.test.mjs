@@ -19,10 +19,12 @@ test('.album-photo keeps a fixed row height + object-fit cover (uniform landscap
   assert.match(b, /object-fit:\s*cover/);
 });
 
-test('.day-header is sticky on desktop but static on phones (mobile URL-bar conflict)', () => {
+test('.day-header sticks to the top while scrolling (pins the current date, all viewports)', () => {
   const b = block('.day-header'); assert.ok(b, '.day-header rule missing');
   assert.match(b, /position:\s*sticky/);
-  assert.match(css, /max-width:\s*768px[^]*\.day-header\s*\{[^}]*position:\s*static/);
+  assert.match(b, /top:\s*0/);
+  // no phone override forcing it static — sticky everywhere now
+  assert.equal(/\.day-header\s*\{\s*position:\s*static/.test(css), false);
 });
 
 test('.slim-title can wrap (no nowrap) so a long header never overflows the phone width', () => {

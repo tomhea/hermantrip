@@ -462,10 +462,6 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 @media (max-width: 768px) {
   .photo-grid { grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); }
   .album-photo { height: 110px; }
-  /* The mobile URL bar fights position:sticky on scroll-up, leaving the date
-     header half-hidden; keep it static on phones (sticky stays on desktop +
-     landscape where it works cleanly). */
-  .day-header { position: static; }
 }
 
 /* ---- M5: slideshow ---- */
@@ -1526,8 +1522,12 @@ main#app:has(.country-page) { padding: 0; max-width: none; }
 .album-tile-featured { grid-column: 1 / -1; aspect-ratio: 21 / 9; }
 .album-tile-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .album-tile-scrim { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(20,18,15,.66), rgba(20,18,15,0) 55%); }
-.album-tile-name { position: absolute; bottom: calc(var(--space-2) + 1.4em); inset-inline-start: var(--space-3); color: #fff; font-weight: 700; font-size: var(--type-h2); text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; }
-.album-tile-sub { position: absolute; bottom: var(--space-2); inset-inline-start: var(--space-3); color: #fff; font-size: var(--type-small); font-weight: 300; text-shadow: 0 1px 4px rgba(0,0,0,.6); z-index: 2; }
+/* Name + sub stack in one bottom-anchored flex column so a long sub (count·dates)
+   that wraps to two lines never collides with the name — the column just grows
+   upward and the name stays on top (M65.2 fix). */
+.album-tile-label { position: absolute; bottom: var(--space-2); inset-inline-start: var(--space-3); inset-inline-end: var(--space-3); z-index: 2; display: flex; flex-direction: column; gap: 1px; }
+.album-tile-name { color: #fff; font-weight: 700; font-size: var(--type-h2); text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+.album-tile-sub { color: #fff; font-size: var(--type-small); font-weight: 300; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
 @media (max-width: 768px) {
-  .album-tile-name { font-size: var(--type-body); bottom: calc(var(--space-2) + 1.3em); }
+  .album-tile-name { font-size: var(--type-body); }
 }

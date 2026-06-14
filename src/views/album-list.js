@@ -43,8 +43,10 @@ function albumTile(album, code, dpr, featured) {
     <a class="album-tile${featured ? ' album-tile-featured' : ''}" href="${albumPath(code, album.slug)}">
       ${img}
       <span class="album-tile-scrim" aria-hidden="true"></span>
-      <span class="album-tile-name">${escapeHTML(name)}</span>
-      <span class="album-tile-sub">${sub}</span>
+      <span class="album-tile-label">
+        <span class="album-tile-name">${escapeHTML(name)}</span>
+        <span class="album-tile-sub">${sub}</span>
+      </span>
     </a>`;
 }
 

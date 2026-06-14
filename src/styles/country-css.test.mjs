@@ -30,6 +30,13 @@ test('album tiles overlay the name + sub on the cover photo (with a scrim)', () 
   assert.ok(block('.album-tile-scrim'));
 });
 
+test('name + sub stack in a bottom-anchored flex column (sub can wrap without colliding with the name)', () => {
+  const b = block('.album-tile-label'); assert.ok(b, '.album-tile-label rule missing');
+  assert.match(b, /position:\s*absolute/);
+  assert.match(b, /display:\s*flex/);
+  assert.match(b, /flex-direction:\s*column/);
+});
+
 test('the tile photo fills the tile (object-fit cover)', () => {
   const b = block('.album-tile-img'); assert.ok(b, '.album-tile-img rule missing');
   assert.match(b, /object-fit:\s*cover/);
