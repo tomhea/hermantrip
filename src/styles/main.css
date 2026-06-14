@@ -520,12 +520,14 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 @media (prefers-reduced-motion: reduce) {
   .slideshow-shell .slideshow-photo { animation: none !important; }
 }
-/* Invisible tap zones: left half = next (RTL), right half = prev */
+/* Invisible tap zones: left 25% = next (RTL), right 25% = prev, with a NEUTRAL
+   middle 50% that doesn't navigate (slideshow-ux-3 #1) — a tap there just
+   reveals the controls. */
 .slideshow-zone {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 40%;
+  width: 25%;
   /* Invisible click/touch target. The random slideshow renders these zones as
      <button> (JS-driven nav), and a bare <button> paints the UA default
      ButtonFace background (~#f0f0f0) — which covered 80% of the photo area in

@@ -437,14 +437,22 @@ function wireSlideshow() {
 
 // Listeners on elements that SURVIVE an in-place slide advance — wired once per
 // full mount: pointer-activity on the shell, dock hover, and filmstrip drag.
+//
+// slideshow-ux-3 #7: gate the "activity" + "hover" handlers to REAL MOUSE
+// pointers. On a touchscreen the browser emulates mouse events (mouseenter /
+// mousemove) when you tap, and an emulated mouseenter on the persistent dock had
+// no matching mouseleave — leaving hoveringBar stuck true so the controls never
+// auto-hid on phones. With pointer events gated to pointerType 'mouse', touch
+// drives the auto-hide only through `touchstart` (one tap = one reveal, then it
+// hides after the idle window); fullscreen/PC mouse behaviour is unchanged.
 function wireShellLevel(shell) {
-  shell.addEventListener('mousemove', noteActivity);
+  shell.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') noteActivity(); });
   shell.addEventListener('touchstart', noteActivity, { passive: true });
-  // Hover anywhere on the dock (bar OR filmstrip) keeps the controls alive.
+  // Hover anywhere on the dock (bar OR filmstrip) keeps the controls alive — mouse only.
   const dock = shell.querySelector('.slideshow-dock');
   if (dock) {
-    dock.addEventListener('mouseenter', () => { hoveringBar = true; noteActivity(); });
-    dock.addEventListener('mouseleave', () => { hoveringBar = false; noteActivity(); });
+    dock.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { hoveringBar = true; noteActivity(); } });
+    dock.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { hoveringBar = false; noteActivity(); } });
   }
   const strip = shell.querySelector('[data-filmstrip]');
   if (strip) wireFilmstripDrag(strip);
@@ -607,29 +615,39 @@ function advanceWhenNextReady(shell, gen) {
   img.addEventListener('error', go);
 }
 
-// Photo file-size lookup for the info panel "גודל" row (M43 / #6). The manifest
-// has no size field, so we HEAD the original via the same-origin proxy and read
-// Content-Length, lazily when the info panel first opens, cached per photo id.
-const photoSizeCache = new Map(); // id → display string e.g. "5215KB"
+// Photo file-size for the info panel "גודל" row (M43 / #6, reworked
+// slideshow-ux-3 #2). The displayed photo is ALREADY downloaded, so instead of a
+// second HEAD request we read the byte size of that very response from the
+// Performance Resource Timing API (encodedBodySize). Same-origin /img/ proxy →
+// timing is fully exposed. Falls back to '—' if timing isn't available yet.
+function imageBytesFromTiming(url) {
+  if (!url) return null;
+  try {
+    const entries = performance.getEntriesByName(url);
+    for (let i = entries.length - 1; i >= 0; i -= 1) {
+      const b = entries[i].encodedBodySize || entries[i].transferSize || 0;
+      if (b > 0) return b;
+    }
+  } catch { /* Resource Timing unavailable — fall through */ }
+  return null;
+}
 function wireInfoSize(shell) {
   const details = shell.querySelector('.slideshow-info');
   const sizeEl = shell.querySelector('.info-size');
-  if (!details || !sizeEl) return;
-  const id = sizeEl.dataset.sizeId;
-  if (!id) return;
-  const fill = async () => {
-    if (photoSizeCache.has(id)) { sizeEl.textContent = photoSizeCache.get(id); return; }
-    try {
-      const res = await fetch(`/img/${id}/orig`, { method: 'HEAD' });
-      const len = res.headers.get('Content-Length');
-      const txt = len ? `${Math.round(Number(len) / 1024).toLocaleString('he-IL')}KB` : '—';
-      photoSizeCache.set(id, txt);
-      sizeEl.textContent = txt;
-    } catch {
-      sizeEl.textContent = '—';
-    }
+  const photo = shell.querySelector('.slideshow-photo');
+  if (!details || !sizeEl || !photo) return;
+  const fill = () => {
+    const bytes = imageBytesFromTiming(photo.currentSrc || photo.src);
+    sizeEl.textContent = bytes != null
+      ? `${Math.round(bytes / 1024).toLocaleString('he-IL')}KB`
+      : '—';
   };
   details.addEventListener('toggle', () => { if (details.open) fill(); });
+  // The timing entry exists once the photo has loaded; refill on load if the
+  // panel was opened first.
+  if (!(photo.complete && photo.naturalWidth > 0)) {
+    photo.addEventListener('load', () => { if (details.open) fill(); }, { once: true });
+  }
   if (details.open) fill();
 }
 
