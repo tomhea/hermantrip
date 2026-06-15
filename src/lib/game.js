@@ -80,6 +80,21 @@ export function scoreAlbum(albumId, correctAlbumId) {
 export const TOTAL_ROUNDS = 10;
 export const MAX_SCORE = TOTAL_ROUNDS * 2; // 1 country + 1 album per round
 
+// Encouraging end-of-game message, more enthusiastic the closer to a perfect
+// score; anything under 10 points is a fixed "try again" (M68.2).
+export function doneMessage(score, maxScore) {
+  if (score >= maxScore) return 'מושלם!';
+  if (score >= 17) return 'מעולה!';
+  if (score >= 14) return 'כל הכבוד!';
+  if (score >= 10) return 'יפה מאוד!';
+  return 'נסו שוב!';
+}
+
+// Whether the done screen should celebrate (confetti) — a perfect score only.
+export function shouldCelebrate(score, maxScore) {
+  return score >= maxScore;
+}
+
 // Generate all 10 rounds upfront (deterministic given rng).
 // Each round: { photo, album }.
 export function generateRounds(manifest, rng = Math.random) {

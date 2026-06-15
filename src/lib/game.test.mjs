@@ -3,6 +3,7 @@ import { strict as assert } from 'node:assert';
 import {
   eligibleAlbums, pickRoundPhoto, albumChoices, countryChoices,
   scoreCountry, scoreAlbum, generateRounds, TOTAL_ROUNDS, MAX_SCORE,
+  doneMessage, shouldCelebrate,
 } from './game.js';
 
 // ── Fixture manifest ──────────────────────────────────────────────
@@ -102,6 +103,21 @@ test('countryChoices are all valid game country codes', () => {
   for (const code of countryChoices('au', rng0)) {
     assert.ok(GAME_COUNTRY_CODES.has(code), `unexpected code ${code}`);
   }
+});
+
+// ── doneMessage / shouldCelebrate (M68.2): graduated end messages ──
+test('doneMessage: perfect 20/20 → מושלם', () => { assert.equal(doneMessage(20, 20), 'מושלם!'); });
+test('doneMessage: 18/20 → מעולה', () => { assert.equal(doneMessage(18, 20), 'מעולה!'); });
+test('doneMessage: 15/20 → כל הכבוד', () => { assert.equal(doneMessage(15, 20), 'כל הכבוד!'); });
+test('doneMessage: 11/20 → יפה מאוד', () => { assert.equal(doneMessage(11, 20), 'יפה מאוד!'); });
+test('doneMessage: under 10 is a fixed try-again', () => {
+  assert.equal(doneMessage(9, 20), 'נסו שוב!');
+  assert.equal(doneMessage(0, 20), 'נסו שוב!');
+});
+test('shouldCelebrate: only a perfect score', () => {
+  assert.equal(shouldCelebrate(20, 20), true);
+  assert.equal(shouldCelebrate(19, 20), false);
+  assert.equal(shouldCelebrate(0, 20), false);
 });
 
 test('scoreCountry: correct → 1', () => { assert.equal(scoreCountry('np', 'np'), 1); });
