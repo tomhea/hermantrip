@@ -32,7 +32,7 @@ import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
 import { coordsForAlbum } from './lib/album-coords.js';
 import { globeScene, buildingHeightFraction, BUILDING_WIDTH, WINDOWS_PER_FLOOR, windowColumns } from './lib/globe-pins.js';
-import { greatCircleMidpoint, arcApexAltitude } from './lib/globe-arrows.js';
+import { greatCircleMidpoint, arcApexAltitude, arrowVisible } from './lib/globe-arrows.js';
 import { trailSegments, arcPoints, trailArcs } from './lib/trail.js';
 import { tripStopGroups, tripTrailPoints, ISRAEL, BANGKOK } from './lib/map-stops.js';
 import { globeModuleUrl, threeModuleUrl } from './lib/globe-loader.js';
@@ -1357,16 +1357,20 @@ async function initGlobeView() {
       .onObjectHover((o) => { container.style.cursor = o ? 'pointer' : ''; });
 
     // Directional arrowhead per trail segment, sitting ON the bowed arc:
-    // placed at the segment's great-circle midpoint at the arc's apex altitude
-    // (#1), so it rides the line instead of floating beneath it.
+    // placed at the segment's great-circle midpoint at the arc's apex altitude,
+    // so it rides the line instead of floating beneath it. Arrows are dropped on
+    // SHORT hops (arrowVisible) so dense clusters like Nepal/India don't pile up
+    // an unreadable swarm — the trip-line still shows the route there.
     const upAxis = new THREE.Vector3(0, 1, 0);
-    const arrows = trailSegments(scene.trailPoints).map((s) => {
-      const [mLat, mLng] = greatCircleMidpoint(s.from, s.to);
-      return {
-        lat: mLat, lng: mLng, alt: arcApexAltitude(s.from, s.to),
-        toLat: s.to[0], toLng: s.to[1], color: s.color,
-      };
-    });
+    const arrows = trailSegments(scene.trailPoints)
+      .filter((s) => arrowVisible(s.from, s.to))
+      .map((s) => {
+        const [mLat, mLng] = greatCircleMidpoint(s.from, s.to);
+        return {
+          lat: mLat, lng: mLng, alt: arcApexAltitude(s.from, s.to),
+          toLat: s.to[0], toLng: s.to[1], color: s.color,
+        };
+      });
     globe
       .customLayerData(arrows)
       .customThreeObject((d) => makeArrow(THREE, d.color))

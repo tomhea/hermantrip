@@ -7,6 +7,8 @@
 // length. We replicate that height here so an arrow placed at the great-circle
 // MIDPOINT, at this same apex altitude, lands exactly ON the line.
 
+import { ISRAEL, BANGKOK } from './map-stops.js';
+
 const D2R = Math.PI / 180;
 const R2D = 180 / Math.PI;
 
@@ -25,8 +27,34 @@ export function angularDistance(a, b) {
 // length — short hops stay flat, long hauls bow high. We set globe.gl's
 // arcAltitude to this SAME value per-arc so the arc apex and the arrow agree.
 export const ARC_APEX_SCALE = 0.22;
+
+// The גבעת שמואל ↔ Bangkok long-haul is flown BOTH ways (outbound at the very
+// start, return at the very end). As great circles the two legs coincide and
+// hide each other; we bow them to DIFFERENT altitudes so the green outbound and
+// the red return are both visible (the globe analog of the 2D map's
+// opposite-side bowing).
+const near = (p, q) => Math.abs(p[0] - q[0]) < 1e-3 && Math.abs(p[1] - q[1]) < 1e-3;
+export function israelBangkokLeg(from, to) {
+  if (near(from, ISRAEL) && near(to, BANGKOK)) return 'outbound';
+  if (near(from, BANGKOK) && near(to, ISRAEL)) return 'return';
+  return null;
+}
+export const ISRAEL_LEG_ALT_SCALE = { outbound: 1.6, return: 0.7 };
+
+// Apex altitude of an arc, proportional to its angular length. The two
+// Israel↔Bangkok legs are lifted apart (above) so they don't overlap.
 export function arcApexAltitude(a, b, scale = ARC_APEX_SCALE) {
-  return angularDistance(a, b) * scale;
+  const base = angularDistance(a, b) * scale;
+  const leg = israelBangkokLeg(a, b);
+  return leg ? base * ISRAEL_LEG_ALT_SCALE[leg] : base;
+}
+
+// Arrowheads only on segments at least this long (radians, ~3.4°). Dense
+// clusters (Nepal/India) otherwise pile up unreadable arrows; the trip-line
+// itself still shows the route there, just without the arrow confetti.
+export const MIN_ARROW_ANGLE = 0.06;
+export function arrowVisible(from, to) {
+  return angularDistance(from, to) >= MIN_ARROW_ANGLE;
 }
 
 // Great-circle midpoint of two [lat,lng] points → [lat,lng]. This is where the

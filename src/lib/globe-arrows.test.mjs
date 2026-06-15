@@ -2,7 +2,9 @@ import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
 import {
   angularDistance, arcApexAltitude, greatCircleMidpoint, ARC_APEX_SCALE,
+  israelBangkokLeg, arrowVisible, MIN_ARROW_ANGLE,
 } from './globe-arrows.js';
+import { ISRAEL, BANGKOK } from './map-stops.js';
 
 test('angularDistance: identical points → 0', () => {
   assert.equal(angularDistance([13.75, 100.5], [13.75, 100.5]), 0);
@@ -35,4 +37,27 @@ test('greatCircleMidpoint: a same-longitude pair midpoints at the mean latitude'
   const [lat, lng] = greatCircleMidpoint([10, 100], [50, 100]);
   assert.ok(Math.abs(lat - 30) < 1e-6);
   assert.ok(Math.abs(lng - 100) < 1e-6);
+});
+
+test('israelBangkokLeg: detects the outbound and return long-haul, null otherwise', () => {
+  assert.equal(israelBangkokLeg(ISRAEL, BANGKOK), 'outbound');
+  assert.equal(israelBangkokLeg(BANGKOK, ISRAEL), 'return');
+  assert.equal(israelBangkokLeg(ISRAEL, [0, 0]), null);
+  assert.equal(israelBangkokLeg([10, 100], [50, 100]), null);
+});
+
+test('arcApexAltitude: the two Israel↔Bangkok legs bow to DIFFERENT heights (separated)', () => {
+  const out = arcApexAltitude(ISRAEL, BANGKOK);
+  const ret = arcApexAltitude(BANGKOK, ISRAEL);
+  assert.ok(out > ret, 'outbound bows higher than the return so they do not overlap');
+  // A non-leg pair of the SAME distance is unscaled (plain base altitude).
+  const base = angularDistance(ISRAEL, BANGKOK) * ARC_APEX_SCALE;
+  assert.ok(out > base && ret < base);
+});
+
+test('arrowVisible: drops dense short hops, keeps the long legs', () => {
+  assert.equal(MIN_ARROW_ANGLE > 0, true);
+  assert.equal(arrowVisible([27.7, 85.3], [27.7, 85.5]), false); // ~0.2° Nepal hop
+  assert.equal(arrowVisible(ISRAEL, BANGKOK), true);             // long-haul
+  assert.equal(arrowVisible([0, 0], [0, 0]), false);             // zero-length
 });

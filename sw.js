@@ -10,7 +10,7 @@
 
 import { requestStrategy } from './src/lib/sw-strategy.js';
 
-const SHELL_CACHE = 'hermantrip-shell-v86';
+const SHELL_CACHE = 'hermantrip-shell-v87';
 const SHELL_FILES = [
   '/',
   '/index.html',
