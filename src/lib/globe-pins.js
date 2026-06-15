@@ -44,13 +44,33 @@ function spreadOverlaps(pins) {
   return out;
 }
 
-// Pin altitude as a fraction of the globe radius, scaled by days. globe.gl
-// renders a point as a cylinder rising from the surface to this fraction, so a
-// longer visit = a taller pin. main.js passes this to .pointAltitude.
-export function pinHeightFraction(days, maxDays) {
+// Building footprint + windows for the 3D "house" markers (restored after the
+// cylinder pins were disliked). Slim towers; the wall texture (main.js) draws
+// WINDOWS_PER_FLOOR windows per tile.
+export const BUILDING_WIDTH = 1.3 / 3;
+export const WINDOWS_PER_FLOOR = 2;
+
+// Evenly-spaced window x-positions for one wall-texture tile: `count` windows of
+// width `winW` across a `tileW`-wide tile, each centred in its slot. → [{x,w}]
+export function windowColumns(count, tileW, winW) {
+  const n = Math.max(1, Math.floor(count) || 1);
+  const rects = [];
+  for (let i = 0; i < n; i += 1) {
+    const center = (tileW * (i + 0.5)) / n;
+    rects.push({ x: Math.round(center - winW / 2), w: winW });
+  }
+  return rects;
+}
+
+// Building height as a fraction of the globe radius, scaled by days — kept SHORT
+// (a quarter of the old cylinder height, ~20-25% — the owner wanted lower
+// houses). main.js multiplies by the globe radius for world units, and the
+// invisible hit-points rise the full building height so the whole tower clicks.
+export const HEIGHT_SCALE = 0.25;
+export function buildingHeightFraction(days, maxDays) {
   const m = maxDays > 0 ? maxDays : 1;
   const ratio = Math.max(0, Math.min(1, days / m));
-  return 0.02 + ratio * 0.45;
+  return (0.02 + ratio * 0.45) * HEIGHT_SCALE;
 }
 
 export function pinsForGlobe(manifest) {
