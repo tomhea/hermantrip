@@ -1,8 +1,13 @@
-# Handoff — UI refresh (continuing at M6)
+# Handoff — UI refresh (continuing at M7)
 
-_For a fresh session picking up the hermantrip UI-refresh. Read this, then the
-plan + spec + cr-rules (links below). Last updated after **M5 (Slideshow) shipped**;
-**next up is M6 (Map/Globe) — which is BLOCKED on the owner's MapTiler key/style IDs (see §8)**._
+_For a fresh session picking up the hermantrip UI-refresh. Read this top-to-bottom,
+then the plan + spec + cr-rules (links below), then start at **§9 (Starting M7)**.
+Last updated after **M6 (Map/Globe) + its 4 globe/map follow-ups shipped & owner-approved**
+(`v0.M67`…`v0.M67.4`); **next up is M7 (Game) → `v0.M68`, SW v88.**_
+
+**M1–M6 are DONE and live.** The globe/map went through four owner-feedback
+rounds and is now signed off ("It looks great") — do NOT reopen it. Everything
+below §7 is historical reference; the actionable starting point is **§9**.
 
 ## 0. The one-paragraph orientation
 
@@ -117,8 +122,19 @@ Deviated from the plan: the owner's custom MapTiler Hebrew styles are **vector**
 - Map + globe pins use the **7 distinct** country colours (`country-colors.js`). Globe 3D buildings + THREE replaced by country-coloured pins sized by days: `globe-buildings.js`→`globe-pins.js`. Comet trail (dash .25 / gap 4 / 4000ms) + starfield paints immediately.
 - **Gotchas for next time:** MapTiler keys 403 a bare `curl` (no Referer) but work in-browser — verify map keys via the preview/browser, not curl. `/map`+globe never go `document_idle`, so `preview_screenshot` times out → R2 via DOM + `window._hermanGlobe` accessor probes. **Owner should eyeball the live map + globe** (WebGL/tiles not screenshot-able here).
 
-## 9. Starting M7 (Game)
+## 9. Starting M7 (Game) — THE ENTRY POINT
 
-**Branch `m7-game`, tag `v0.M68`, SW v88.** Add the progress strip; restyle the photo + options photo-forward; landscape = options beside the photo. Flow unchanged (`src/lib/game.js` logic + `main.js` wiring stay). Tasks 7.1 (progress strip + slim header in `src/views/game.js`, extend `game.test.mjs`) + 7.2 (game CSS: `.game-progress` bar + `@media (orientation:landscape) .game-shell{flex-direction:row}`, extend `game-photo-css.test.mjs`). See the plan's M7 section.
+**Branch `m7-game`, tag `v0.M68`, SW v88.** Goal: a progress strip + a photo-forward restyle of the guessing game, and a landscape layout where the answer options sit *beside* the photo. The game LOGIC and WIRING do not change — only the view markup + CSS. Plan section: lines ~1006–1021 of the plan (Tasks 7.1 + 7.2).
 
-Then **M8 Timeline** (`v0.M69`, SW v87 — data-dependent scrubber; visually sanity-check against real manifest data, not only unit tests).
+**What the game already is (read the files first, match their style):**
+- `src/views/game.js` — pure HTML-string builders for a 10-round state machine: `renderGameCountry` (photo + 7 country buttons `.game-country-btn` in trip order np·in·vn·cn·au·nz·th) → `renderGameAlbum` (4 `.game-album-btn` choices) → `renderGameResult` → `renderGameDone`; plus `renderGame` (loading/error shell). Each step already receives `roundNum`/`totalRounds`/`score` and wraps in `.game-shell[data-game-step]` with a `.game-stage` + `.game-photo`. A shared `gameHeader()` ALREADY has the back-to-home link + round + score text **+ the `data-theme-toggle` button** (added in M67.2 — don't re-add it).
+- `src/lib/game.js` — pure round/score/choices logic. **Do NOT touch** (no behaviour change).
+- `src/main.js` — `startGame()` + the game state vars (`gameRounds`/`gameStep`/`gameRoundIdx`/`gameScore`/…) and the click wiring render the step views. Touch only if a new markup hook needs binding; the existing flow stays.
+- Existing CSS contract in `src/styles/main.css`: `.game-shell` (flex column), `.game-stage`/`.game-photo` (full-bleed, photo flex:1 1 0), `.game-*-grid`/`.game-*-btn`.
+
+**Task 7.1 — view (`src/views/game.js`, extend `src/views/game.test.mjs`):** add a `.game-progress` strip showing `round/total` + score + a visual `.game-progress-bar` (width ∝ roundNum/totalRounds). Tests-first: assert the strip + bar render, the country step has 7 buttons, the album step has 4. The round/score data already flows in via the step args.
+**Task 7.2 — CSS (`src/styles/main.css`, extend `src/styles/game-photo-css.test.mjs`):** style `.game-progress`/`.game-progress-bar`; add `@media (orientation:landscape){ .game-shell{ flex-direction:row } }` so options sit beside the photo. The CSS test asserts the landscape `flex-direction:row` rule + the progress-bar block exists (this repo tests CSS by asserting on rule-block text — see the existing `game-photo-css.test.mjs`).
+
+**Ship:** bump `sw.js` SHELL_CACHE **v87→v88** (no new SHELL_FILES unless you add a module) → `npm test` (0 fail) → `npx eslint@9 --max-warnings=0 .` → PR `M7: Game` with the R1+R2(3 viewports incl. tablet 820 + console-clean)+R5(gzip delta) body → crist → artifact `versions/v0.M68/dist-M68.tar.gz` → crist re-review → `gh pr merge --merge` → tag `v0.M68` → deploy → verify-live → branch cleanup (full sequence in §2). **Game IS screenshot-able-via-DOM** (no WebGL) — probe `.game-progress`/`.game-progress-bar` geometry + the landscape `flex-direction` via `getComputedStyle` at the 3 viewports.
+
+Then **M8 Timeline** (`v0.M69`, SW v89) — data-dependent scrubber/rail (`scrubber.js` + `country-motifs.js` per the plan); **visually sanity-check the rendered scrubber against real manifest data** (does תאילנד recur at the right spots? widths ~proportional?), not only unit tests. That's the last milestone.
