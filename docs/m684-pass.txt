@@ -1,0 +1,7 @@
+$ npm test (M68.4 implemented)
+✔ M68.4: every play step has a restart button (reuses the replay action) (0.1063ms)
+✔ exposes the chosen icon set (0.9565ms)
+✔ icon("restart") renders a themeable svg (M68.4) (0.1974ms)
+ℹ tests 810
+ℹ pass 810
+ℹ fail 0

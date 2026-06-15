@@ -1210,8 +1210,23 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .game-back:hover, .game-back:focus-visible { color: var(--earth-ochre); }
 /* M68.2: the theme toggle must NOT stretch in the game header — the global
    portrait rule sets .slim-nav{flex:1}; keep it a compact icon pill so the
-   header items (toggle · score · round · back) space out evenly. */
+   header items (toggle · score · round · restart · back) space out evenly. */
 .game-header .slim-toggle { flex: 0 0 auto; padding: .25em .5em; }
+/* M68.4: restart — compact icon button just left of "חזרה"; reuses the replay
+   action. The header's gap gives it spacing from the back link. */
+.game-restart {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  padding: .15em .35em;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 1.2em;
+  line-height: 1;
+  cursor: pointer;
+}
+.game-restart:hover, .game-restart:focus-visible { color: var(--earth-ochre); }
 /* M7: slim progress track under the header; the bar fills ∝ roundNum/total. */
 .game-progress {
   flex: 0 0 auto;
@@ -1443,13 +1458,15 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
      backdrop-filter blur (anti-AI forbids glassmorphism). */
   .game-header .game-round,
   .game-header .game-score,
-  .game-header .game-back {
+  .game-header .game-back,
+  .game-header .game-restart {
     background: rgba(20, 17, 14, 0.58);
     padding: 0.2em 0.6em;
     border-radius: 7px;
   }
   .game-round { color: #f3ece1; }   /* fixed light on the dark chip (theme-independent) */
   .game-back  { color: #f3ece1; }
+  .game-restart { color: #f3ece1; }
   .game-score { color: #f0c08a; }   /* warm light, legible on the dark chip */
 }
 

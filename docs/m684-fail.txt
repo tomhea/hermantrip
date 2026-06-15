@@ -1,0 +1,5 @@
+$ node --test (M68.4 source reverted)
+✖ exposes the chosen icon set
+✖ icon("restart") renders a themeable svg (M68.4)
+✖ M68.4: every play step has a restart button (reuses the replay action)
+ℹ fail 3

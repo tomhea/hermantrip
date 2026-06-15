@@ -1485,9 +1485,6 @@ let gameCountryCorrect = false;
 let gameAlbumCorrect = false;
 let gameAlbumChoices = null;
 let gameCountryChoices = null;   // 4 country codes for the current round (M68.1)
-// M68.2 (temporary): show confetti on EVERY done screen so the owner can review
-// it. Flip to false in the follow-up to restrict celebration to a perfect score.
-const GAME_CONFETTI_PREVIEW_ALL = true;
 
 function startGame() {
   if (!manifest) return;
@@ -1543,10 +1540,8 @@ function renderGameView() {
     app.innerHTML = renderGameResult({ ...base, countryCorrect: gameCountryCorrect, albumCorrect: gameAlbumCorrect, isLast });
     wireGame();
   } else if (gameStep === 'done') {
-    // M68.2: confetti currently fires on EVERY done screen so the owner can
-    // review it; flip GAME_CONFETTI_PREVIEW_ALL to false to restrict it to a
-    // perfect score (shouldCelebrate).
-    const celebrate = GAME_CONFETTI_PREVIEW_ALL || shouldCelebrate(gameScore, MAX_SCORE);
+    // M68.4: confetti only on a perfect score (owner-approved the look).
+    const celebrate = shouldCelebrate(gameScore, MAX_SCORE);
     app.innerHTML = renderGameDone({ score: gameScore, maxScore: MAX_SCORE, celebrate });
     wireGame();
   }
