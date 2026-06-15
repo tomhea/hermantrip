@@ -35,6 +35,20 @@ function gameHeader(roundNum, totalRounds, score) {
   `;
 }
 
+// Progress strip (M7): a slim bar under the header whose fill is proportional
+// to roundNum/totalRounds. The round/score numbers live in the header already;
+// here they ride along in the accessible label so the visual bar isn't mute.
+function gameProgress(roundNum, totalRounds, score) {
+  const pct = Math.round((roundNum / totalRounds) * 100);
+  return `
+    <div class="game-progress" role="progressbar"
+         aria-valuemin="1" aria-valuemax="${totalRounds}" aria-valuenow="${roundNum}"
+         aria-label="שאלה ${roundNum} מתוך ${totalRounds}, ניקוד ${score}">
+      <div class="game-progress-bar" style="width: ${pct}%"></div>
+    </div>
+  `;
+}
+
 // Render the photo (shared across steps).
 function photoHTML(photo, album, dpr, viewport) {
   const src = imageUrl(photo.id, 'slide', { dpr, viewport });
@@ -47,16 +61,21 @@ export function renderGameCountry({ round, roundNum, totalRounds, score, dpr, vi
   return `
     <div class="game-shell" data-game-step="country">
       ${gameHeader(roundNum, totalRounds, score)}
-      <div class="game-stage">
-        ${photoHTML(photo, album, dpr, viewport)}
-      </div>
-      <div class="game-prompt">באיזו מדינה צולמה התמונה?</div>
-      <div class="game-country-grid" role="group" aria-label="בחר מדינה">
-        ${Object.entries(COUNTRY_LABELS).map(([code, label]) => `
-          <button class="game-country-btn" data-country="${escapeHTML(code)}" aria-label="${escapeHTML(label)}">
-            ${escapeHTML(label)}
-          </button>
-        `).join('')}
+      ${gameProgress(roundNum, totalRounds, score)}
+      <div class="game-body">
+        <div class="game-stage">
+          ${photoHTML(photo, album, dpr, viewport)}
+        </div>
+        <div class="game-answers">
+          <div class="game-prompt">באיזו מדינה צולמה התמונה?</div>
+          <div class="game-country-grid" role="group" aria-label="בחר מדינה">
+            ${Object.entries(COUNTRY_LABELS).map(([code, label]) => `
+              <button class="game-country-btn" data-country="${escapeHTML(code)}" aria-label="${escapeHTML(label)}">
+                ${escapeHTML(label)}
+              </button>
+            `).join('')}
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -71,16 +90,21 @@ export function renderGameAlbum({ round, roundNum, totalRounds, score, choices, 
   return `
     <div class="game-shell" data-game-step="album">
       ${gameHeader(roundNum, totalRounds, score)}
-      <div class="game-stage">
-        ${photoHTML(photo, album, dpr, viewport)}
-      </div>
-      <div class="game-prompt">${feedback} — מאיזה אלבום התמונה?</div>
-      <div class="game-album-grid" role="group" aria-label="בחר אלבום">
-        ${choices.map((c) => `
-          <button class="game-album-btn" data-album-id="${c.id}" aria-label="${escapeHTML(c.title)}">
-            ${escapeHTML(c.title)}
-          </button>
-        `).join('')}
+      ${gameProgress(roundNum, totalRounds, score)}
+      <div class="game-body">
+        <div class="game-stage">
+          ${photoHTML(photo, album, dpr, viewport)}
+        </div>
+        <div class="game-answers">
+          <div class="game-prompt">${feedback} — מאיזה אלבום התמונה?</div>
+          <div class="game-album-grid" role="group" aria-label="בחר אלבום">
+            ${choices.map((c) => `
+              <button class="game-album-btn" data-album-id="${c.id}" aria-label="${escapeHTML(c.title)}">
+                ${escapeHTML(c.title)}
+              </button>
+            `).join('')}
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -93,20 +117,25 @@ export function renderGameResult({ round, roundNum, totalRounds, score, countryC
   return `
     <div class="game-shell" data-game-step="result">
       ${gameHeader(roundNum, totalRounds, score)}
-      <div class="game-stage">
-        ${photoHTML(photo, album, dpr, viewport)}
-      </div>
-      <div class="game-result-info">
-        <p class="game-result-album">
-          <strong>${escapeHTML(album.title || album.name)}</strong>
-          (${escapeHTML(COUNTRY_LABELS[album.primary] || album.primary)})
-        </p>
-        <p class="game-result-points">+${earned} נקודות בסיבוב זה</p>
-      </div>
-      <div class="game-result-actions">
-        <button class="game-next-btn" data-game-action="${isLast ? 'finish' : 'next'}">
-          ${isLast ? 'סיום' : 'הבא →'}
-        </button>
+      ${gameProgress(roundNum, totalRounds, score)}
+      <div class="game-body">
+        <div class="game-stage">
+          ${photoHTML(photo, album, dpr, viewport)}
+        </div>
+        <div class="game-answers">
+          <div class="game-result-info">
+            <p class="game-result-album">
+              <strong>${escapeHTML(album.title || album.name)}</strong>
+              (${escapeHTML(COUNTRY_LABELS[album.primary] || album.primary)})
+            </p>
+            <p class="game-result-points">+${earned} נקודות בסיבוב זה</p>
+          </div>
+          <div class="game-result-actions">
+            <button class="game-next-btn" data-game-action="${isLast ? 'finish' : 'next'}">
+              ${isLast ? 'סיום' : 'הבא →'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   `;
