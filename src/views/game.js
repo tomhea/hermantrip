@@ -9,6 +9,7 @@
 import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { imageUrl } from '../lib/image-url.js';
 import { COUNTRIES } from '../lib/countries.js';
+import { icon } from '../lib/nav-icons.js';
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -29,6 +30,7 @@ function gameHeader(roundNum, totalRounds, score) {
       <a class="game-back" href="/" aria-label="חזרה לדף הבית">→ חזרה</a>
       <span class="game-round">שאלה ${roundNum} מתוך ${totalRounds}</span>
       <span class="game-score">ניקוד: ${score}</span>
+      <button type="button" class="slim-nav slim-toggle" data-theme-toggle aria-label="מצב בהיר/כהה">${icon('moon')}${icon('sun')}</button>
     </div>
   `;
 }

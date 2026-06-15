@@ -31,7 +31,7 @@ import { renderSlideshow } from './views/slideshow.js';
 import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
 import { coordsForAlbum } from './lib/album-coords.js';
-import { pinsForGlobe, buildingHeightFraction, BUILDING_WIDTH, WINDOWS_PER_FLOOR, windowColumns } from './lib/globe-pins.js';
+import { globeScene, buildingHeightFraction, BUILDING_WIDTH, WINDOWS_PER_FLOOR, windowColumns } from './lib/globe-pins.js';
 import { trailSegments, arcPoints, trailArcs } from './lib/trail.js';
 import { tripStopGroups, tripTrailPoints, ISRAEL, BANGKOK } from './lib/map-stops.js';
 import { globeModuleUrl, threeModuleUrl } from './lib/globe-loader.js';
@@ -1073,6 +1073,15 @@ function makeBuilding(THREE, heightUnits, wallTexBase, roofColor) {
   return group;
 }
 
+// A small directional arrowhead for a trail segment (#5): a flat cone whose tip
+// points along +Y; main.js orients +Y to the travel direction so it reads like
+// the 2D map's arrows. Emissive so it stays visible against the dark globe.
+function makeArrow(THREE, color) {
+  const cone = new THREE.ConeGeometry(0.9, 2.4, 12);
+  const mat = new THREE.MeshBasicMaterial({ color });
+  return new THREE.Mesh(cone, mat);
+}
+
 // Plain-text label(s) for a pin's hover tooltip (#3) — city name(s).
 function stopTooltipText(stops) {
   return [...new Set(stops.map((s) => s.label))].join(' · ');
@@ -1226,6 +1235,11 @@ async function initLeafletMap() {
     marker.addTo(map);
   }
   if (bounds.length) map.fitBounds(bounds, { padding: [40, 40] });
+  // Portrait phone (#8): the fit-all view is too wide to read, so zoom in one
+  // extra level (~×2) and recentre a bit east on פארה-פארה (Pare-pare, Sulawesi).
+  if (window.matchMedia('(max-width: 768px) and (orientation: portrait)').matches) {
+    map.setView([-4.0135, 119.6255], map.getZoom() + 1, { animate: false });
+  }
 }
 
 // Init Globe.gl with album location points (loaded via dynamic import — R5).
@@ -1278,9 +1292,13 @@ async function initGlobeView() {
   let THREE = null;
   try { THREE = await loadThree(); } catch { THREE = null; }
 
-  const pins = pinsForGlobe(manifest);
-  const maxDays = Math.max(1, ...pins.map((b) => b.days));
-  const points = pins.map((b) => ({
+  // Unified scene: houses at dice-clustered coords (so co-located visits like
+  // Bangkok read as separate houses, #1/#3) + a trail that threads the SAME
+  // coords (lines terminate at the exact houses, #1).
+  const scene = globeScene(manifest);
+  const houses = scene.houses;
+  const maxDays = Math.max(1, ...houses.map((b) => b.days));
+  const points = houses.map((b) => ({
     lat: b.lat, lng: b.lng, days: b.days,
     country: b.country, // per-visit country → link to THIS country's shared album (#8)
     color: MAP_COUNTRY_COLORS[b.country] || '#888',
@@ -1297,74 +1315,102 @@ async function initGlobeView() {
     .pointLat('lat')
     .pointLng('lng')
     .pointColor(THREE ? () => 'rgba(0,0,0,0)' : 'color') // invisible hit-bar when houses render
-    .pointRadius(THREE ? 0.7 : 0.34)
+    .pointRadius(THREE ? 1.1 : 0.5)                      // bigger hit target — easier to click (#2)
     .pointAltitude((d) => buildingHeightFraction(d.days, maxDays)) // full house height (click target)
     .pointLabel((d) => `<div class="map-popup" style="direction:rtl">${
       d.albums.map(a => `<span class="map-popup-link">${escapeHTML(a.title || a.name)}</span>`).join('<br>')
     }</div>`)
     .onPointClick((d) => {
-      // One album → open it directly. 2+ albums (a city visited more than
-      // once, e.g. Bangkok ×3) → open a "choose which" picker (#10).
       if (d.albums.length === 1) {
         const a = d.albums[0];
         go(albumPath(d.country || a.primary, a.slug)); // THIS country's shared album (#8)
       } else {
         showGlobePicker(d, container);
       }
-    });
+    })
+    .onPointHover((p) => { container.style.cursor = p ? 'pointer' : ''; }); // #2: a pointer cue
 
-  // The 3D houses (custom THREE layer): gray windowed body + per-country roof,
-  // standing radially on the surface. One per visit; the invisible points above
-  // carry hover + click.
+  // #4: max-anisotropy filtering sharpens the globe texture at grazing angles
+  // (true close-up resolution is bounded by the source image — a bigger texture
+  // asset would be the only further win).
+  try {
+    const mat = globe.globeMaterial && globe.globeMaterial();
+    const renderer = globe.renderer && globe.renderer();
+    if (mat && mat.map && renderer) {
+      mat.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      mat.map.needsUpdate = true;
+    }
+  } catch { /* non-fatal */ }
+
+  // 3D houses (gray windowed body + per-country roof, standing radially) AND a
+  // directional arrowhead per trail segment (#5), in ONE custom THREE layer
+  // (globe.gl allows a single customLayerData). The invisible points above carry
+  // hover + click.
   if (THREE) {
     const wallTex = buildingWallTexture(THREE);
     const upAxis = new THREE.Vector3(0, 1, 0);
+    const ARROW_ALT = 0.06;
+    const arrows = trailSegments(scene.trailPoints).map((s) => ({
+      kind: 'arrow',
+      lat: (s.from[0] + s.to[0]) / 2, lng: (s.from[1] + s.to[1]) / 2,
+      toLat: s.to[0], toLng: s.to[1], color: s.color,
+    }));
+    const sceneObjs = points.map((p) => ({ kind: 'house', ...p })).concat(arrows);
     globe
-      .customLayerData(points)
-      .customThreeObject((d) => makeBuilding(
-        THREE, buildingHeightFraction(d.days, maxDays) * GLOBE_RADIUS, wallTex,
-        d.color, // per-country roof colour
-      ))
+      .customLayerData(sceneObjs)
+      .customThreeObject((d) => (d.kind === 'house'
+        ? makeBuilding(THREE, buildingHeightFraction(d.days, maxDays) * GLOBE_RADIUS, wallTex, d.color)
+        : makeArrow(THREE, d.color)))
       .customThreeObjectUpdate((obj, d) => {
-        const p = globe.getCoords(d.lat, d.lng, 0);
-        obj.position.set(p.x, p.y, p.z);
-        obj.quaternion.setFromUnitVectors(upAxis, new THREE.Vector3(p.x, p.y, p.z).normalize());
+        if (d.kind === 'house') {
+          const p = globe.getCoords(d.lat, d.lng, 0);
+          obj.position.set(p.x, p.y, p.z);
+          obj.quaternion.setFromUnitVectors(upAxis, new THREE.Vector3(p.x, p.y, p.z).normalize());
+        } else {
+          const p = globe.getCoords(d.lat, d.lng, ARROW_ALT);
+          const q = globe.getCoords(d.toLat, d.toLng, ARROW_ALT);
+          obj.position.set(p.x, p.y, p.z);
+          const fwd = new THREE.Vector3(q.x - p.x, q.y - p.y, q.z - p.z).normalize();
+          obj.quaternion.setFromUnitVectors(upAxis, fwd); // tip → travel direction
+        }
       });
   }
 
-  // Trip trail on the globe (M47 / #10a): the same green→red route as the 2D map
-  // (incl. the flight-home closing leg), drawn as SOLID great-circle arcs that
-  // stay fully visible (the globe equivalent of the map's solid trip lines).
+  // Trip trail: SOLID, persistent great-circle lines threading the houses,
+  // THINNER so the unavoidable zoom-scaling of 3D tube width is far less
+  // noticeable (#5). Same green→red gradient as the 2D map; arrows show direction.
   globe
-    .arcsData(trailArcs(tripTrailPoints(manifest)))
+    .arcsData(trailArcs(scene.trailPoints))
     .arcStartLat((d) => d.startLat)
     .arcStartLng((d) => d.startLng)
     .arcEndLat((d) => d.endLat)
     .arcEndLng((d) => d.endLng)
     .arcColor('color')
-    .arcStroke(0.7)
+    .arcStroke(0.28)
     .arcAltitudeAutoScale(0.3)
-    // SOLID, persistent great-circle lines — the globe equivalent of the 2D
-    // map's solid coloured trip trail (the earlier travelling-dash "comet" left
-    // the arcs mostly invisible, so they read as missing after a second).
     .arcDashLength(1)
     .arcDashGap(0)
     .arcDashAnimateTime(0);
 
-  // Size the globe canvas to the container so it's centred in its own area
-  // (#5 — without explicit width/height globe.gl can render offset, esp. in
-  // an RTL page). Re-apply on viewport resize while the globe is mounted.
+  // Size the globe canvas to the container. Only apply non-zero measurements so
+  // a 0-size read (container momentarily hidden) never sticks. Re-apply on
+  // resize AND orientationchange, each with a settle delay — fixes the
+  // landscape-phone "only the top half shows" bug, where a portrait-measured
+  // height stayed after rotating (#9).
   const sizeGlobe = () => {
-    globe.width(container.clientWidth);
-    globe.height(container.clientHeight);
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    if (w > 0 && h > 0) { globe.width(w); globe.height(h); }
   };
   sizeGlobe();
-  // A second pass next frame, after layout settles (the container was just
-  // un-hidden by the toggle), avoids a 0-width first measurement.
   requestAnimationFrame(sizeGlobe);
-  if (globeResizeHandler) window.removeEventListener('resize', globeResizeHandler);
-  globeResizeHandler = sizeGlobe;
+  if (globeResizeHandler) {
+    window.removeEventListener('resize', globeResizeHandler);
+    window.removeEventListener('orientationchange', globeResizeHandler);
+  }
+  globeResizeHandler = () => { sizeGlobe(); setTimeout(sizeGlobe, 250); };
   window.addEventListener('resize', globeResizeHandler);
+  window.addEventListener('orientationchange', globeResizeHandler);
 
   // Centre the initial point of view on מוי נה, Vietnam (#6).
   globe.pointOfView({ lat: 10.9332, lng: 108.2867, altitude: 2.2 }, 0);
@@ -1402,8 +1448,11 @@ async function renderMapView() {
     });
   }
 
-  // Always init Leaflet (it's the default view).
+  // Always init Leaflet (it's the default view). If a render() landed us in globe
+  // mode (e.g. a theme toggle re-render, or back-button to a globe-opened /map),
+  // re-init the globe too since its container was just recreated.
   await initLeafletMap();
+  if (mapMode === 'globe') await initGlobeView();
 }
 
 // ── Game (M19) ───────────────────────────────────────────────────
@@ -1693,15 +1742,23 @@ function render() {
   // Leaving the map: destroy Leaflet so the container can be re-created cleanly
   // on next visit (avoids "map is already initialized" errors).
   const leavingMap = match && match.name !== 'map';
-  if (leavingMap && leafletMapInstance) {
+  // Destroy any existing Leaflet map at the top of EVERY render — renderMapView
+  // rebuilds it fresh. This lets a theme toggle on /map re-theme the vector style
+  // cleanly (M6 follow-up #6) without the reused container going stale, and still
+  // cleans up when navigating away. (Mode-switch via the toggle buttons doesn't
+  // call render(), so it's unaffected.)
+  if (leafletMapInstance) {
     try { leafletMapInstance.remove(); } catch { /* ignore */ }
     leafletMapInstance = null;
-    mapMode = 'map';
   }
-  // Leaving the map also tears down the globe resize listener (M28).
-  if (leavingMap && globeResizeHandler) {
-    window.removeEventListener('resize', globeResizeHandler);
-    globeResizeHandler = null;
+  if (leavingMap) {
+    mapMode = 'map';
+    // Leaving the map also tears down the globe resize listeners (M28).
+    if (globeResizeHandler) {
+      window.removeEventListener('resize', globeResizeHandler);
+      window.removeEventListener('orientationchange', globeResizeHandler);
+      globeResizeHandler = null;
+    }
   }
   // Leaving the timeline: disconnect its observer + scroll listener (M26).
   if (match && match.name !== 'timeline') teardownTimeline();
