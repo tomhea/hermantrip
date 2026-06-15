@@ -1,0 +1,7 @@
+$ node --test src/lib/globe-arrows.test.mjs   (before implementing the 3 new tests)
+✖ israelBangkokLeg: detects the outbound and return long-haul, null otherwise
+✖ arcApexAltitude: the two Israel↔Bangkok legs bow to DIFFERENT heights (separated)
+✖ arrowVisible: drops dense short hops, keeps the long legs
+ℹ tests 8
+ℹ pass 5
+ℹ fail 3

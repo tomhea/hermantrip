@@ -1,0 +1,9 @@
+ℹ tests 0
+ℹ pass 0
+ℹ fail 0
+✔ israelBangkokLeg: detects the outbound and return long-haul, null otherwise (0.181ms)
+✔ arcApexAltitude: the two Israel↔Bangkok legs bow to DIFFERENT heights (separated) (0.3224ms)
+✔ arrowVisible: drops dense short hops, keeps the long legs (0.3094ms)
+ℹ tests 774
+ℹ pass 774
+ℹ fail 0
