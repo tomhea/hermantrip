@@ -1207,6 +1207,32 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .game-score { font-weight: 700; color: var(--accent); }
 .game-back { color: var(--accent); text-decoration: none; white-space: nowrap; }
 .game-back:hover, .game-back:focus-visible { color: var(--earth-ochre); }
+/* M7: slim progress track under the header; the bar fills ∝ roundNum/total. */
+.game-progress {
+  flex: 0 0 auto;
+  height: 4px;
+  background: var(--divider);
+  overflow: hidden;
+}
+.game-progress-bar {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+/* M7: body holds the photo + the answer rail. Column by default (photo on top,
+   options below); flips to a row in landscape (see the orientation media query
+   at the end of this section) so the options sit beside the photo. */
+.game-body {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.game-answers {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
 .game-stage {
   /* M35 / ask #5 — maximise the photo: the stage GROWS to take all vertical
      space the header / prompt / answer grid leave, instead of being hard-
@@ -1349,6 +1375,21 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   color: var(--accent);
   font-size: var(--type-body);
   font-weight: 500;
+}
+
+/* M7: landscape — let the answer options sit BESIDE the photo instead of
+   stacked below it (short landscape phones otherwise push the grid off the
+   bottom). The header + progress stay as a full-width top bar; the body flips
+   from a column to a row so the photo and the answer rail share the space. */
+@media (orientation: landscape) {
+  .game-body { flex-direction: row; }
+  .game-stage { flex: 1 1 0; }
+  /* fixed-ish side rail, vertically centred, scrolls if the options overflow */
+  .game-answers {
+    flex: 0 0 clamp(240px, 38%, 420px);
+    justify-content: center;
+    overflow-y: auto;
+  }
 }
 
 /* ── Timeline view (M20) ────────────────────────────────────────── */

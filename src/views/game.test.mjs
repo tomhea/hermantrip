@@ -111,6 +111,46 @@ test('renderGameDone: low score gives נסו שוב', () => {
   assert.match(html, /נסו שוב/);
 });
 
+// M7: progress strip + bar (Task 7.1)
+test('M7: country step renders a progress strip + bar', () => {
+  const html = renderGameCountry({ round, roundNum: 1, totalRounds: 10, score: 0, dpr: 1, viewport: 'phone' });
+  assert.match(html, /class="game-progress"/);
+  assert.match(html, /class="game-progress-bar"/);
+});
+
+test('M7: progress bar width is proportional to roundNum/totalRounds', () => {
+  const html = renderGameCountry({ round, roundNum: 5, totalRounds: 10, score: 0, dpr: 1, viewport: 'phone' });
+  assert.match(html, /class="game-progress-bar"[^>]*width:\s*50%/);
+});
+
+test('M7: album step renders a progress strip + bar (30% at round 3)', () => {
+  const html = renderGameAlbum({ round, roundNum: 3, totalRounds: 10, score: 1, choices, countryCorrect: true, dpr: 1, viewport: 'phone' });
+  assert.match(html, /class="game-progress"/);
+  assert.match(html, /class="game-progress-bar"[^>]*width:\s*30%/);
+});
+
+test('M7: result step renders a progress strip + bar (100% at last round)', () => {
+  const html = renderGameResult({ round, roundNum: 10, totalRounds: 10, score: 2, countryCorrect: true, albumCorrect: true, isLast: true, dpr: 1, viewport: 'phone' });
+  assert.match(html, /class="game-progress"/);
+  assert.match(html, /class="game-progress-bar"[^>]*width:\s*100%/);
+});
+
+test('M7: steps group the photo + options in a .game-body > .game-answers (landscape side-by-side)', () => {
+  const c = renderGameCountry({ round, roundNum: 1, totalRounds: 10, score: 0, dpr: 1, viewport: 'phone' });
+  const a = renderGameAlbum({ round, roundNum: 1, totalRounds: 10, score: 1, choices, countryCorrect: true, dpr: 1, viewport: 'phone' });
+  const r = renderGameResult({ round, roundNum: 1, totalRounds: 10, score: 2, countryCorrect: true, albumCorrect: true, isLast: false, dpr: 1, viewport: 'phone' });
+  for (const html of [c, a, r]) {
+    assert.match(html, /class="game-body"/);
+    assert.match(html, /class="game-answers"/);
+  }
+});
+
+test('M7: progress strip carries an accessible round/score label', () => {
+  const html = renderGameCountry({ round, roundNum: 4, totalRounds: 10, score: 6, dpr: 1, viewport: 'phone' });
+  assert.match(html, /role="progressbar"[^>]*aria-valuenow="4"/);
+  assert.match(html, /aria-valuemax="10"/);
+});
+
 test('M45: every play step has a "חזרה" back link to home (#8)', () => {
   const c = renderGameCountry({ round, roundNum: 1, totalRounds: 10, score: 0, dpr: 1, viewport: 'phone' });
   const a = renderGameAlbum({ round, roundNum: 1, totalRounds: 10, score: 1, choices, countryCorrect: true, dpr: 1, viewport: 'phone' });

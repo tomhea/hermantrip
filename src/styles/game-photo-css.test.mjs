@@ -46,3 +46,37 @@ test('.game-photo fills the stage height (height: 100%, not a fixed dvh)', () =>
   assert.match(photo, /height:\s*100%/);
   assert.equal(/height:\s*45dvh/.test(photo), false);
 });
+
+// ── M7 (Task 7.2): progress strip + landscape side-by-side layout ──────
+test('M7: .game-progress strip has a styled track rule block', () => {
+  const prog = ruleBlock('.game-progress');
+  assert.ok(prog, '.game-progress rule missing');
+  // a thin track with a background so the unfilled portion is visible
+  assert.match(prog, /background/);
+});
+
+test('M7: .game-progress-bar is the proportional fill (accent background)', () => {
+  const bar = ruleBlock('.game-progress-bar');
+  assert.ok(bar, '.game-progress-bar rule missing');
+  assert.match(bar, /height:\s*100%/);
+  assert.match(bar, /background/);
+});
+
+test('M7: landscape lays the body out as a row so options sit beside the photo', () => {
+  // This repo tests CSS by asserting on rule-block text. The landscape layout
+  // lives inside an @media (orientation: landscape) block, so match across it.
+  // The body (photo + answer rail) flips to a row; the shell stays a column so
+  // the header + progress remain a full-width top bar.
+  assert.match(
+    css,
+    /@media\s*\(orientation:\s*landscape\)\s*\{[\s\S]*?\.game-body\s*\{[\s\S]*?flex-direction:\s*row/,
+    'expected @media (orientation: landscape){ .game-body { flex-direction: row } }',
+  );
+});
+
+test('M7: .game-body is a flex container that fills the shell (basis 0)', () => {
+  const body = ruleBlock('.game-body');
+  assert.ok(body, '.game-body rule missing');
+  assert.match(body, /flex:\s*1\s+1\s+0/);
+  assert.match(body, /flex-direction:\s*column/);
+});

@@ -1,0 +1,16 @@
+$ node --test src/views/game.test.mjs src/styles/game-photo-css.test.mjs   (M7/v0.M68 source reverted to HEAD)
+...
+✖ M7: country step renders a progress strip + bar
+✖ M7: progress bar width is proportional to roundNum/totalRounds
+✖ M7: album step renders a progress strip + bar (30% at round 3)
+✖ M7: result step renders a progress strip + bar (100% at last round)
+✖ M7: steps group the photo + options in a .game-body > .game-answers (landscape side-by-side)
+✖ M7: progress strip carries an accessible round/score label
+✖ M7: .game-progress strip has a styled track rule block
+✖ M7: .game-progress-bar is the proportional fill (accent background)
+✖ M7: landscape lays the body out as a row so options sit beside the photo
+✖ M7: .game-body is a flex container that fills the shell (basis 0)
+...
+ℹ tests 33
+ℹ pass 23
+ℹ fail 10
