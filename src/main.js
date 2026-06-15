@@ -44,7 +44,7 @@ import { stopPopupHTML, albumHrefsForStops } from './lib/map-popup.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline, dayStripHTML } from './views/timeline.js';
 import { buildTimeline, sliderValueToBucketIndex, scrollYToBucketIndex } from './lib/timeline.js';
-import { eligibleAlbums, albumChoices, countryChoices, scoreCountry, scoreAlbum, generateRounds, shouldCelebrate, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
+import { eligibleAlbums, albumChoices, countryChoices, scoreCountry, scoreAlbum, generateRounds, shouldCelebrate, nextRoundPhoto, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
 import { resolveTheme, nextTheme } from './lib/theme.js';
 
 const THEME_KEY = 'hermantrip:theme';
@@ -1501,6 +1501,15 @@ function startGame() {
   gameCountryChoices = null;
 }
 
+// M68.3: warm the next round's photo so it's already cached when the player
+// advances (same trick as the slideshow's neighbour preload).
+function preloadNextRoundPhoto() {
+  const photo = nextRoundPhoto(gameRounds, gameRoundIdx);
+  if (!photo) return;
+  const img = new Image();
+  img.src = imageUrl(photo.id, 'slide', { dpr: dpr(), viewport: viewportClass() });
+}
+
 function renderGameView() {
   if (!manifest) {
     app.innerHTML = renderGame({ manifest: null, error: manifestError });
@@ -1522,6 +1531,7 @@ function renderGameView() {
     }
     app.innerHTML = renderGameCountry({ ...base, choices: gameCountryChoices });
     wireGame();
+    preloadNextRoundPhoto();   // warm the next question's image while this one plays (M68.3)
   } else if (gameStep === 'album') {
     if (!gameAlbumChoices) {
       gameAlbumChoices = albumChoices(eligibleAlbums(manifest), round.album);

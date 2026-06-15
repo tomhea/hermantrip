@@ -1198,6 +1198,7 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-3);          /* M68.3: keep score/toggle from crowding each other */
   padding: var(--space-3);
   border-bottom: 1px solid var(--divider);
   background: var(--surface);
@@ -1433,12 +1434,23 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
     z-index: 3;
     background: transparent;
     border-bottom: none;
-    color: var(--text);
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
   }
   /* DOM order back·round·score·toggle → an auto start-margin on score packs
      back+round to the right corner and score+toggle to the left corner. */
   .game-score { margin-inline-start: auto; }
+  /* M68.3: each label rides its own solid scrim chip so it stays legible over
+     ANY photo (white-bg photos included) — a functional photo scrim, NOT a
+     backdrop-filter blur (anti-AI forbids glassmorphism). */
+  .game-header .game-round,
+  .game-header .game-score,
+  .game-header .game-back {
+    background: rgba(20, 17, 14, 0.58);
+    padding: 0.2em 0.6em;
+    border-radius: 7px;
+  }
+  .game-round { color: #f3ece1; }   /* fixed light on the dark chip (theme-independent) */
+  .game-back  { color: #f3ece1; }
+  .game-score { color: #f0c08a; }   /* warm light, legible on the dark chip */
 }
 
 /* M68.2: end-of-game confetti (fired by renderGameDone when celebrate). Pure
@@ -1453,37 +1465,50 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 }
 .game-confetti span {
   position: absolute;
-  top: -6%;
+  top: -8%;
   width: 9px;
-  height: 14px;
-  border-radius: 1px;
-  animation: game-confetti-fall 2.8s linear infinite;
+  height: 9px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: game-confetti-fall 3s linear infinite;
 }
+/* fade in at the top, drift sideways + tumble on the way down, fade out at the
+   bottom so pieces don't pop out of existence. --drift/--spin vary per piece. */
 @keyframes game-confetti-fall {
-  0%   { transform: translateY(-10vh) rotate(0deg);    opacity: 1; }
-  100% { transform: translateY(110vh) rotate(620deg);  opacity: 1; }
+  0%   { transform: translate3d(0, -12vh, 0) rotate(0deg); opacity: 0; }
+  8%   { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translate3d(var(--drift, 0px), 112vh, 0) rotate(var(--spin, 540deg)); opacity: 0; }
 }
-/* colours (4-cycle) */
-.game-confetti span:nth-child(4n+1) { background: var(--accent); }
-.game-confetti span:nth-child(4n+2) { background: #d99a2b; }
-.game-confetti span:nth-child(4n+3) { background: #2e7d32; }
-.game-confetti span:nth-child(4n)   { background: #3d6ea5; }
-/* horizontal spread (8-cycle) */
-.game-confetti span:nth-child(8n+1) { left: 6%; }
-.game-confetti span:nth-child(8n+2) { left: 18%; }
-.game-confetti span:nth-child(8n+3) { left: 31%; }
-.game-confetti span:nth-child(8n+4) { left: 44%; }
-.game-confetti span:nth-child(8n+5) { left: 57%; }
-.game-confetti span:nth-child(8n+6) { left: 69%; }
-.game-confetti span:nth-child(8n+7) { left: 82%; }
-.game-confetti span:nth-child(8n)   { left: 93%; }
-/* stagger the start + speed (6-cycle) so they don't fall in lockstep */
-.game-confetti span:nth-child(6n+1) { animation-delay: 0s;    animation-duration: 2.6s; }
-.game-confetti span:nth-child(6n+2) { animation-delay: 0.5s;  animation-duration: 3.1s; }
-.game-confetti span:nth-child(6n+3) { animation-delay: 1.1s;  animation-duration: 2.4s; }
-.game-confetti span:nth-child(6n+4) { animation-delay: 0.3s;  animation-duration: 3.4s; }
-.game-confetti span:nth-child(6n+5) { animation-delay: 0.8s;  animation-duration: 2.9s; }
-.game-confetti span:nth-child(6n)   { animation-delay: 1.4s;  animation-duration: 3.2s; }
+/* shape variety: circles, square chips, and a few thin streamers */
+.game-confetti span:nth-child(3n)   { border-radius: 50%; }
+.game-confetti span:nth-child(7n)   { width: 5px; height: 13px; border-radius: 1px; }
+.game-confetti span:nth-child(5n+2) { width: 12px; height: 12px; }
+.game-confetti span:nth-child(5n+4) { width: 7px;  height: 7px; }
+/* colours (5-cycle, trip palette) */
+.game-confetti span:nth-child(5n+1) { background: var(--accent); }
+.game-confetti span:nth-child(5n+2) { background: #d99a2b; }
+.game-confetti span:nth-child(5n+3) { background: #2e7d32; }
+.game-confetti span:nth-child(5n+4) { background: #3d6ea5; }
+.game-confetti span:nth-child(5n+5) { background: #b5485f; }
+/* horizontal start (10-cycle, ~4 pieces each at 40 pieces) */
+.game-confetti span:nth-child(10n+1) { left: 4%; }
+.game-confetti span:nth-child(10n+2) { left: 14%; }
+.game-confetti span:nth-child(10n+3) { left: 24%; }
+.game-confetti span:nth-child(10n+4) { left: 34%; }
+.game-confetti span:nth-child(10n+5) { left: 45%; }
+.game-confetti span:nth-child(10n+6) { left: 55%; }
+.game-confetti span:nth-child(10n+7) { left: 66%; }
+.game-confetti span:nth-child(10n+8) { left: 76%; }
+.game-confetti span:nth-child(10n+9) { left: 86%; }
+.game-confetti span:nth-child(10n)   { left: 95%; }
+/* drift sideways + tumble + speed + stagger (6-cycle) so it never marches in lockstep */
+.game-confetti span:nth-child(6n+1) { --drift:  34px; --spin:  680deg; animation-duration: 2.7s; animation-delay: 0s;   }
+.game-confetti span:nth-child(6n+2) { --drift: -42px; --spin: -520deg; animation-duration: 3.3s; animation-delay: 0.5s; }
+.game-confetti span:nth-child(6n+3) { --drift:  18px; --spin:  760deg; animation-duration: 2.4s; animation-delay: 1.1s; }
+.game-confetti span:nth-child(6n+4) { --drift: -26px; --spin:  600deg; animation-duration: 3.5s; animation-delay: 0.3s; }
+.game-confetti span:nth-child(6n+5) { --drift:  48px; --spin: -640deg; animation-duration: 2.9s; animation-delay: 0.8s; }
+.game-confetti span:nth-child(6n)   { --drift: -14px; --spin:  500deg; animation-duration: 3.1s; animation-delay: 1.4s; }
 @media (prefers-reduced-motion: reduce) {
   .game-confetti { display: none; }
 }

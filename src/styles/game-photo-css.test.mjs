@@ -113,6 +113,29 @@ test('M68.2: confetti has an animated falling rule', () => {
   assert.match(css, /@keyframes\s+game-confetti-fall/);
 });
 
+// ── M68.3: confetti polish + header spacing + PC text scrim ─────────
+test('M68.3: confetti pieces vary in shape (some round) and drift sideways', () => {
+  // a circle variant + a horizontal drift custom property in the keyframe
+  assert.match(css, /\.game-confetti span:nth-child\([^)]*\)\s*\{[^}]*border-radius:\s*50%/);
+  assert.match(css, /@keyframes\s+game-confetti-fall\s*\{[\s\S]*?var\(--drift/);
+});
+
+test('M68.3: the game header has a gap so the score/toggle are not crammed', () => {
+  const header = ruleBlock('.game-header');
+  assert.ok(header, '.game-header rule missing');
+  assert.match(header, /gap:/);
+});
+
+test('M68.3: PC corner text gets a scrim background so it reads on any photo', () => {
+  // inside the PC (tall-landscape) overlay block, the round text carries its
+  // own background scrim (no backdrop-filter — anti-AI forbids glassmorphism).
+  assert.match(
+    css,
+    /@media\s*\(orientation:\s*landscape\)\s*and\s*\(min-height:\s*501px\)\s*\{[\s\S]*?\.game-round[\s\S]*?background/,
+  );
+  assert.equal(/backdrop-filter\s*:/.test(css), false, 'no backdrop-filter declaration (anti-AI)');
+});
+
 test('M68.1: dark mode gives the option buttons a more visible border', () => {
   // Require the literal dark override selector with its own border-color,
   // not just any co-occurrence across the stylesheet.

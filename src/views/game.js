@@ -151,7 +151,7 @@ export function renderGameDone({ score, maxScore, celebrate }) {
   const pct = Math.round((score / maxScore) * 100);
   const msg = doneMessage(score, maxScore);
   const confetti = celebrate
-    ? `<div class="game-confetti" aria-hidden="true">${Array.from({ length: 24 }, () => '<span></span>').join('')}</div>`
+    ? `<div class="game-confetti" aria-hidden="true">${Array.from({ length: 40 }, () => '<span></span>').join('')}</div>`
     : '';
   return `
     <div class="game-shell" data-game-step="done">
