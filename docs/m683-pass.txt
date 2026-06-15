@@ -1,0 +1,12 @@
+$ npm test   (M68.3 implemented)
+...
+✔ M68.3: PC corner text gets a scrim background so it reads on any photo (0.2513ms)
+✔ M68.3: confetti pieces vary in shape (some round) and drift sideways (0.1434ms)
+✔ M68.3: the game header has a gap so the score/toggle are not crammed (0.0974ms)
+✔ nextRoundPhoto: null on the last round (0.0335ms)
+✔ nextRoundPhoto: null when rounds missing/out of range (0.0293ms)
+✔ nextRoundPhoto: returns the following round photo (0.0704ms)
+...
+ℹ tests 808
+ℹ pass 808
+ℹ fail 0

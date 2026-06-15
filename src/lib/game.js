@@ -95,6 +95,12 @@ export function shouldCelebrate(score, maxScore) {
   return score >= maxScore;
 }
 
+// The NEXT round's photo (for preloading while the current round is shown),
+// or null on the last round / out of range (M68.3).
+export function nextRoundPhoto(rounds, idx) {
+  return rounds?.[idx + 1]?.photo ?? null;
+}
+
 // Generate all 10 rounds upfront (deterministic given rng).
 // Each round: { photo, album }.
 export function generateRounds(manifest, rng = Math.random) {

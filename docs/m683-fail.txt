@@ -1,0 +1,10 @@
+ℹ fail 6
+ℹ pass 42
+ℹ tests 48
+✖ M68.3: PC corner text gets a scrim background so it reads on any photo (0.6732ms)
+✖ M68.3: confetti pieces vary in shape (some round) and drift sideways (2.1733ms)
+✖ M68.3: the game header has a gap so the score/toggle are not crammed (0.2723ms)
+✖ failing tests:
+✖ nextRoundPhoto: null on the last round (0.1914ms)
+✖ nextRoundPhoto: null when rounds missing/out of range (0.1265ms)
+✖ nextRoundPhoto: returns the following round photo (0.701ms)

@@ -3,7 +3,7 @@ import { strict as assert } from 'node:assert';
 import {
   eligibleAlbums, pickRoundPhoto, albumChoices, countryChoices,
   scoreCountry, scoreAlbum, generateRounds, TOTAL_ROUNDS, MAX_SCORE,
-  doneMessage, shouldCelebrate,
+  doneMessage, shouldCelebrate, nextRoundPhoto,
 } from './game.js';
 
 // ── Fixture manifest ──────────────────────────────────────────────
@@ -118,6 +118,21 @@ test('shouldCelebrate: only a perfect score', () => {
   assert.equal(shouldCelebrate(20, 20), true);
   assert.equal(shouldCelebrate(19, 20), false);
   assert.equal(shouldCelebrate(0, 20), false);
+});
+
+// ── nextRoundPhoto (M68.3): preload target for the next question ──
+test('nextRoundPhoto: returns the following round photo', () => {
+  const rounds = [{ photo: { id: 'a' } }, { photo: { id: 'b' } }, { photo: { id: 'c' } }];
+  assert.equal(nextRoundPhoto(rounds, 0).id, 'b');
+  assert.equal(nextRoundPhoto(rounds, 1).id, 'c');
+});
+test('nextRoundPhoto: null on the last round', () => {
+  const rounds = [{ photo: { id: 'a' } }, { photo: { id: 'b' } }];
+  assert.equal(nextRoundPhoto(rounds, 1), null);
+});
+test('nextRoundPhoto: null when rounds missing/out of range', () => {
+  assert.equal(nextRoundPhoto(null, 0), null);
+  assert.equal(nextRoundPhoto([{ photo: { id: 'a' } }], 5), null);
 });
 
 test('scoreCountry: correct → 1', () => { assert.equal(scoreCountry('np', 'np'), 1); });
