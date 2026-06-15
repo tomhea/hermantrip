@@ -8,6 +8,18 @@
 //
 // Pure logic — no DOM, no fetch.
 
+import { COUNTRY_ORDER } from './countries.js';
+
+// Fisher-Yates shuffle (non-mutating). rng: () => number in [0,1).
+function shuffle(arr, rng) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 // Return all albums eligible for the game (single-country only).
 export function eligibleAlbums(manifest) {
   if (!manifest || !Array.isArray(manifest.albums)) return [];
@@ -31,25 +43,26 @@ export function albumChoices(eligible, correctAlbum, rng = Math.random) {
   const same = eligible.filter(
     (a) => a.primary === correctAlbum.primary && a.id !== correctAlbum.id,
   );
-  // Fisher-Yates shuffle of the pool (non-mutating).
-  const shuffled = (arr) => {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(rng() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  };
 
-  let distractors = shuffled(same).slice(0, 3);
+  let distractors = shuffle(same, rng).slice(0, 3);
   if (distractors.length < 3) {
     // Pad with albums from other countries.
-    const others = shuffled(eligible.filter((a) => a.id !== correctAlbum.id && !distractors.some((d) => d.id === a.id)));
+    const others = shuffle(eligible.filter((a) => a.id !== correctAlbum.id && !distractors.some((d) => d.id === a.id)), rng);
     distractors = [...distractors, ...others.slice(0, 3 - distractors.length)];
   }
 
-  const choices = shuffled([correctAlbum, ...distractors]);
+  const choices = shuffle([correctAlbum, ...distractors], rng);
   return choices.map((a) => ({ id: a.id, title: a.title || a.name }));
+}
+
+// Build 4 answer choices for the country step: the correct country + 3 random
+// distractors from the other game countries. Returns a shuffled array of 4
+// country codes (so the correct slot is unpredictable each round).
+export function countryChoices(correctCountry, rng = Math.random) {
+  const distractors = shuffle(
+    COUNTRY_ORDER.filter((c) => c !== correctCountry), rng,
+  ).slice(0, 3);
+  return shuffle([correctCountry, ...distractors], rng);
 }
 
 // Score a country guess.

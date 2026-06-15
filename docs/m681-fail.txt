@@ -1,0 +1,13 @@
+ℹ fail 10
+ℹ pass 50
+ℹ tests 60
+✖ M68.1: dark mode gives the option buttons a more visible border (0.3006ms)
+✖ M68.1: game option buttons set an explicit themeable text colour (not UA black) (0.4778ms)
+✖ M68.1: landscape-phone rail stacks the options in a single column (4 rows × 1) (0.2431ms)
+✖ M68.1: on wider screens the country grid is 4-in-a-row (only 4 options now, was 7) (2.1171ms)
+✖ M68.1: only SHORT landscape (phone) flips the body to a side rail — not PC (0.7388ms)
+✖ countryChoices are all valid game country codes (0.1449ms)
+✖ countryChoices includes the correct country (3.918ms)
+✖ countryChoices returns exactly 4 codes (1.0716ms)
+✖ renderGameCountry: renders 4 country buttons (4 of 7, incl. the correct one) (1.0574ms)
+✖ renderGameCountry: renders exactly the country codes it was given (0.3057ms)

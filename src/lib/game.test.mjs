@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
 import {
-  eligibleAlbums, pickRoundPhoto, albumChoices,
+  eligibleAlbums, pickRoundPhoto, albumChoices, countryChoices,
   scoreCountry, scoreAlbum, generateRounds, TOTAL_ROUNDS, MAX_SCORE,
 } from './game.js';
 
@@ -80,6 +80,28 @@ test('albumChoices are unique', () => {
   const choices = albumChoices(eligible, album, rng0);
   const ids = choices.map((c) => c.id);
   assert.equal(new Set(ids).size, ids.length, 'duplicate choices');
+});
+
+// ── countryChoices (M68.1): 4 country options incl. the correct one ──
+const GAME_COUNTRY_CODES = new Set(['np', 'in', 'vn', 'cn', 'au', 'nz', 'th']);
+
+test('countryChoices returns exactly 4 codes', () => {
+  assert.equal(countryChoices('np', rng0).length, 4);
+});
+
+test('countryChoices includes the correct country', () => {
+  assert.ok(countryChoices('cn', rng0).includes('cn'));
+});
+
+test('countryChoices are unique', () => {
+  const c = countryChoices('th', rng0);
+  assert.equal(new Set(c).size, c.length, 'duplicate country choices');
+});
+
+test('countryChoices are all valid game country codes', () => {
+  for (const code of countryChoices('au', rng0)) {
+    assert.ok(GAME_COUNTRY_CODES.has(code), `unexpected code ${code}`);
+  }
 });
 
 test('scoreCountry: correct → 1', () => { assert.equal(scoreCountry('np', 'np'), 1); });
