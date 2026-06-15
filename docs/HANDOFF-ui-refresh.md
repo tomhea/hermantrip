@@ -1,12 +1,13 @@
-# Handoff — UI refresh (continuing at M7)
+# Handoff — UI refresh (continuing at M8, the LAST milestone)
 
 _For a fresh session picking up the hermantrip UI-refresh. Read this top-to-bottom,
-then the plan + spec + cr-rules (links below), then start at **§9 (Starting M7)**.
-Last updated after **M6 (Map/Globe) + its 4 globe/map follow-ups shipped & owner-approved**
-(`v0.M67`…`v0.M67.4`); **next up is M7 (Game) → `v0.M68`, SW v88.**_
+then the plan + spec + cr-rules (links below), then start at **§9 (Starting M8)**.
+Last updated after **M7 (Game) shipped & live** (`v0.M68`, SW v88);
+**next up — and LAST — is M8 (Timeline) → `v0.M69`, SW v89.**_
 
-**M1–M6 are DONE and live.** The globe/map went through four owner-feedback
-rounds and is now signed off ("It looks great") — do NOT reopen it. Everything
+**M1–M7 are DONE and live.** The globe/map (M6) went through four owner-feedback
+rounds and is signed off ("It looks great") — do NOT reopen it. M7 (Game) added a
+progress strip + a landscape options-beside-photo layout, view+CSS only. Everything
 below §7 is historical reference; the actionable starting point is **§9**.
 
 ## 0. The one-paragraph orientation
@@ -30,13 +31,13 @@ Pure logic in `src/lib/` (unit-tested, no DOM/fetch), HTML-string view builders 
 | | |
 |---|---|
 | Branch | `main` (clean) |
-| Tests | **774 passing / 0 fail** (`npm test`) |
+| Tests | **782 passing / 0 fail** (`npm test`) |
 | Lint | clean (`npx eslint@9 --max-warnings=0 .`) |
-| SW cache | `hermantrip-shell-v87` (in `sw.js`) |
-| Latest tag | `v0.M67.4` (M6 + 4 globe/map follow-ups). Next milestone = **M7 → `v0.M68`** |
-| Next SW bump | **v88** |
+| SW cache | `hermantrip-shell-v88` (in `sw.js`) |
+| Latest tag | `v0.M68` (M7 Game). Next milestone = **M8 → `v0.M69`** (the LAST one) |
+| Next SW bump | **v89** |
 
-**Shipped milestones:** M1 Foundations (`v0.M62`, themes+toggle+slim header+icons+country colours) · M2 Home (`v0.M63`, photo-forward 4-parts bento-ish home) · M3 Country page (`v0.M64`, featured-first overlay grid) · M4 Album grid (`v0.M65`, justified rows + sticky day headers) · M5 Slideshow (`v0.M66`, charcoal stage + floating auto-hide bar + on-demand filmstrip) · M6 Map/Globe (`v0.M67`, Hebrew vector map via MapLibre GL + distinct country-colour pins + globe comet + immediate starfield).
+**Shipped milestones:** M1 Foundations (`v0.M62`, themes+toggle+slim header+icons+country colours) · M2 Home (`v0.M63`, photo-forward 4-parts bento-ish home) · M3 Country page (`v0.M64`, featured-first overlay grid) · M4 Album grid (`v0.M65`, justified rows + sticky day headers) · M5 Slideshow (`v0.M66`, charcoal stage + floating auto-hide bar + on-demand filmstrip) · M6 Map/Globe (`v0.M67`, Hebrew vector map via MapLibre GL + distinct country-colour pins + globe comet + immediate starfield) · M7 Game (`v0.M68`, progress strip + landscape options-beside-photo via a new `.game-body` flex wrapper).
 **M6 follow-ups (live):** `v0.M67.1` (RTL fix so Hebrew map labels aren't reversed — `setRTLTextPlugin`; globe trip-lines made SOLID/persistent; the disliked cylinder pins reverted to the 3D **houses** at short quarter height with per-country-coloured roofs) · `v0.M67.2` (globe: dice-pip clusters for co-located visits + trail threads the exact houses, thinner arcs + 3D arrowheads, bigger click target, anisotropy; map: removed "מפה" title, light/dark toggle on map/timeline/game, portrait-phone zoom+recenter on Pare-pare, landscape-phone globe sizing fix) · `v0.M67.3` (globe: **reversed the dice decision** — co-located visits now COLLAPSE into ONE tower, height ∝ Σ days, click opens the album picker of all visits [Bangkok = 1 tower/5 albums]; trail arrowheads shrunk + placed on the arc APEX [new pure `src/lib/globe-arrows.js`; arcs use per-arc `arcAltitude` not autoScale]; houses moved to globe.gl's **objects layer** so a click raycasts the actual house mesh) · `v0.M67.4` (globe trail declutter: arrowheads only on segments ≥ `MIN_ARROW_ANGLE` ~3.4° so the Nepal/India cluster isn't a swarm [arrows 102→23, route line kept]; the two גבעת שמואל↔Bangkok legs bowed to different altitudes via `israelBangkokLeg`/`ISRAEL_LEG_ALT_SCALE` so the green outbound and red return don't overlap — the globe analog of the map's opposite-side bowing).
 **Polish hotfixes (all live):** `v0.M63.1/.2/.3` (home: hero photos, bento→even-order, names-right, progressive image load, landscape fullscreen) · `v0.M64.1` (country even-grid) · `v0.M65.1–.5` (album/country: justified→uniform tiles, sticky-on-phone, header overflow, one-line subtitle, count-drop-on-portrait, shrink-to-fit long dates) · `v0.M66.1` (slideshow: symmetric cross-album continue-loop, persistent draggable filmstrip above the bar, opaque thumbs, load-gated autoplay — applied to the random viewers too) · `v0.M66.2` (slideshow: in-place slide advance so the dock/filmstrip don't re-render on swap — no control flicker, filmstrip keeps scroll, phone autoplay auto-hides; drag-over-thumbnail; visible album/country pill buttons in the random viewers) · `v0.M66.3` (slideshow: tap zones 40%→25% per side with a neutral middle 50%; info size read from Performance Resource Timing instead of a 2nd HEAD request; phone controls auto-hide — touch-emulated mouse hover no longer wedges them on, hover/activity gated to `pointerType==='mouse'`).
 
@@ -122,19 +123,24 @@ Deviated from the plan: the owner's custom MapTiler Hebrew styles are **vector**
 - Map + globe pins use the **7 distinct** country colours (`country-colors.js`). Globe 3D buildings + THREE replaced by country-coloured pins sized by days: `globe-buildings.js`→`globe-pins.js`. Comet trail (dash .25 / gap 4 / 4000ms) + starfield paints immediately.
 - **Gotchas for next time:** MapTiler keys 403 a bare `curl` (no Referer) but work in-browser — verify map keys via the preview/browser, not curl. `/map`+globe never go `document_idle`, so `preview_screenshot` times out → R2 via DOM + `window._hermanGlobe` accessor probes. **Owner should eyeball the live map + globe** (WebGL/tiles not screenshot-able here).
 
-## 9. Starting M7 (Game) — THE ENTRY POINT
+## 8b. M7 (Game) — SHIPPED ✓ (`v0.M68`, SW v88)
 
-**Branch `m7-game`, tag `v0.M68`, SW v88.** Goal: a progress strip + a photo-forward restyle of the guessing game, and a landscape layout where the answer options sit *beside* the photo. The game LOGIC and WIRING do not change — only the view markup + CSS. Plan section: lines ~1006–1021 of the plan (Tasks 7.1 + 7.2).
+Progress strip + landscape options-beside-photo, **view + CSS only** (`src/lib/game.js`
+logic and `src/main.js` wiring untouched). What landed (reference if a follow-up
+hotfix is needed):
+- **View** (`src/views/game.js`): a `gameProgress(roundNum,totalRounds,score)` helper renders a slim `.game-progress` track + a `.game-progress-bar` (`style="width: <pct>%"`, `pct = round(roundNum/totalRounds*100)`, `role="progressbar"` with an `aria-label` carrying round+score) under `gameHeader()` on the country/album/result steps. Each of those three steps was regrouped into `.game-body` → (`.game-stage` photo + `.game-answers` holding the prompt + the option grid / result info+actions). The round/score TEXT stays in `gameHeader` (don't duplicate it).
+- **CSS** (`src/styles/main.css` `/* ── Game view (M19) */` block): `.game-progress` (4px track, `--divider` bg) + `.game-progress-bar` (`height:100%`, `--accent` bg, width transition). `.game-body { flex:1 1 0; min-height:0; display:flex; flex-direction:column }` and `.game-answers { display:flex; flex-direction:column; min-height:0 }`. Landscape: `@media (orientation: landscape){ .game-body{ flex-direction:row } .game-stage{ flex:1 1 0 } .game-answers{ flex:0 0 clamp(240px,38%,420px); justify-content:center; overflow-y:auto } }`.
+- **Tests:** `src/views/game.test.mjs` (strip+bar render, width ∝ round, `.game-body`/`.game-answers` present, aria-label) + `src/styles/game-photo-css.test.mjs` (`.game-progress`/`-bar` blocks, `.game-body` flex, landscape `.game-body{flex-direction:row}` via rule-block text). Suite 782/782.
+- **Crucial lesson:** the originally-planned bare `.game-shell{ flex-direction:row }` flip does **NOT** work — with the flat child list flex-wrap squished the photo to ~46px and pushed the option grid *below*, not beside. The fix is the `.game-body` flex wrapper (shell stays a **column** so header+progress remain a full-width top bar; only the body flips to a row). Verify landscape geometry in the preview (photo fills body height, grid sits at `x` next to the stage) — don't trust the CSS test alone.
 
-**What the game already is (read the files first, match their style):**
-- `src/views/game.js` — pure HTML-string builders for a 10-round state machine: `renderGameCountry` (photo + 7 country buttons `.game-country-btn` in trip order np·in·vn·cn·au·nz·th) → `renderGameAlbum` (4 `.game-album-btn` choices) → `renderGameResult` → `renderGameDone`; plus `renderGame` (loading/error shell). Each step already receives `roundNum`/`totalRounds`/`score` and wraps in `.game-shell[data-game-step]` with a `.game-stage` + `.game-photo`. A shared `gameHeader()` ALREADY has the back-to-home link + round + score text **+ the `data-theme-toggle` button** (added in M67.2 — don't re-add it).
-- `src/lib/game.js` — pure round/score/choices logic. **Do NOT touch** (no behaviour change).
-- `src/main.js` — `startGame()` + the game state vars (`gameRounds`/`gameStep`/`gameRoundIdx`/`gameScore`/…) and the click wiring render the step views. Touch only if a new markup hook needs binding; the existing flow stays.
-- Existing CSS contract in `src/styles/main.css`: `.game-shell` (flex column), `.game-stage`/`.game-photo` (full-bleed, photo flex:1 1 0), `.game-*-grid`/`.game-*-btn`.
+## 9. Starting M8 (Timeline) — THE ENTRY POINT (the LAST milestone)
 
-**Task 7.1 — view (`src/views/game.js`, extend `src/views/game.test.mjs`):** add a `.game-progress` strip showing `round/total` + score + a visual `.game-progress-bar` (width ∝ roundNum/totalRounds). Tests-first: assert the strip + bar render, the country step has 7 buttons, the album step has 4. The round/score data already flows in via the step args.
-**Task 7.2 — CSS (`src/styles/main.css`, extend `src/styles/game-photo-css.test.mjs`):** style `.game-progress`/`.game-progress-bar`; add `@media (orientation:landscape){ .game-shell{ flex-direction:row } }` so options sit beside the photo. The CSS test asserts the landscape `flex-direction:row` rule + the progress-bar block exists (this repo tests CSS by asserting on rule-block text — see the existing `game-photo-css.test.mjs`).
+**Branch `m8-timeline`, tag `v0.M69`, SW v89.** Goal: restyle the timeline view as a data-driven scrubber/rail. Plan section: the M8/Timeline tasks (`scrubber.js` + `country-motifs.js` per the plan — read the plan's M8 section for the exact task split before starting).
 
-**Ship:** bump `sw.js` SHELL_CACHE **v87→v88** (no new SHELL_FILES unless you add a module) → `npm test` (0 fail) → `npx eslint@9 --max-warnings=0 .` → PR `M7: Game` with the R1+R2(3 viewports incl. tablet 820 + console-clean)+R5(gzip delta) body → crist → artifact `versions/v0.M68/dist-M68.tar.gz` → crist re-review → `gh pr merge --merge` → tag `v0.M68` → deploy → verify-live → branch cleanup (full sequence in §2). **Game IS screenshot-able-via-DOM** (no WebGL) — probe `.game-progress`/`.game-progress-bar` geometry + the landscape `flex-direction` via `getComputedStyle` at the 3 viewports.
+**What the timeline already is (read the files first, match their style):**
+- `src/views/timeline.js` (+ `src/views/timeline.test.mjs`) — the current timeline view. Read it and its test to learn the existing structure/contract.
+- `src/main.js` — timeline is lazy-hydrated (M26): `timelineData` built once from the manifest, an IntersectionObserver over day shells, plus window scroll/resize listeners torn down on route-leave (`teardownTimeline()`). Re-use that hydration pattern; don't stack listeners.
+- Theme toggle already lives on the timeline page (added M67.2) — don't re-add it.
+- New pure logic goes in `src/lib/` (e.g. `scrubber.js`, `country-motifs.js`) — no `document`/`window`/`fetch` there (R6); unit-test each in a `*.test.mjs` (R3).
 
-Then **M8 Timeline** (`v0.M69`, SW v89) — data-dependent scrubber/rail (`scrubber.js` + `country-motifs.js` per the plan); **visually sanity-check the rendered scrubber against real manifest data** (does תאילנד recur at the right spots? widths ~proportional?), not only unit tests. That's the last milestone.
+**Ship:** TDD task-by-task (failing `*.test.mjs` → implement → pass; capture FAIL+PASS logs) → bump `sw.js` SHELL_CACHE **v88→v89** + **add any NEW `src/lib`/`src/views` module to `SHELL_FILES`** → `npm test` (0 fail) → `npx eslint@9 --max-warnings=0 .` → PR `M8: Timeline` with the R1 + R2 (3 viewports incl. tablet 820 + console-clean probe) + R5 (gzip delta) body → crist (APPROVED only) → artifact `versions/v0.M69/dist-M69.tar.gz` → crist re-review → `gh pr merge --merge` → tag `v0.M69` → deploy → verify-live → branch cleanup (full sequence in §2). **Timeline is data-dependent: visually sanity-check the rendered scrubber against real manifest data** (does תאילנד recur at the right spots? are the segment widths ~proportional to the time spent?), not only via unit tests. It's the LAST milestone — after it ships, the ladder M1–M8 is complete.
