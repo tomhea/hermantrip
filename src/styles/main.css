@@ -1067,9 +1067,14 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   position: relative;    /* anchor the loading overlay (#4) */
   flex: 1 1 auto;
   width: 100%;
+  min-height: 0;         /* let it shrink in a flex column (landscape phone #9) */
   background: #0a0a12;   /* deep space */
   isolation: isolate;
+  overflow: hidden;      /* clip the WebGL canvas to its box */
 }
+.globe-container canvas { display: block; }
+/* The map/timeline/game theme toggles sit at the far (inline-end) edge. */
+.tl-header .slim-toggle { margin-inline-start: auto; }
 
 /* Globe loading overlay (M57 / #4): a starfield + Hebrew caption shown while
    globe.gl + three.js download and the scene builds, instead of a blank box. */

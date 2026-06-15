@@ -15,6 +15,7 @@ import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { imageUrl } from '../lib/image-url.js';
 import { slidePath } from '../lib/paths.js';
 import { slideIndexInAlbum } from '../lib/album-query.js';
+import { icon } from '../lib/nav-icons.js';
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -93,6 +94,7 @@ export function renderTimeline({ manifest, error, timeline, dpr }) {
       <header class="tl-header">
         <a class="tl-back" href="/">← חזרה</a>
         <h1 class="tl-title">ציר זמן</h1>
+        <button type="button" class="slim-nav slim-toggle" data-theme-toggle aria-label="מצב בהיר/כהה">${icon('moon')}${icon('sun')}</button>
       </header>
       <div class="tl-feed" id="tl-feed">
         ${timeline.map((b, i) => dayShell(b, i)).join('')}
