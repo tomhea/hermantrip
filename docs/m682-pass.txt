@@ -1,0 +1,22 @@
+$ npm test   (M68.2 implemented)
+...
+✔ M68.2: confetti has an animated falling rule (0.1757ms)
+✔ M68.2: on PC/tall-landscape the header overlays the stage corners (absolute, no bar) (0.202ms)
+✔ M68.2: renderGameDone has NO confetti when celebrate is falsy (0.0428ms)
+✔ M68.2: renderGameDone renders confetti when celebrate is set (0.0769ms)
+✔ doneMessage: 11/20 → יפה מאוד (0.0626ms)
+✔ doneMessage: 15/20 → כל הכבוד (0.0379ms)
+✔ doneMessage: 18/20 → מעולה (0.0516ms)
+✔ doneMessage: perfect 20/20 → מושלם (0.7496ms)
+✔ doneMessage: under 10 is a fixed try-again (0.0363ms)
+✔ renderGameDone: a strong-but-imperfect score gives מעולה (M68.2) (0.0404ms)
+✔ renderGameDone: home link (0.0738ms)
+✔ renderGameDone: low score gives נסו שוב (0.0359ms)
+✔ renderGameDone: perfect score gives מושלם (M68.2) (0.0647ms)
+✔ renderGameDone: replay button (0.0493ms)
+✔ renderGameDone: shows score (0.1082ms)
+✔ shouldCelebrate: only a perfect score (0.0448ms)
+...
+ℹ tests 802
+ℹ pass 802
+ℹ fail 0

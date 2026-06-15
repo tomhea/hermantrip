@@ -95,6 +95,24 @@ test('M68.1: game option buttons set an explicit themeable text colour (not UA b
   assert.match(album, /color:\s*var\(--text\)/, '.game-album-btn must set color: var(--text)');
 });
 
+// ── M68.2: PC corner chrome + confetti ──────────────────────────────
+test('M68.2: on PC/tall-landscape the header overlays the stage corners (absolute, no bar)', () => {
+  // PC is "landscape" too, so the corner overlay is gated to a TALL landscape
+  // viewport (min-height) — short landscape phones keep their top bar.
+  assert.match(
+    css,
+    /@media\s*\(orientation:\s*landscape\)\s*and\s*\(min-height:\s*501px\)\s*\{[\s\S]*?\.game-header\s*\{[\s\S]*?position:\s*absolute/,
+    'expected @media (orientation: landscape) and (min-height: 501px){ .game-header { position: absolute … } }',
+  );
+});
+
+test('M68.2: confetti has an animated falling rule', () => {
+  const confetti = ruleBlock('.game-confetti');
+  assert.ok(confetti, '.game-confetti rule missing');
+  // pieces animate (a keyframed fall)
+  assert.match(css, /@keyframes\s+game-confetti-fall/);
+});
+
 test('M68.1: dark mode gives the option buttons a more visible border', () => {
   // Require the literal dark override selector with its own border-color,
   // not just any co-occurrence across the stylesheet.

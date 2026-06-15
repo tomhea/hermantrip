@@ -1,0 +1,14 @@
+ℹ fail 10
+ℹ pass 61
+ℹ tests 71
+✖ M68.2: confetti has an animated falling rule (0.2423ms)
+✖ M68.2: on PC/tall-landscape the header overlays the stage corners (absolute, no bar) (1.2072ms)
+✖ M68.2: renderGameDone renders confetti when celebrate is set (0.2491ms)
+✖ doneMessage: 11/20 → יפה מאוד (0.1529ms)
+✖ doneMessage: 15/20 → כל הכבוד (0.2564ms)
+✖ doneMessage: 18/20 → מעולה (0.4834ms)
+✖ doneMessage: perfect 20/20 → מושלם (1.1796ms)
+✖ doneMessage: under 10 is a fixed try-again (0.1018ms)
+✖ failing tests:
+✖ renderGameDone: perfect score gives מושלם (M68.2) (1.2617ms)
+✖ shouldCelebrate: only a perfect score (0.1ms)

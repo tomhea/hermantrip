@@ -44,7 +44,7 @@ import { stopPopupHTML, albumHrefsForStops } from './lib/map-popup.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline, dayStripHTML } from './views/timeline.js';
 import { buildTimeline, sliderValueToBucketIndex, scrollYToBucketIndex } from './lib/timeline.js';
-import { eligibleAlbums, albumChoices, countryChoices, scoreCountry, scoreAlbum, generateRounds, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
+import { eligibleAlbums, albumChoices, countryChoices, scoreCountry, scoreAlbum, generateRounds, shouldCelebrate, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
 import { resolveTheme, nextTheme } from './lib/theme.js';
 
 const THEME_KEY = 'hermantrip:theme';
@@ -1485,6 +1485,9 @@ let gameCountryCorrect = false;
 let gameAlbumCorrect = false;
 let gameAlbumChoices = null;
 let gameCountryChoices = null;   // 4 country codes for the current round (M68.1)
+// M68.2 (temporary): show confetti on EVERY done screen so the owner can review
+// it. Flip to false in the follow-up to restrict celebration to a perfect score.
+const GAME_CONFETTI_PREVIEW_ALL = true;
 
 function startGame() {
   if (!manifest) return;
@@ -1530,7 +1533,11 @@ function renderGameView() {
     app.innerHTML = renderGameResult({ ...base, countryCorrect: gameCountryCorrect, albumCorrect: gameAlbumCorrect, isLast });
     wireGame();
   } else if (gameStep === 'done') {
-    app.innerHTML = renderGameDone({ score: gameScore, maxScore: MAX_SCORE });
+    // M68.2: confetti currently fires on EVERY done screen so the owner can
+    // review it; flip GAME_CONFETTI_PREVIEW_ALL to false to restrict it to a
+    // perfect score (shouldCelebrate).
+    const celebrate = GAME_CONFETTI_PREVIEW_ALL || shouldCelebrate(gameScore, MAX_SCORE);
+    app.innerHTML = renderGameDone({ score: gameScore, maxScore: MAX_SCORE, celebrate });
     wireGame();
   }
   window.scrollTo(0, 0);

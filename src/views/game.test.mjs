@@ -109,14 +109,29 @@ test('renderGameDone: home link', () => {
   assert.match(html, /href="\/"/);
 });
 
-test('renderGameDone: high score gives מעולה', () => {
+test('renderGameDone: perfect score gives מושלם (M68.2)', () => {
   const html = renderGameDone({ score: 20, maxScore: 20 });
+  assert.match(html, /מושלם/);
+});
+
+test('renderGameDone: a strong-but-imperfect score gives מעולה (M68.2)', () => {
+  const html = renderGameDone({ score: 18, maxScore: 20 });
   assert.match(html, /מעולה/);
 });
 
 test('renderGameDone: low score gives נסו שוב', () => {
   const html = renderGameDone({ score: 5, maxScore: 20 });
   assert.match(html, /נסו שוב/);
+});
+
+test('M68.2: renderGameDone renders confetti when celebrate is set', () => {
+  const html = renderGameDone({ score: 20, maxScore: 20, celebrate: true });
+  assert.match(html, /class="game-confetti"/);
+});
+
+test('M68.2: renderGameDone has NO confetti when celebrate is falsy', () => {
+  const html = renderGameDone({ score: 5, maxScore: 20, celebrate: false });
+  assert.equal(/game-confetti/.test(html), false);
 });
 
 // M7: progress strip + bar (Task 7.1)

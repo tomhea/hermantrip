@@ -10,6 +10,7 @@ import { errorHTML, loadingHTML } from '../lib/loading.js';
 import { imageUrl } from '../lib/image-url.js';
 import { COUNTRIES } from '../lib/countries.js';
 import { icon } from '../lib/nav-icons.js';
+import { doneMessage } from '../lib/game.js';
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -145,12 +146,16 @@ export function renderGameResult({ round, roundNum, totalRounds, score, countryC
   `;
 }
 
-// Final score screen.
-export function renderGameDone({ score, maxScore, onReplay }) {
+// Final score screen. `celebrate` adds a confetti burst (M68.2).
+export function renderGameDone({ score, maxScore, celebrate }) {
   const pct = Math.round((score / maxScore) * 100);
-  const msg = pct >= 90 ? 'מעולה!' : pct >= 60 ? 'כל הכבוד!' : 'נסו שוב!';
+  const msg = doneMessage(score, maxScore);
+  const confetti = celebrate
+    ? `<div class="game-confetti" aria-hidden="true">${Array.from({ length: 24 }, () => '<span></span>').join('')}</div>`
+    : '';
   return `
     <div class="game-shell" data-game-step="done">
+      ${confetti}
       <div class="game-done-content">
         <h2 class="game-done-title">${msg}</h2>
         <p class="game-done-score">${score} / ${maxScore}</p>
