@@ -1,0 +1,23 @@
+ℹ tests 0
+ℹ pass 0
+ℹ fail 0
+✖ angularDistance: identical points → 0 (1.5586ms)
+✖ angularDistance: a quarter of the globe → π/2 rad (8.2773ms)
+✖ arcApexAltitude: scales with angular distance; zero-length → 0 (0.7525ms)
+✖ greatCircleMidpoint: equator midpoint is the lat/lng average (0.9847ms)
+✖ greatCircleMidpoint: a same-longitude pair midpoints at the mean latitude (0.7216ms)
+✔ globeScene: null manifest → empty scene; no albums → no houses (0.9834ms)
+✖ globeScene: one house per city, days split, correct countries, base coords (0.3743ms)
+✖ globeScene: co-located visits collapse into ONE tower, days SUMMED, albums listed (#2) (0.2128ms)
+✔ globeScene: trail threads the (base) house coords (0.2321ms)
+ℹ tests 771
+ℹ pass 764
+ℹ fail 7
+✖ failing tests:
+✖ angularDistance: identical points → 0 (1.5586ms)
+✖ angularDistance: a quarter of the globe → π/2 rad (8.2773ms)
+✖ arcApexAltitude: scales with angular distance; zero-length → 0 (0.7525ms)
+✖ greatCircleMidpoint: equator midpoint is the lat/lng average (0.9847ms)
+✖ greatCircleMidpoint: a same-longitude pair midpoints at the mean latitude (0.7216ms)
+✖ globeScene: one house per city, days split, correct countries, base coords (0.3743ms)
+✖ globeScene: co-located visits collapse into ONE tower, days SUMMED, albums listed (#2) (0.2128ms)
