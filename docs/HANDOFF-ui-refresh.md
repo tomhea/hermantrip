@@ -27,12 +27,12 @@ Pure logic in `src/lib/` (unit-tested, no DOM/fetch), HTML-string view builders 
 | Branch | `main` (clean) |
 | Tests | **767 passing / 0 fail** (`npm test`) |
 | Lint | clean (`npx eslint@9 --max-warnings=0 .`) |
-| SW cache | `hermantrip-shell-v84` (in `sw.js`) |
-| Latest tag | `v0.M67.1` (M6 + globe/map follow-up). Next milestone = **M7 → `v0.M68`** |
-| Next SW bump | **v85** |
+| SW cache | `hermantrip-shell-v85` (in `sw.js`) |
+| Latest tag | `v0.M67.2` (M6 + 2 globe/map follow-ups). Next milestone = **M7 → `v0.M68`** |
+| Next SW bump | **v86** |
 
 **Shipped milestones:** M1 Foundations (`v0.M62`, themes+toggle+slim header+icons+country colours) · M2 Home (`v0.M63`, photo-forward 4-parts bento-ish home) · M3 Country page (`v0.M64`, featured-first overlay grid) · M4 Album grid (`v0.M65`, justified rows + sticky day headers) · M5 Slideshow (`v0.M66`, charcoal stage + floating auto-hide bar + on-demand filmstrip) · M6 Map/Globe (`v0.M67`, Hebrew vector map via MapLibre GL + distinct country-colour pins + globe comet + immediate starfield).
-**M6 follow-up (live):** `v0.M67.1` (RTL fix so Hebrew map labels aren't reversed — `setRTLTextPlugin`; globe trip-lines made SOLID/persistent; the disliked cylinder pins reverted to the 3D **houses** at short quarter height with per-country-coloured roofs).
+**M6 follow-ups (live):** `v0.M67.1` (RTL fix so Hebrew map labels aren't reversed — `setRTLTextPlugin`; globe trip-lines made SOLID/persistent; the disliked cylinder pins reverted to the 3D **houses** at short quarter height with per-country-coloured roofs) · `v0.M67.2` (globe: dice-pip clusters for co-located visits + trail threads the exact houses, thinner arcs + 3D arrowheads, bigger click target, anisotropy; map: removed "מפה" title, light/dark toggle on map/timeline/game, portrait-phone zoom+recenter on Pare-pare, landscape-phone globe sizing fix).
 **Polish hotfixes (all live):** `v0.M63.1/.2/.3` (home: hero photos, bento→even-order, names-right, progressive image load, landscape fullscreen) · `v0.M64.1` (country even-grid) · `v0.M65.1–.5` (album/country: justified→uniform tiles, sticky-on-phone, header overflow, one-line subtitle, count-drop-on-portrait, shrink-to-fit long dates) · `v0.M66.1` (slideshow: symmetric cross-album continue-loop, persistent draggable filmstrip above the bar, opaque thumbs, load-gated autoplay — applied to the random viewers too) · `v0.M66.2` (slideshow: in-place slide advance so the dock/filmstrip don't re-render on swap — no control flicker, filmstrip keeps scroll, phone autoplay auto-hides; drag-over-thumbnail; visible album/country pill buttons in the random viewers) · `v0.M66.3` (slideshow: tap zones 40%→25% per side with a neutral middle 50%; info size read from Performance Resource Timing instead of a 2nd HEAD request; phone controls auto-hide — touch-emulated mouse hover no longer wedges them on, hover/activity gated to `pointerType==='mouse'`).
 
 Tags continue the ladder — **before tagging, run `git tag --list 'v0.*'`** to confirm the next number. Sub-fixes use `v0.MN.x`; they do NOT consume the next milestone number (M7 is `v0.M68`).
@@ -45,7 +45,7 @@ git checkout -b m7-game                            # mN-slug / fix/slug
 # … TDD task-by-task: write failing *.test.mjs, run (FAIL), implement, run (PASS) …
 npm test                                          # 0 fail; node --test over all *.test.mjs
 npx eslint@9 --max-warnings=0 .                   # exit 0
-# bump sw.js SHELL_CACHE (v84→v85) + add any NEW src/lib|views file to SHELL_FILES
+# bump sw.js SHELL_CACHE (v85→v86) + add any NEW src/lib|views file to SHELL_FILES
 git commit … ; git push -u origin m7-game
 gh pr create --base main --title "M7: Game" --body-file <body>   # R1+R2 sections + R-by-R table
 #   → spawn crist (Agent subagent_type: crist) → APPROVED only
@@ -119,6 +119,6 @@ Deviated from the plan: the owner's custom MapTiler Hebrew styles are **vector**
 
 ## 9. Starting M7 (Game)
 
-**Branch `m7-game`, tag `v0.M68`, SW v85.** Add the progress strip; restyle the photo + options photo-forward; landscape = options beside the photo. Flow unchanged (`src/lib/game.js` logic + `main.js` wiring stay). Tasks 7.1 (progress strip + slim header in `src/views/game.js`, extend `game.test.mjs`) + 7.2 (game CSS: `.game-progress` bar + `@media (orientation:landscape) .game-shell{flex-direction:row}`, extend `game-photo-css.test.mjs`). See the plan's M7 section.
+**Branch `m7-game`, tag `v0.M68`, SW v86.** Add the progress strip; restyle the photo + options photo-forward; landscape = options beside the photo. Flow unchanged (`src/lib/game.js` logic + `main.js` wiring stay). Tasks 7.1 (progress strip + slim header in `src/views/game.js`, extend `game.test.mjs`) + 7.2 (game CSS: `.game-progress` bar + `@media (orientation:landscape) .game-shell{flex-direction:row}`, extend `game-photo-css.test.mjs`). See the plan's M7 section.
 
-Then **M8 Timeline** (`v0.M69`, SW v86 — data-dependent scrubber; visually sanity-check against real manifest data, not only unit tests).
+Then **M8 Timeline** (`v0.M69`, SW v87 — data-dependent scrubber; visually sanity-check against real manifest data, not only unit tests).
