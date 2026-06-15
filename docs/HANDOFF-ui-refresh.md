@@ -2,13 +2,16 @@
 
 _For a fresh session picking up the hermantrip UI-refresh. Read this top-to-bottom,
 then the plan + spec + cr-rules (links below), then start at **§9 (Starting M8)**.
-Last updated after **M7 (Game) shipped & live** (`v0.M68`, SW v88);
-**next up — and LAST — is M8 (Timeline) → `v0.M69`, SW v89.**_
+Last updated after **M7 (Game) + its owner-feedback hotfix shipped & live**
+(`v0.M68`…`v0.M68.1`, SW v89);
+**next up — and LAST — is M8 (Timeline) → `v0.M69`, SW v90.**_
 
 **M1–M7 are DONE and live.** The globe/map (M6) went through four owner-feedback
 rounds and is signed off ("It looks great") — do NOT reopen it. M7 (Game) added a
-progress strip + a landscape options-beside-photo layout, view+CSS only. Everything
-below §7 is historical reference; the actionable starting point is **§9**.
+progress strip + a photo-forward restyle; its hotfix `v0.M68.1` made the country
+step 4 random options, moved options BELOW the photo on PC/portrait (symmetric;
+single-column side rail only on landscape phones), and fixed dark-mode buttons.
+Everything below §7 is historical reference; the actionable starting point is **§9**.
 
 ## 0. The one-paragraph orientation
 
@@ -31,15 +34,15 @@ Pure logic in `src/lib/` (unit-tested, no DOM/fetch), HTML-string view builders 
 | | |
 |---|---|
 | Branch | `main` (clean) |
-| Tests | **782 passing / 0 fail** (`npm test`) |
+| Tests | **791 passing / 0 fail** (`npm test`) |
 | Lint | clean (`npx eslint@9 --max-warnings=0 .`) |
-| SW cache | `hermantrip-shell-v88` (in `sw.js`) |
-| Latest tag | `v0.M68` (M7 Game). Next milestone = **M8 → `v0.M69`** (the LAST one) |
-| Next SW bump | **v89** |
+| SW cache | `hermantrip-shell-v89` (in `sw.js`) |
+| Latest tag | `v0.M68.1` (M7 Game + hotfix). Next milestone = **M8 → `v0.M69`** (the LAST one) |
+| Next SW bump | **v90** |
 
 **Shipped milestones:** M1 Foundations (`v0.M62`, themes+toggle+slim header+icons+country colours) · M2 Home (`v0.M63`, photo-forward 4-parts bento-ish home) · M3 Country page (`v0.M64`, featured-first overlay grid) · M4 Album grid (`v0.M65`, justified rows + sticky day headers) · M5 Slideshow (`v0.M66`, charcoal stage + floating auto-hide bar + on-demand filmstrip) · M6 Map/Globe (`v0.M67`, Hebrew vector map via MapLibre GL + distinct country-colour pins + globe comet + immediate starfield) · M7 Game (`v0.M68`, progress strip + landscape options-beside-photo via a new `.game-body` flex wrapper).
 **M6 follow-ups (live):** `v0.M67.1` (RTL fix so Hebrew map labels aren't reversed — `setRTLTextPlugin`; globe trip-lines made SOLID/persistent; the disliked cylinder pins reverted to the 3D **houses** at short quarter height with per-country-coloured roofs) · `v0.M67.2` (globe: dice-pip clusters for co-located visits + trail threads the exact houses, thinner arcs + 3D arrowheads, bigger click target, anisotropy; map: removed "מפה" title, light/dark toggle on map/timeline/game, portrait-phone zoom+recenter on Pare-pare, landscape-phone globe sizing fix) · `v0.M67.3` (globe: **reversed the dice decision** — co-located visits now COLLAPSE into ONE tower, height ∝ Σ days, click opens the album picker of all visits [Bangkok = 1 tower/5 albums]; trail arrowheads shrunk + placed on the arc APEX [new pure `src/lib/globe-arrows.js`; arcs use per-arc `arcAltitude` not autoScale]; houses moved to globe.gl's **objects layer** so a click raycasts the actual house mesh) · `v0.M67.4` (globe trail declutter: arrowheads only on segments ≥ `MIN_ARROW_ANGLE` ~3.4° so the Nepal/India cluster isn't a swarm [arrows 102→23, route line kept]; the two גבעת שמואל↔Bangkok legs bowed to different altitudes via `israelBangkokLeg`/`ISRAEL_LEG_ALT_SCALE` so the green outbound and red return don't overlap — the globe analog of the map's opposite-side bowing).
-**Polish hotfixes (all live):** `v0.M63.1/.2/.3` (home: hero photos, bento→even-order, names-right, progressive image load, landscape fullscreen) · `v0.M64.1` (country even-grid) · `v0.M65.1–.5` (album/country: justified→uniform tiles, sticky-on-phone, header overflow, one-line subtitle, count-drop-on-portrait, shrink-to-fit long dates) · `v0.M66.1` (slideshow: symmetric cross-album continue-loop, persistent draggable filmstrip above the bar, opaque thumbs, load-gated autoplay — applied to the random viewers too) · `v0.M66.2` (slideshow: in-place slide advance so the dock/filmstrip don't re-render on swap — no control flicker, filmstrip keeps scroll, phone autoplay auto-hides; drag-over-thumbnail; visible album/country pill buttons in the random viewers) · `v0.M66.3` (slideshow: tap zones 40%→25% per side with a neutral middle 50%; info size read from Performance Resource Timing instead of a 2nd HEAD request; phone controls auto-hide — touch-emulated mouse hover no longer wedges them on, hover/activity gated to `pointerType==='mouse'`).
+**Polish hotfixes (all live):** `v0.M63.1/.2/.3` (home: hero photos, bento→even-order, names-right, progressive image load, landscape fullscreen) · `v0.M64.1` (country even-grid) · `v0.M65.1–.5` (album/country: justified→uniform tiles, sticky-on-phone, header overflow, one-line subtitle, count-drop-on-portrait, shrink-to-fit long dates) · `v0.M66.1` (slideshow: symmetric cross-album continue-loop, persistent draggable filmstrip above the bar, opaque thumbs, load-gated autoplay — applied to the random viewers too) · `v0.M66.2` (slideshow: in-place slide advance so the dock/filmstrip don't re-render on swap — no control flicker, filmstrip keeps scroll, phone autoplay auto-hides; drag-over-thumbnail; visible album/country pill buttons in the random viewers) · `v0.M66.3` (slideshow: tap zones 40%→25% per side with a neutral middle 50%; info size read from Performance Resource Timing instead of a 2nd HEAD request; phone controls auto-hide — touch-emulated mouse hover no longer wedges them on, hover/activity gated to `pointerType==='mouse'`) · `v0.M68.1` (game: country step → 4 random options [new pure `countryChoices`]; options moved BELOW the photo on PC/portrait [photo centred = symmetric, country grid 4-in-a-row] with a single-column side rail only on landscape phones [`orientation:landscape AND max-height:500px`]; dark-mode option buttons fixed — native `<button>`s don't inherit `color`, so set `color:var(--text)` + a `--text-muted` border in dark).
 
 Tags continue the ladder — **before tagging, run `git tag --list 'v0.*'`** to confirm the next number. Sub-fixes use `v0.MN.x`; they do NOT consume the next milestone number (M7 is `v0.M68`).
 
@@ -132,6 +135,7 @@ hotfix is needed):
 - **CSS** (`src/styles/main.css` `/* ── Game view (M19) */` block): `.game-progress` (4px track, `--divider` bg) + `.game-progress-bar` (`height:100%`, `--accent` bg, width transition). `.game-body { flex:1 1 0; min-height:0; display:flex; flex-direction:column }` and `.game-answers { display:flex; flex-direction:column; min-height:0 }`. Landscape: `@media (orientation: landscape){ .game-body{ flex-direction:row } .game-stage{ flex:1 1 0 } .game-answers{ flex:0 0 clamp(240px,38%,420px); justify-content:center; overflow-y:auto } }`.
 - **Tests:** `src/views/game.test.mjs` (strip+bar render, width ∝ round, `.game-body`/`.game-answers` present, aria-label) + `src/styles/game-photo-css.test.mjs` (`.game-progress`/`-bar` blocks, `.game-body` flex, landscape `.game-body{flex-direction:row}` via rule-block text). Suite 782/782.
 - **Crucial lesson:** the originally-planned bare `.game-shell{ flex-direction:row }` flip does **NOT** work — with the flat child list flex-wrap squished the photo to ~46px and pushed the option grid *below*, not beside. The fix is the `.game-body` flex wrapper (shell stays a **column** so header+progress remain a full-width top bar; only the body flips to a row). Verify landscape geometry in the preview (photo fills body height, grid sits at `x` next to the stage) — don't trust the CSS test alone.
+- **Superseded by `v0.M68.1`** (owner feedback): the side-by-side rail is now **landscape-phone only** (`@media (orientation: landscape) and (max-height: 500px)`) — **PC reports `orientation: landscape` too**, so the M7 blanket flip wrongly applied to desktop. On PC + portrait the options sit BELOW the photo (centred/symmetric). The country step also dropped to **4 random options** (`countryChoices`), and the dark-mode buttons got an explicit `color: var(--text)` (native `<button>`s don't inherit colour). See the `v0.M68.1` hotfix in §1.
 
 ## 9. Starting M8 (Timeline) — THE ENTRY POINT (the LAST milestone)
 
@@ -143,4 +147,4 @@ hotfix is needed):
 - Theme toggle already lives on the timeline page (added M67.2) — don't re-add it.
 - New pure logic goes in `src/lib/` (e.g. `scrubber.js`, `country-motifs.js`) — no `document`/`window`/`fetch` there (R6); unit-test each in a `*.test.mjs` (R3).
 
-**Ship:** TDD task-by-task (failing `*.test.mjs` → implement → pass; capture FAIL+PASS logs) → bump `sw.js` SHELL_CACHE **v88→v89** + **add any NEW `src/lib`/`src/views` module to `SHELL_FILES`** → `npm test` (0 fail) → `npx eslint@9 --max-warnings=0 .` → PR `M8: Timeline` with the R1 + R2 (3 viewports incl. tablet 820 + console-clean probe) + R5 (gzip delta) body → crist (APPROVED only) → artifact `versions/v0.M69/dist-M69.tar.gz` → crist re-review → `gh pr merge --merge` → tag `v0.M69` → deploy → verify-live → branch cleanup (full sequence in §2). **Timeline is data-dependent: visually sanity-check the rendered scrubber against real manifest data** (does תאילנד recur at the right spots? are the segment widths ~proportional to the time spent?), not only via unit tests. It's the LAST milestone — after it ships, the ladder M1–M8 is complete.
+**Ship:** TDD task-by-task (failing `*.test.mjs` → implement → pass; capture FAIL+PASS logs) → bump `sw.js` SHELL_CACHE **v89→v90** + **add any NEW `src/lib`/`src/views` module to `SHELL_FILES`** → `npm test` (0 fail) → `npx eslint@9 --max-warnings=0 .` → PR `M8: Timeline` with the R1 + R2 (3 viewports incl. tablet 820 + console-clean probe) + R5 (gzip delta) body → crist (APPROVED only) → artifact `versions/v0.M69/dist-M69.tar.gz` → crist re-review → `gh pr merge --merge` → tag `v0.M69` → deploy → verify-live → branch cleanup (full sequence in §2). **Timeline is data-dependent: visually sanity-check the rendered scrubber against real manifest data** (does תאילנד recur at the right spots? are the segment widths ~proportional to the time spent?), not only via unit tests. It's the LAST milestone — after it ships, the ladder M1–M8 is complete.
