@@ -1,0 +1,15 @@
+ℹ tests 0
+ℹ pass 0
+ℹ fail 0
+✔ angularDistance: identical points → 0 (2.0837ms)
+✔ angularDistance: a quarter of the globe → π/2 rad (0.4584ms)
+✔ arcApexAltitude: scales with angular distance; zero-length → 0 (0.3041ms)
+✔ greatCircleMidpoint: equator midpoint is the lat/lng average (0.3323ms)
+✔ greatCircleMidpoint: a same-longitude pair midpoints at the mean latitude (0.3552ms)
+✔ globeScene: null manifest → empty scene; no albums → no houses (1.9106ms)
+✔ globeScene: one house per city, days split, correct countries, base coords (0.3695ms)
+✔ globeScene: co-located visits collapse into ONE tower, days SUMMED, albums listed (#2) (0.2155ms)
+✔ globeScene: trail threads the (base) house coords (0.2123ms)
+ℹ tests 771
+ℹ pass 771
+ℹ fail 0

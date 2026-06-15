@@ -32,6 +32,7 @@ import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
 import { coordsForAlbum } from './lib/album-coords.js';
 import { globeScene, buildingHeightFraction, BUILDING_WIDTH, WINDOWS_PER_FLOOR, windowColumns } from './lib/globe-pins.js';
+import { greatCircleMidpoint, arcApexAltitude } from './lib/globe-arrows.js';
 import { trailSegments, arcPoints, trailArcs } from './lib/trail.js';
 import { tripStopGroups, tripTrailPoints, ISRAEL, BANGKOK } from './lib/map-stops.js';
 import { globeModuleUrl, threeModuleUrl } from './lib/globe-loader.js';
@@ -1058,26 +1059,34 @@ function buildingWallTexture(THREE) {
 function makeBuilding(THREE, heightUnits, wallTexBase, roofColor) {
   const W = BUILDING_WIDTH;
   const H = Math.max(1.8, heightUnits);
-  const group = new THREE.Group();
+  const building = new THREE.Group();
   const tex = wallTexBase.clone();
   tex.needsUpdate = true;
   tex.repeat.set(1, Math.max(1, Math.round(H / 1.6)));
   const bodyGeo = new THREE.BoxGeometry(W, H, W);
   bodyGeo.translate(0, H / 2, 0);
-  group.add(new THREE.Mesh(bodyGeo, new THREE.MeshLambertMaterial({ color: 0xc2c8cd, map: tex })));
+  building.add(new THREE.Mesh(bodyGeo, new THREE.MeshLambertMaterial({ color: 0xc2c8cd, map: tex })));
   const roofH = 0.7;
   const roofGeo = new THREE.ConeGeometry(W * 0.82, roofH, 4); // square pyramid
   roofGeo.rotateY(Math.PI / 4);
   roofGeo.translate(0, H + roofH / 2, 0);
-  group.add(new THREE.Mesh(roofGeo, new THREE.MeshLambertMaterial({ color: roofColor })));
-  return group;
+  building.add(new THREE.Mesh(roofGeo, new THREE.MeshLambertMaterial({ color: roofColor })));
+  // The building rises along +Y, but globe.gl's OBJECTS layer orients an
+  // object's local +Z radially outward. Tilt the building +90° about X (its +Y
+  // → the group's +Z) and wrap it, so the tower STANDS UP on the surface while
+  // globe.gl is free to set the outer group's facing quaternion.
+  building.rotation.x = Math.PI / 2;
+  const outer = new THREE.Group();
+  outer.add(building);
+  return outer;
 }
 
-// A small directional arrowhead for a trail segment (#5): a flat cone whose tip
+// A small directional arrowhead for a trail segment: a slim cone whose tip
 // points along +Y; main.js orients +Y to the travel direction so it reads like
-// the 2D map's arrows. Emissive so it stays visible against the dark globe.
+// the 2D map's arrows. Kept SMALL (fix/globe-towers #1 — the old cone was too
+// big) and placed on the arc apex so it sits on the line.
 function makeArrow(THREE, color) {
-  const cone = new THREE.ConeGeometry(0.9, 2.4, 12);
+  const cone = new THREE.ConeGeometry(0.45, 1.3, 12);
   const mat = new THREE.MeshBasicMaterial({ color });
   return new THREE.Mesh(cone, mat);
 }
@@ -1247,11 +1256,11 @@ async function initLeafletMap() {
 // Appended INTO the globe container so it's auto-removed when the map view
 // re-renders; the backdrop is fixed so it still covers the viewport. Closes on
 // backdrop click, the ✕, or Escape; a link navigates (SPA) and closes.
-function showGlobePicker(point, container) {
+function showGlobePicker(point, container, title) {
   const host = container || document.body;
   host.querySelectorAll('[data-globe-picker-backdrop]').forEach((e) => e.remove());
   const tmp = document.createElement('div');
-  tmp.innerHTML = globePickerHTML(point.albums);
+  tmp.innerHTML = globePickerHTML(point.albums, title);
   const backdrop = tmp.firstElementChild;
   host.appendChild(backdrop);
   const onKey = (e) => { if (e.key === 'Escape') close(); };
@@ -1284,51 +1293,23 @@ async function initGlobeView() {
     return;
   }
 
-  // One "house" per visit, country-coloured roof, height ∝ days (SHORT — a
-  // quarter of the old cylinders). The owner preferred the houses to the plain
-  // cylinder pins. THREE renders the houses; an INVISIBLE points layer rising
-  // the full house height carries hover + click. If THREE fails, fall back to
-  // visible country-coloured points so the globe still shows something.
+  // One TOWER per coordinate, country-coloured roof, height ∝ days. Co-located
+  // visits (Bangkok ×5) collapse into ONE tall tower (height ∝ Σ days); a click
+  // opens a picker of those albums (#2). If THREE fails, fall back to visible
+  // country-coloured points so the globe still shows something.
   let THREE = null;
   try { THREE = await loadThree(); } catch { THREE = null; }
 
-  // Unified scene: houses at dice-clustered coords (so co-located visits like
-  // Bangkok read as separate houses, #1/#3) + a trail that threads the SAME
-  // coords (lines terminate at the exact houses, #1).
   const scene = globeScene(manifest);
-  const houses = scene.houses;
+  // Attach the per-country colour each renderer reads.
+  const houses = scene.houses.map((h) => ({ ...h, color: MAP_COUNTRY_COLORS[h.country] || '#888' }));
   const maxDays = Math.max(1, ...houses.map((b) => b.days));
-  const points = houses.map((b) => ({
-    lat: b.lat, lng: b.lng, days: b.days,
-    country: b.country, // per-visit country → link to THIS country's shared album (#8)
-    color: MAP_COUNTRY_COLORS[b.country] || '#888',
-    label: b.album.title || b.album.name,
-    albums: [b.album], // single album per house → onPointClick opens it directly
-  }));
 
   const globe = GlobeFn({ animateIn: false })(container);
   window._hermanGlobe = globe; // test/debug handle (parallels window._hermanMap)
   globe
     .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-    .backgroundColor('rgba(0,0,0,0)')
-    .pointsData(points)
-    .pointLat('lat')
-    .pointLng('lng')
-    .pointColor(THREE ? () => 'rgba(0,0,0,0)' : 'color') // invisible hit-bar when houses render
-    .pointRadius(THREE ? 1.1 : 0.5)                      // bigger hit target — easier to click (#2)
-    .pointAltitude((d) => buildingHeightFraction(d.days, maxDays)) // full house height (click target)
-    .pointLabel((d) => `<div class="map-popup" style="direction:rtl">${
-      d.albums.map(a => `<span class="map-popup-link">${escapeHTML(a.title || a.name)}</span>`).join('<br>')
-    }</div>`)
-    .onPointClick((d) => {
-      if (d.albums.length === 1) {
-        const a = d.albums[0];
-        go(albumPath(d.country || a.primary, a.slug)); // THIS country's shared album (#8)
-      } else {
-        showGlobePicker(d, container);
-      }
-    })
-    .onPointHover((p) => { container.style.cursor = p ? 'pointer' : ''; }); // #2: a pointer cue
+    .backgroundColor('rgba(0,0,0,0)');
 
   // #4: max-anisotropy filtering sharpens the globe texture at grazing angles
   // (true close-up resolution is bounded by the source image — a bigger texture
@@ -1342,43 +1323,78 @@ async function initGlobeView() {
     }
   } catch { /* non-fatal */ }
 
-  // 3D houses (gray windowed body + per-country roof, standing radially) AND a
-  // directional arrowhead per trail segment (#5), in ONE custom THREE layer
-  // (globe.gl allows a single customLayerData). The invisible points above carry
-  // hover + click.
+  // A tower's hover tooltip + click behaviour (shared by the objects layer and
+  // the no-THREE points fallback).
+  const towerLabel = (d) => `<div class="map-popup" style="direction:rtl">${
+    d.albums.map((a) => `<span class="map-popup-link">${escapeHTML(a.title || a.name)}</span>`).join('<br>')
+  }</div>`;
+  const openTower = (d) => {
+    if (d.albums.length === 1) {
+      const a = d.albums[0];
+      go(albumPath(d.country || a.primary, a.slug)); // THIS country's shared album (#8)
+    } else {
+      showGlobePicker({ albums: d.albums }, container, d.label); // pick a visit (#2)
+    }
+  };
+
   if (THREE) {
     const wallTex = buildingWallTexture(THREE);
-    const upAxis = new THREE.Vector3(0, 1, 0);
-    const ARROW_ALT = 0.06;
-    const arrows = trailSegments(scene.trailPoints).map((s) => ({
-      kind: 'arrow',
-      lat: (s.from[0] + s.to[0]) / 2, lng: (s.from[1] + s.to[1]) / 2,
-      toLat: s.to[0], toLng: s.to[1], color: s.color,
-    }));
-    const sceneObjs = points.map((p) => ({ kind: 'house', ...p })).concat(arrows);
+    // Houses in the OBJECTS layer so a click raycasts the actual house mesh
+    // (#3) — the pressable spot IS the tower, not a wide invisible hit-point
+    // spilling onto empty globe. objectFacesSurface orients the tower's +Y
+    // radially outward so it stands up on the surface.
     globe
-      .customLayerData(sceneObjs)
-      .customThreeObject((d) => (d.kind === 'house'
-        ? makeBuilding(THREE, buildingHeightFraction(d.days, maxDays) * GLOBE_RADIUS, wallTex, d.color)
-        : makeArrow(THREE, d.color)))
+      .objectsData(houses)
+      .objectLat('lat')
+      .objectLng('lng')
+      .objectAltitude(0)
+      .objectFacesSurface(true)
+      .objectLabel(towerLabel)
+      .objectThreeObject((d) => makeBuilding(
+        THREE, buildingHeightFraction(d.days, maxDays) * GLOBE_RADIUS, wallTex, d.color,
+      ))
+      .onObjectClick(openTower)
+      .onObjectHover((o) => { container.style.cursor = o ? 'pointer' : ''; });
+
+    // Directional arrowhead per trail segment, sitting ON the bowed arc:
+    // placed at the segment's great-circle midpoint at the arc's apex altitude
+    // (#1), so it rides the line instead of floating beneath it.
+    const upAxis = new THREE.Vector3(0, 1, 0);
+    const arrows = trailSegments(scene.trailPoints).map((s) => {
+      const [mLat, mLng] = greatCircleMidpoint(s.from, s.to);
+      return {
+        lat: mLat, lng: mLng, alt: arcApexAltitude(s.from, s.to),
+        toLat: s.to[0], toLng: s.to[1], color: s.color,
+      };
+    });
+    globe
+      .customLayerData(arrows)
+      .customThreeObject((d) => makeArrow(THREE, d.color))
       .customThreeObjectUpdate((obj, d) => {
-        if (d.kind === 'house') {
-          const p = globe.getCoords(d.lat, d.lng, 0);
-          obj.position.set(p.x, p.y, p.z);
-          obj.quaternion.setFromUnitVectors(upAxis, new THREE.Vector3(p.x, p.y, p.z).normalize());
-        } else {
-          const p = globe.getCoords(d.lat, d.lng, ARROW_ALT);
-          const q = globe.getCoords(d.toLat, d.toLng, ARROW_ALT);
-          obj.position.set(p.x, p.y, p.z);
-          const fwd = new THREE.Vector3(q.x - p.x, q.y - p.y, q.z - p.z).normalize();
-          obj.quaternion.setFromUnitVectors(upAxis, fwd); // tip → travel direction
-        }
+        const p = globe.getCoords(d.lat, d.lng, d.alt);
+        const q = globe.getCoords(d.toLat, d.toLng, d.alt);
+        obj.position.set(p.x, p.y, p.z);
+        const fwd = new THREE.Vector3(q.x - p.x, q.y - p.y, q.z - p.z).normalize();
+        obj.quaternion.setFromUnitVectors(upAxis, fwd); // tip → travel direction
       });
+  } else {
+    globe
+      .pointsData(houses)
+      .pointLat('lat')
+      .pointLng('lng')
+      .pointColor('color')
+      .pointRadius(0.5)
+      .pointAltitude((d) => buildingHeightFraction(d.days, maxDays))
+      .pointLabel(towerLabel)
+      .onPointClick(openTower)
+      .onPointHover((p) => { container.style.cursor = p ? 'pointer' : ''; });
   }
 
-  // Trip trail: SOLID, persistent great-circle lines threading the houses,
-  // THINNER so the unavoidable zoom-scaling of 3D tube width is far less
-  // noticeable (#5). Same green→red gradient as the 2D map; arrows show direction.
+  // Trip trail: SOLID, persistent great-circle lines threading the towers,
+  // THIN so the unavoidable zoom-scaling of 3D tube width is far less
+  // noticeable. Same green→red gradient as the 2D map. Each arc's apex altitude
+  // matches arcApexAltitude(...) — the SAME value the arrowheads use — so the
+  // arrows ride the apex of their arc (#1).
   globe
     .arcsData(trailArcs(scene.trailPoints))
     .arcStartLat((d) => d.startLat)
@@ -1387,7 +1403,7 @@ async function initGlobeView() {
     .arcEndLng((d) => d.endLng)
     .arcColor('color')
     .arcStroke(0.28)
-    .arcAltitudeAutoScale(0.3)
+    .arcAltitude((d) => arcApexAltitude([d.startLat, d.startLng], [d.endLat, d.endLng]))
     .arcDashLength(1)
     .arcDashGap(0)
     .arcDashAnimateTime(0);
