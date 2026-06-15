@@ -1266,7 +1266,7 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .game-correct { color: #2e7d32; }
 .game-wrong   { color: var(--error); }
 
-/* Country pick grid: 4×2 on phone, 7 in a row on wider */
+/* Country pick grid: 2×2 on phone, 4 in a row on wider (only 4 options — M68.1) */
 .game-country-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1274,13 +1274,14 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   padding: var(--space-2) var(--space-3) var(--space-3);
 }
 @media (min-width: 600px) {
-  .game-country-grid { grid-template-columns: repeat(7, 1fr); }
+  .game-country-grid { grid-template-columns: repeat(4, 1fr); }
 }
 .game-country-btn {
   padding: var(--space-2) var(--space-1);
   border: 1px solid var(--divider);
   border-radius: 6px;
   background: var(--surface);
+  color: var(--text);
   font-family: var(--font-family);
   font-size: var(--type-small);
   cursor: pointer;
@@ -1307,6 +1308,7 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   border: 1px solid var(--divider);
   border-radius: 6px;
   background: var(--surface);
+  color: var(--text);
   font-family: var(--font-family);
   font-size: var(--type-small);
   text-align: center;
@@ -1318,8 +1320,23 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   border-color: var(--accent);
   background: #f0e8df;
 }
-.game-album-btn.correct { background: #e8f5e9; border-color: #2e7d32; }
-.game-album-btn.wrong   { background: #ffebee; border-color: var(--error); }
+/* Correct/wrong chips keep their light tint in both themes, so pin a dark text
+   colour on them for legibility (M68.1). */
+.game-album-btn.correct { background: #e8f5e9; border-color: #2e7d32; color: #14110e; }
+.game-album-btn.wrong   { background: #ffebee; border-color: #c62828; color: #14110e; }
+
+/* Dark mode (M68.1): native <button>s don't inherit colour (handled above with
+   color: var(--text)); here we make the resting border + hover readable on the
+   dark surface — the subtle --divider border vanishes otherwise. */
+[data-theme="dark"] .game-country-btn,
+[data-theme="dark"] .game-album-btn { border-color: var(--text-muted); }
+[data-theme="dark"] .game-country-btn:hover,
+[data-theme="dark"] .game-country-btn:focus,
+[data-theme="dark"] .game-album-btn:hover,
+[data-theme="dark"] .game-album-btn:focus {
+  border-color: var(--accent);
+  background: var(--divider);
+}
 
 /* Result */
 .game-result-info {
@@ -1377,19 +1394,24 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   font-weight: 500;
 }
 
-/* M7: landscape — let the answer options sit BESIDE the photo instead of
-   stacked below it (short landscape phones otherwise push the grid off the
-   bottom). The header + progress stay as a full-width top bar; the body flips
-   from a column to a row so the photo and the answer rail share the space. */
-@media (orientation: landscape) {
+/* M68.1: by default (PC + portrait phone/tablet) the options sit BELOW the
+   photo — the natural, symmetric, photo-centred layout. ONLY a short landscape
+   screen (a phone on its side) has no room below, so there the body flips to a
+   row and the 4 options stack as a single-column side rail (4 rows × 1 button).
+   PC is also "landscape" orientation, hence the max-height gate keeps PC on the
+   below layout. */
+@media (orientation: landscape) and (max-height: 500px) {
   .game-body { flex-direction: row; }
   .game-stage { flex: 1 1 0; }
   /* fixed-ish side rail, vertically centred, scrolls if the options overflow */
   .game-answers {
-    flex: 0 0 clamp(240px, 38%, 420px);
+    flex: 0 0 clamp(200px, 34%, 360px);
     justify-content: center;
     overflow-y: auto;
   }
+  /* one button per row — overrides the 2/4-column grids above */
+  .game-answers .game-country-grid,
+  .game-answers .game-album-grid { grid-template-columns: 1fr; }
 }
 
 /* ── Timeline view (M20) ────────────────────────────────────────── */

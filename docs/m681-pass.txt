@@ -1,0 +1,21 @@
+$ npm test   (node --test over all *.test.mjs; M68.1 implemented)
+...
+✔ M68.1: dark mode gives the option buttons a more visible border (0.5853ms)
+✔ M68.1: game option buttons set an explicit themeable text colour (not UA black) (0.4262ms)
+✔ M68.1: landscape-phone rail stacks the options in a single column (4 rows × 1) (0.1666ms)
+✔ M68.1: on wider screens the country grid is 4-in-a-row (only 4 options now, was 7) (0.2585ms)
+✔ M68.1: only SHORT landscape (phone) flips the body to a side rail — not PC (0.1709ms)
+✔ countryChoices are all valid game country codes (0.1422ms)
+✔ countryChoices are unique (0.196ms)
+✔ countryChoices includes the correct country (0.209ms)
+✔ countryChoices returns exactly 4 codes (0.3735ms)
+✔ renderGameCountry: data-game-step="country" (0.0948ms)
+✔ renderGameCountry: renders 4 country buttons (4 of 7, incl. the correct one) (0.2495ms)
+✔ renderGameCountry: renders exactly the country codes it was given (0.1724ms)
+✔ renderGameCountry: renders photo img (0.136ms)
+✔ renderGameCountry: shows round number (0.4053ms)
+...
+ℹ tests 791
+ℹ suites 23
+ℹ pass 791
+ℹ fail 0

@@ -62,15 +62,46 @@ test('M7: .game-progress-bar is the proportional fill (accent background)', () =
   assert.match(bar, /background/);
 });
 
-test('M7: landscape lays the body out as a row so options sit beside the photo', () => {
-  // This repo tests CSS by asserting on rule-block text. The landscape layout
-  // lives inside an @media (orientation: landscape) block, so match across it.
-  // The body (photo + answer rail) flips to a row; the shell stays a column so
-  // the header + progress remain a full-width top bar.
+test('M68.1: only SHORT landscape (phone) flips the body to a side rail — not PC', () => {
+  // PC is also landscape orientation; options go BELOW the photo there. The
+  // side-rail row layout is gated to short viewports (landscape phones).
   assert.match(
     css,
-    /@media\s*\(orientation:\s*landscape\)\s*\{[\s\S]*?\.game-body\s*\{[\s\S]*?flex-direction:\s*row/,
-    'expected @media (orientation: landscape){ .game-body { flex-direction: row } }',
+    /@media\s*\(orientation:\s*landscape\)\s*and\s*\(max-height:\s*500px\)\s*\{[\s\S]*?\.game-body\s*\{[\s\S]*?flex-direction:\s*row/,
+    'expected @media (orientation: landscape) and (max-height: 500px){ .game-body { flex-direction: row } }',
+  );
+});
+
+test('M68.1: landscape-phone rail stacks the options in a single column (4 rows × 1)', () => {
+  assert.match(
+    css,
+    /@media\s*\(orientation:\s*landscape\)\s*and\s*\(max-height:\s*500px\)\s*\{[\s\S]*?\.game-answers\s+\.game-country-grid[\s\S]*?grid-template-columns:\s*1fr/,
+    'expected the rail grids to collapse to a single column on landscape phones',
+  );
+});
+
+test('M68.1: on wider screens the country grid is 4-in-a-row (only 4 options now, was 7)', () => {
+  assert.match(
+    css,
+    /@media\s*\(min-width:\s*600px\)\s*\{[\s\S]*?\.game-country-grid\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*1fr\)/,
+  );
+  assert.equal(/grid-template-columns:\s*repeat\(7/.test(css), false, 'no 7-column country grid remains');
+});
+
+test('M68.1: game option buttons set an explicit themeable text colour (not UA black)', () => {
+  const country = ruleBlock('.game-country-btn');
+  const album = ruleBlock('.game-album-btn');
+  assert.match(country, /color:\s*var\(--text\)/, '.game-country-btn must set color: var(--text)');
+  assert.match(album, /color:\s*var\(--text\)/, '.game-album-btn must set color: var(--text)');
+});
+
+test('M68.1: dark mode gives the option buttons a more visible border', () => {
+  // Require the literal dark override selector with its own border-color,
+  // not just any co-occurrence across the stylesheet.
+  assert.match(
+    css,
+    /\[data-theme="dark"\]\s+\.game-country-btn[^{]*\{[^}]*border-color/,
+    'expected a [data-theme="dark"] .game-country-btn { … border-color … } override',
   );
 });
 

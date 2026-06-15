@@ -55,8 +55,9 @@ function photoHTML(photo, album, dpr, viewport) {
   return `<img class="game-photo" src="${src}" alt="" loading="eager" decoding="async">`;
 }
 
-// Country-pick step.
-export function renderGameCountry({ round, roundNum, totalRounds, score, dpr, viewport }) {
+// Country-pick step. `choices` is 4 country codes (incl. the correct one),
+// already shuffled by the caller (M68.1).
+export function renderGameCountry({ round, roundNum, totalRounds, score, choices, dpr, viewport }) {
   const { photo, album } = round;
   return `
     <div class="game-shell" data-game-step="country">
@@ -69,11 +70,14 @@ export function renderGameCountry({ round, roundNum, totalRounds, score, dpr, vi
         <div class="game-answers">
           <div class="game-prompt">באיזו מדינה צולמה התמונה?</div>
           <div class="game-country-grid" role="group" aria-label="בחר מדינה">
-            ${Object.entries(COUNTRY_LABELS).map(([code, label]) => `
+            ${choices.map((code) => {
+              const label = COUNTRY_LABELS[code] || code;
+              return `
               <button class="game-country-btn" data-country="${escapeHTML(code)}" aria-label="${escapeHTML(label)}">
                 ${escapeHTML(label)}
               </button>
-            `).join('')}
+            `;
+            }).join('')}
           </div>
         </div>
       </div>

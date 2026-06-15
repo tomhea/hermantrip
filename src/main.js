@@ -44,7 +44,7 @@ import { stopPopupHTML, albumHrefsForStops } from './lib/map-popup.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline, dayStripHTML } from './views/timeline.js';
 import { buildTimeline, sliderValueToBucketIndex, scrollYToBucketIndex } from './lib/timeline.js';
-import { eligibleAlbums, albumChoices, scoreCountry, scoreAlbum, generateRounds, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
+import { eligibleAlbums, albumChoices, countryChoices, scoreCountry, scoreAlbum, generateRounds, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
 import { resolveTheme, nextTheme } from './lib/theme.js';
 
 const THEME_KEY = 'hermantrip:theme';
@@ -1484,6 +1484,7 @@ let gameScore = 0;
 let gameCountryCorrect = false;
 let gameAlbumCorrect = false;
 let gameAlbumChoices = null;
+let gameCountryChoices = null;   // 4 country codes for the current round (M68.1)
 
 function startGame() {
   if (!manifest) return;
@@ -1494,6 +1495,7 @@ function startGame() {
   gameCountryCorrect = false;
   gameAlbumCorrect = false;
   gameAlbumChoices = null;
+  gameCountryChoices = null;
 }
 
 function renderGameView() {
@@ -1512,7 +1514,10 @@ function renderGameView() {
   const base = { round, roundNum, totalRounds: TOTAL_ROUNDS, score: gameScore, dpr: dpr(), viewport: viewportClass() };
 
   if (gameStep === 'country') {
-    app.innerHTML = renderGameCountry(base);
+    if (!gameCountryChoices) {
+      gameCountryChoices = countryChoices(round.album.primary);
+    }
+    app.innerHTML = renderGameCountry({ ...base, choices: gameCountryChoices });
     wireGame();
   } else if (gameStep === 'album') {
     if (!gameAlbumChoices) {
@@ -1571,6 +1576,7 @@ function wireGame() {
         gameCountryCorrect = false;
         gameAlbumCorrect = false;
         gameAlbumChoices = null;
+        gameCountryChoices = null;
         renderGameView();
       } else if (action === 'finish') {
         gameStep = 'done';
