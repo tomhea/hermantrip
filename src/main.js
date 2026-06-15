@@ -31,10 +31,10 @@ import { renderSlideshow } from './views/slideshow.js';
 import { renderRandomShow } from './views/random-slideshow.js';
 import { renderMap } from './views/map.js';
 import { coordsForAlbum } from './lib/album-coords.js';
-import { pinsForGlobe, pinHeightFraction } from './lib/globe-pins.js';
+import { pinsForGlobe, buildingHeightFraction, BUILDING_WIDTH, WINDOWS_PER_FLOOR, windowColumns } from './lib/globe-pins.js';
 import { trailSegments, arcPoints, trailArcs } from './lib/trail.js';
 import { tripStopGroups, tripTrailPoints, ISRAEL, BANGKOK } from './lib/map-stops.js';
-import { globeModuleUrl } from './lib/globe-loader.js';
+import { globeModuleUrl, threeModuleUrl } from './lib/globe-loader.js';
 import { styleUrl, MAP_ATTRIBUTION } from './lib/map-tiles.js';
 import { MAPTILER_KEY, MAP_STYLE_LIGHT, MAP_STYLE_DARK } from './config.js';
 import { COUNTRY_COLORS as MAP_COUNTRY_COLORS } from './lib/country-colors.js';
@@ -968,6 +968,10 @@ function loadLeaflet() {
 const MAPLIBRE_JS = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js';
 const MAPLIBRE_CSS = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css';
 const MAPLIBRE_LEAFLET_JS = 'https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.3/leaflet-maplibre-gl.js';
+// RTL-text shaping plugin: without it MapLibre renders Hebrew/Arabic labels
+// LEFT-TO-RIGHT (reversed — "אסיה" → "היסא"). Registered once on the global
+// maplibregl; lazy=true so it only downloads when RTL text is actually drawn.
+const MAPLIBRE_RTL_JS = 'https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js';
 let maplibrePromise = null;
 function loadMaplibreLeaflet() {
   if (maplibrePromise) return maplibrePromise;
@@ -985,6 +989,13 @@ function loadMaplibreLeaflet() {
       document.head.appendChild(s);
     });
     if (!window.maplibregl) await loadJs(MAPLIBRE_JS);
+    // Register RTL shaping BEFORE the style's Hebrew labels are laid out.
+    try {
+      const mgl = window.maplibregl;
+      if (mgl && mgl.getRTLTextPluginStatus && mgl.getRTLTextPluginStatus() === 'unavailable') {
+        mgl.setRTLTextPlugin(MAPLIBRE_RTL_JS, null, true); // lazy
+      }
+    } catch { /* already set / non-fatal */ }
     if (!(window.L && window.L.maplibreGL)) await loadJs(MAPLIBRE_LEAFLET_JS);
     return window.L.maplibreGL;
   })();
@@ -1007,6 +1018,59 @@ function loadGlobe() {
       throw new Error('Globe.gl failed to load');
     });
   return globePromise;
+}
+
+// Load THREE for the globe "house" custom layer. Same esm.sh spec + target as
+// globe.gl's own three import → the browser shares ONE three module (a second
+// instance would break globe.gl's WebGL renderer).
+let threePromise = null;
+function loadThree() {
+  if (threePromise) return threePromise;
+  threePromise = import(/* @vite-ignore */ threeModuleUrl())
+    .then((mod) => mod)
+    .catch((err) => { console.error('three.js failed to load:', err); throw err; });
+  return threePromise;
+}
+
+const GLOBE_RADIUS = 100; // globe.gl's world-unit globe radius
+
+// Reusable gray windowed wall texture (WINDOWS_PER_FLOOR windows per tile, lit
+// glass + darker frame). Cloned per house with a per-height vertical repeat.
+function buildingWallTexture(THREE) {
+  const c = document.createElement('canvas');
+  c.width = 64; c.height = 32;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#9aa1a8'; ctx.fillRect(0, 0, 64, 32);
+  for (const { x, w } of windowColumns(WINDOWS_PER_FLOOR, 64, 18)) {
+    ctx.fillStyle = '#141a22'; ctx.fillRect(x - 2, 6, w + 4, 20);
+    ctx.fillStyle = '#86b0d6'; ctx.fillRect(x, 7, w, 18);
+    ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(x, 7, w, 5);
+  }
+  ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.fillRect(0, 30, 64, 2);
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+
+// A single house: gray windowed body + a PER-COUNTRY-coloured pyramid roof (the
+// roof colour ties each house to its country, the polish over the old red roof).
+function makeBuilding(THREE, heightUnits, wallTexBase, roofColor) {
+  const W = BUILDING_WIDTH;
+  const H = Math.max(1.8, heightUnits);
+  const group = new THREE.Group();
+  const tex = wallTexBase.clone();
+  tex.needsUpdate = true;
+  tex.repeat.set(1, Math.max(1, Math.round(H / 1.6)));
+  const bodyGeo = new THREE.BoxGeometry(W, H, W);
+  bodyGeo.translate(0, H / 2, 0);
+  group.add(new THREE.Mesh(bodyGeo, new THREE.MeshLambertMaterial({ color: 0xc2c8cd, map: tex })));
+  const roofH = 0.7;
+  const roofGeo = new THREE.ConeGeometry(W * 0.82, roofH, 4); // square pyramid
+  roofGeo.rotateY(Math.PI / 4);
+  roofGeo.translate(0, H + roofH / 2, 0);
+  group.add(new THREE.Mesh(roofGeo, new THREE.MeshLambertMaterial({ color: roofColor })));
+  return group;
 }
 
 // Plain-text label(s) for a pin's hover tooltip (#3) — city name(s).
@@ -1206,9 +1270,14 @@ async function initGlobeView() {
     return;
   }
 
-  // M6: map-style pins — one per visit, country-coloured (the distinct palette),
-  // rising by days spent (taller = longer stay). Replaces the old 3D box
-  // "buildings" (+ their THREE custom layer): simpler, on-palette, no extra dep.
+  // One "house" per visit, country-coloured roof, height ∝ days (SHORT — a
+  // quarter of the old cylinders). The owner preferred the houses to the plain
+  // cylinder pins. THREE renders the houses; an INVISIBLE points layer rising
+  // the full house height carries hover + click. If THREE fails, fall back to
+  // visible country-coloured points so the globe still shows something.
+  let THREE = null;
+  try { THREE = await loadThree(); } catch { THREE = null; }
+
   const pins = pinsForGlobe(manifest);
   const maxDays = Math.max(1, ...pins.map((b) => b.days));
   const points = pins.map((b) => ({
@@ -1216,7 +1285,7 @@ async function initGlobeView() {
     country: b.country, // per-visit country → link to THIS country's shared album (#8)
     color: MAP_COUNTRY_COLORS[b.country] || '#888',
     label: b.album.title || b.album.name,
-    albums: [b.album], // single album per pin → onPointClick opens it directly
+    albums: [b.album], // single album per house → onPointClick opens it directly
   }));
 
   const globe = GlobeFn({ animateIn: false })(container);
@@ -1227,9 +1296,9 @@ async function initGlobeView() {
     .pointsData(points)
     .pointLat('lat')
     .pointLng('lng')
-    .pointColor('color')                              // visible country-coloured pins (M6)
-    .pointRadius(0.34)
-    .pointAltitude((d) => pinHeightFraction(d.days, maxDays)) // height ∝ days
+    .pointColor(THREE ? () => 'rgba(0,0,0,0)' : 'color') // invisible hit-bar when houses render
+    .pointRadius(THREE ? 0.7 : 0.34)
+    .pointAltitude((d) => buildingHeightFraction(d.days, maxDays)) // full house height (click target)
     .pointLabel((d) => `<div class="map-popup" style="direction:rtl">${
       d.albums.map(a => `<span class="map-popup-link">${escapeHTML(a.title || a.name)}</span>`).join('<br>')
     }</div>`)
@@ -1244,10 +1313,28 @@ async function initGlobeView() {
       }
     });
 
-  // Trip trail on the globe (M47 / #10a): the same green→red route as the map
-  // (incl. the flight-home closing leg), drawn as great-circle arcs. The
-  // animated dash flow shows the travel direction — the globe's equivalent of
-  // the map's per-segment arrowheads.
+  // The 3D houses (custom THREE layer): gray windowed body + per-country roof,
+  // standing radially on the surface. One per visit; the invisible points above
+  // carry hover + click.
+  if (THREE) {
+    const wallTex = buildingWallTexture(THREE);
+    const upAxis = new THREE.Vector3(0, 1, 0);
+    globe
+      .customLayerData(points)
+      .customThreeObject((d) => makeBuilding(
+        THREE, buildingHeightFraction(d.days, maxDays) * GLOBE_RADIUS, wallTex,
+        d.color, // per-country roof colour
+      ))
+      .customThreeObjectUpdate((obj, d) => {
+        const p = globe.getCoords(d.lat, d.lng, 0);
+        obj.position.set(p.x, p.y, p.z);
+        obj.quaternion.setFromUnitVectors(upAxis, new THREE.Vector3(p.x, p.y, p.z).normalize());
+      });
+  }
+
+  // Trip trail on the globe (M47 / #10a): the same green→red route as the 2D map
+  // (incl. the flight-home closing leg), drawn as SOLID great-circle arcs that
+  // stay fully visible (the globe equivalent of the map's solid trip lines).
   globe
     .arcsData(trailArcs(tripTrailPoints(manifest)))
     .arcStartLat((d) => d.startLat)
@@ -1257,12 +1344,12 @@ async function initGlobeView() {
     .arcColor('color')
     .arcStroke(0.7)
     .arcAltitudeAutoScale(0.3)
-    // M6 "comet": one short bright dash with a long gap travels each leg in
-    // order, so a lit segment runs along the route instead of a static dashed
-    // line. Slower animate time = a calmer, more readable comet.
-    .arcDashLength(0.25)
-    .arcDashGap(4)
-    .arcDashAnimateTime(4000);
+    // SOLID, persistent great-circle lines — the globe equivalent of the 2D
+    // map's solid coloured trip trail (the earlier travelling-dash "comet" left
+    // the arcs mostly invisible, so they read as missing after a second).
+    .arcDashLength(1)
+    .arcDashGap(0)
+    .arcDashAnimateTime(0);
 
   // Size the globe canvas to the container so it's centred in its own area
   // (#5 — without explicit width/height globe.gl can render offset, esp. in

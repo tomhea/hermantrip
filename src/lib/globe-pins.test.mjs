@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { albumDayCount, pinsForGlobe, pinHeightFraction } from './globe-pins.js';
+import { albumDayCount, pinsForGlobe, buildingHeightFraction, BUILDING_WIDTH, WINDOWS_PER_FLOOR, windowColumns } from './globe-pins.js';
 
 test('albumDayCount counts DISTINCT calendar days (≥1)', () => {
   assert.equal(albumDayCount({ photos: [
@@ -66,12 +66,20 @@ test('returns [] for a null/empty manifest', () => {
   assert.deepEqual(pinsForGlobe({ albums: [] }), []);
 });
 
-// pinHeightFraction: visible cylinder height ∝ days (the M48 cylinder formula,
-// NOT the quartered building scale — pins read as taller markers).
-test('pinHeightFraction scales 0.02..0.47 by days, clamped', () => {
-  assert.ok(Math.abs(pinHeightFraction(10, 10) - (0.02 + 0.45)) < 1e-9); // max
-  assert.ok(Math.abs(pinHeightFraction(0, 10) - 0.02) < 1e-9);           // min
-  assert.ok(Math.abs(pinHeightFraction(5, 10) - (0.02 + 0.225)) < 1e-9); // mid
-  assert.ok(pinHeightFraction(99, 10) <= 0.47 + 1e-9);                    // clamped
-  assert.equal(typeof pinHeightFraction(3, 0), 'number');                // no /0
+// buildingHeightFraction: SHORT houses — a quarter of the old cylinder height.
+test('buildingHeightFraction is a quarter of the cylinder height, clamped', () => {
+  assert.ok(Math.abs(buildingHeightFraction(10, 10) - (0.02 + 0.45) * 0.25) < 1e-9); // max
+  assert.ok(Math.abs(buildingHeightFraction(0, 10) - 0.02 * 0.25) < 1e-9);           // min
+  assert.ok(Math.abs(buildingHeightFraction(5, 10) - (0.02 + 0.225) * 0.25) < 1e-9); // mid
+  assert.ok(buildingHeightFraction(99, 10) <= (0.02 + 0.45) * 0.25 + 1e-9);          // clamped
+  assert.equal(typeof buildingHeightFraction(3, 0), 'number');                       // no /0
+});
+
+test('window geometry: WINDOWS_PER_FLOOR windows evenly spaced; slim footprint', () => {
+  assert.equal(WINDOWS_PER_FLOOR, 2);
+  assert.ok(BUILDING_WIDTH > 0 && BUILDING_WIDTH < 1);
+  const two = windowColumns(WINDOWS_PER_FLOOR, 64, 18);
+  assert.equal(two.length, 2);
+  assert.ok(two[0].x < two[1].x);          // left-to-right
+  assert.equal(windowColumns(0, 64, 18).length, 1); // floors at 1
 });
