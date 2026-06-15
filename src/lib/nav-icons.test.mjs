@@ -6,8 +6,13 @@ import { icon, ICON_NAMES } from './nav-icons.js';
 test('exposes the chosen icon set', () => {
   assert.deepEqual(
     [...ICON_NAMES].sort(),
-    ['game', 'map', 'moon', 'slideshow', 'sun', 'timeline'].sort(),
+    ['game', 'map', 'moon', 'restart', 'slideshow', 'sun', 'timeline'].sort(),
   );
+});
+test('icon("restart") renders a themeable svg (M68.4)', () => {
+  const svg = icon('restart');
+  assert.match(svg, /^<svg/);
+  assert.match(svg, /currentColor/);
 });
 test('icon() returns an inline svg using currentColor (themeable)', () => {
   const svg = icon('map');

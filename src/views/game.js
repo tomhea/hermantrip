@@ -29,6 +29,7 @@ function gameHeader(roundNum, totalRounds, score) {
   return `
     <div class="game-header">
       <a class="game-back" href="/" aria-label="חזרה לדף הבית">→ חזרה</a>
+      <button type="button" class="game-restart" data-game-action="replay" aria-label="התחל את המשחק מחדש">${icon('restart')}</button>
       <span class="game-round">שאלה ${roundNum} מתוך ${totalRounds}</span>
       <span class="game-score">ניקוד: ${score}</span>
       <button type="button" class="slim-nav slim-toggle" data-theme-toggle aria-label="מצב בהיר/כהה">${icon('moon')}${icon('sun')}</button>

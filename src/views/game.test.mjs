@@ -174,6 +174,15 @@ test('M7: progress strip carries an accessible round/score label', () => {
   assert.match(html, /aria-valuemax="10"/);
 });
 
+test('M68.4: every play step has a restart button (reuses the replay action)', () => {
+  const c = renderGameCountry({ round, roundNum: 1, totalRounds: 10, score: 0, choices: cChoices, dpr: 1, viewport: 'phone' });
+  const a = renderGameAlbum({ round, roundNum: 1, totalRounds: 10, score: 1, choices, countryCorrect: true, dpr: 1, viewport: 'phone' });
+  const r = renderGameResult({ round, roundNum: 1, totalRounds: 10, score: 2, countryCorrect: true, albumCorrect: true, isLast: false, dpr: 1, viewport: 'phone' });
+  for (const html of [c, a, r]) {
+    assert.match(html, /class="game-restart"[^>]*data-game-action="replay"/);
+  }
+});
+
 test('M45: every play step has a "חזרה" back link to home (#8)', () => {
   const c = renderGameCountry({ round, roundNum: 1, totalRounds: 10, score: 0, choices: cChoices, dpr: 1, viewport: 'phone' });
   const a = renderGameAlbum({ round, roundNum: 1, totalRounds: 10, score: 1, choices, countryCorrect: true, dpr: 1, viewport: 'phone' });
