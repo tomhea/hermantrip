@@ -1,15 +1,15 @@
-# Handoff — UI refresh (continuing at M8, the LAST milestone)
+# Handoff — UI refresh (✅ COMPLETE — all M1–M8 shipped)
 
-_For a fresh session picking up the hermantrip UI-refresh. Read this top-to-bottom,
-then the plan + spec + cr-rules (links below), then start at **§9 (Starting M8)**.
-Last updated after **M7 (Game) + its four owner-feedback hotfixes shipped & live**
-(`v0.M68`…`v0.M68.4`, SW v92);
-**next up — and LAST — is M8 (Timeline) → `v0.M69`; next SW bump = v93** (the
-next thing to ship takes it, milestone or hotfix).
-No open game follow-ups — confetti is now 20/20-only and the header has a restart
-button._
+_For a fresh session: **the UI-refresh ladder is DONE.** All eight milestones
+(M1 Foundations … M8 Timeline) plus their hotfixes are shipped, deployed, and
+owner-approved — tags `v0.M62`…`v0.M69`, SW cache **v93**. There is no "next
+milestone." Any further work is new polish hotfixes (`fix/<slug>` → `v0.M69.x`)
+or a brand-new initiative. The rest of this doc is the historical/reference
+trail (workflow, gotchas, CSS/UX lessons) — still useful for hotfixes._
 
-**M1–M7 are DONE and live.** The globe/map (M6) went through four owner-feedback
+**M1–M8 are DONE and live.** M8 (Timeline) shipped the textured chronological
+scrubber (`v0.M69`) — per-album country journey, recurring Thailand, responsive
+bar↔rail, hold tooltip. The globe/map (M6) went through four owner-feedback
 rounds and is signed off ("It looks great") — do NOT reopen it. M7 (Game) added a
 progress strip + a photo-forward restyle; hotfix `v0.M68.1` made the country
 step 4 random options, moved options BELOW the photo on PC/portrait (symmetric;
@@ -20,7 +20,8 @@ phone headers, and added graduated done-screen messages + confetti; hotfix
 header, and put PC corner labels on a solid scrim chip; hotfix `v0.M68.4`
 flipped confetti to perfect-score-only and added a header restart button (reuses
 the replay action).
-Everything below §7 is historical reference; the actionable starting point is **§9**.
+The ladder is complete — everything below is historical/reference (workflow,
+per-milestone command sequence, gotchas, CSS/UX lessons) for any future hotfix.
 
 ## 0. The one-paragraph orientation
 
@@ -43,13 +44,13 @@ Pure logic in `src/lib/` (unit-tested, no DOM/fetch), HTML-string view builders 
 | | |
 |---|---|
 | Branch | `main` (clean) |
-| Tests | **810 passing / 0 fail** (`npm test`) |
+| Tests | **833 passing / 0 fail** (`npm test`) |
 | Lint | clean (`npx eslint@9 --max-warnings=0 .`) |
-| SW cache | `hermantrip-shell-v92` (in `sw.js`) |
-| Latest tag | `v0.M68.4` (M7 Game + 4 hotfixes). Next milestone = **M8 → `v0.M69`** (the LAST one) |
-| Next SW bump | **v93** |
+| SW cache | `hermantrip-shell-v93` (in `sw.js`) |
+| Latest tag | `v0.M69` (M8 Timeline — **final milestone**). Ladder M1–M8 complete |
+| Next SW bump | **v94** (only if a future hotfix ships) |
 
-**Shipped milestones:** M1 Foundations (`v0.M62`, themes+toggle+slim header+icons+country colours) · M2 Home (`v0.M63`, photo-forward 4-parts bento-ish home) · M3 Country page (`v0.M64`, featured-first overlay grid) · M4 Album grid (`v0.M65`, justified rows + sticky day headers) · M5 Slideshow (`v0.M66`, charcoal stage + floating auto-hide bar + on-demand filmstrip) · M6 Map/Globe (`v0.M67`, Hebrew vector map via MapLibre GL + distinct country-colour pins + globe comet + immediate starfield) · M7 Game (`v0.M68`, progress strip + landscape options-beside-photo via a new `.game-body` flex wrapper).
+**Shipped milestones:** M1 Foundations (`v0.M62`, themes+toggle+slim header+icons+country colours) · M2 Home (`v0.M63`, photo-forward 4-parts bento-ish home) · M3 Country page (`v0.M64`, featured-first overlay grid) · M4 Album grid (`v0.M65`, justified rows + sticky day headers) · M5 Slideshow (`v0.M66`, charcoal stage + floating auto-hide bar + on-demand filmstrip) · M6 Map/Globe (`v0.M67`, Hebrew vector map via MapLibre GL + distinct country-colour pins + globe comet + immediate starfield) · M7 Game (`v0.M68`, progress strip + landscape options-beside-photo via a new `.game-body` flex wrapper) · M8 Timeline (`v0.M69`, textured chronological scrubber — per-album country journey via `scrubber.js` + per-country SVG motifs via `country-motifs.js`, responsive bar↔13px-rail, press-hold country+date tooltip → jump).
 **M6 follow-ups (live):** `v0.M67.1` (RTL fix so Hebrew map labels aren't reversed — `setRTLTextPlugin`; globe trip-lines made SOLID/persistent; the disliked cylinder pins reverted to the 3D **houses** at short quarter height with per-country-coloured roofs) · `v0.M67.2` (globe: dice-pip clusters for co-located visits + trail threads the exact houses, thinner arcs + 3D arrowheads, bigger click target, anisotropy; map: removed "מפה" title, light/dark toggle on map/timeline/game, portrait-phone zoom+recenter on Pare-pare, landscape-phone globe sizing fix) · `v0.M67.3` (globe: **reversed the dice decision** — co-located visits now COLLAPSE into ONE tower, height ∝ Σ days, click opens the album picker of all visits [Bangkok = 1 tower/5 albums]; trail arrowheads shrunk + placed on the arc APEX [new pure `src/lib/globe-arrows.js`; arcs use per-arc `arcAltitude` not autoScale]; houses moved to globe.gl's **objects layer** so a click raycasts the actual house mesh) · `v0.M67.4` (globe trail declutter: arrowheads only on segments ≥ `MIN_ARROW_ANGLE` ~3.4° so the Nepal/India cluster isn't a swarm [arrows 102→23, route line kept]; the two גבעת שמואל↔Bangkok legs bowed to different altitudes via `israelBangkokLeg`/`ISRAEL_LEG_ALT_SCALE` so the green outbound and red return don't overlap — the globe analog of the map's opposite-side bowing).
 **Polish hotfixes (all live):** `v0.M63.1/.2/.3` (home: hero photos, bento→even-order, names-right, progressive image load, landscape fullscreen) · `v0.M64.1` (country even-grid) · `v0.M65.1–.5` (album/country: justified→uniform tiles, sticky-on-phone, header overflow, one-line subtitle, count-drop-on-portrait, shrink-to-fit long dates) · `v0.M66.1` (slideshow: symmetric cross-album continue-loop, persistent draggable filmstrip above the bar, opaque thumbs, load-gated autoplay — applied to the random viewers too) · `v0.M66.2` (slideshow: in-place slide advance so the dock/filmstrip don't re-render on swap — no control flicker, filmstrip keeps scroll, phone autoplay auto-hides; drag-over-thumbnail; visible album/country pill buttons in the random viewers) · `v0.M66.3` (slideshow: tap zones 40%→25% per side with a neutral middle 50%; info size read from Performance Resource Timing instead of a 2nd HEAD request; phone controls auto-hide — touch-emulated mouse hover no longer wedges them on, hover/activity gated to `pointerType==='mouse'`) · `v0.M68.1` (game: country step → 4 random options [new pure `countryChoices`]; options moved BELOW the photo on PC/portrait [photo centred = symmetric, country grid 4-in-a-row] with a single-column side rail only on landscape phones [`orientation:landscape AND max-height:500px`]; dark-mode option buttons fixed — native `<button>`s don't inherit `color`, so set `color:var(--text)` + a `--text-muted` border in dark) · `v0.M68.2` (game: PC drops the header BAR — back/round/score/toggle tuck into the photo's top corners via an absolute transparent header [`min-height:501px` gate, RTL auto-margins group toggle+score left / round+back right]; landscape-phone bar tidied [round centred via `margin-inline:auto`]; portrait toggle stops stretching [`.game-header .slim-toggle{flex:0 0 auto}` beats the global `.slim-nav{flex:1}`]; graduated done messages via pure `doneMessage` [20 מושלם!/17-19 מעולה!/14-16 כל הכבוד!/10-13 יפה מאוד!/<10 fixed נסו שוב!] + pure-CSS confetti. **⏳ Confetti shows on EVERY done screen via `GAME_CONFETTI_PREVIEW_ALL=true` for owner review — flip to false for 20/20-only in a follow-up.**) · `v0.M68.3` (game: richer confetti [40 pieces, varied sizes/shapes incl. circles+streamers, 5-colour palette, per-piece `--drift`/`--spin` tumble, fade in/out]; **preload the next question's photo** [new pure `nextRoundPhoto` + main.js `preloadNextRoundPhoto()` via `new Image()`]; `.game-header{gap}` so ניקוד isn't crammed on the toggle; PC corner labels get a solid `rgba(20,17,14,.58)` **scrim chip** + light text so they read on any photo — a functional scrim, NOT backdrop-filter [anti-AI]) · `v0.M68.4` (game: confetti now PERFECT-score-only [removed the `GAME_CONFETTI_PREVIEW_ALL` flag; done screen uses `shouldCelebrate`]; **header restart button** left of "חזרה" — new curated `restart` icon in nav-icons.js, reuses `data-game-action="replay"` so no new wiring; header DOM `back·restart·round·score·toggle` re-uses the existing auto-margin layouts [PC right corner round·restart·back, landscape restart+back on the right, portrait 5 items evenly]).
 
@@ -146,7 +147,7 @@ hotfix is needed):
 - **Crucial lesson:** the originally-planned bare `.game-shell{ flex-direction:row }` flip does **NOT** work — with the flat child list flex-wrap squished the photo to ~46px and pushed the option grid *below*, not beside. The fix is the `.game-body` flex wrapper (shell stays a **column** so header+progress remain a full-width top bar; only the body flips to a row). Verify landscape geometry in the preview (photo fills body height, grid sits at `x` next to the stage) — don't trust the CSS test alone.
 - **Superseded by `v0.M68.1`** (owner feedback): the side-by-side rail is now **landscape-phone only** (`@media (orientation: landscape) and (max-height: 500px)`) — **PC reports `orientation: landscape` too**, so the M7 blanket flip wrongly applied to desktop. On PC + portrait the options sit BELOW the photo (centred/symmetric). The country step also dropped to **4 random options** (`countryChoices`), and the dark-mode buttons got an explicit `color: var(--text)` (native `<button>`s don't inherit colour). See the `v0.M68.1` hotfix in §1.
 
-## 9. Starting M8 (Timeline) — THE ENTRY POINT (the LAST milestone)
+## 9. M8 (Timeline) — SHIPPED ✓ (`v0.M69`, SW v93) — how it was built
 
 **Branch `m8-timeline`, tag `v0.M69`, SW v89.** Goal: restyle the timeline view as a data-driven scrubber/rail. Plan section: the M8/Timeline tasks (`scrubber.js` + `country-motifs.js` per the plan — read the plan's M8 section for the exact task split before starting).
 
