@@ -59,9 +59,12 @@ export function imageUrl(fileId, intent, opts = {}) {
     throw new Error(`imageUrl: unknown intent "${intent}"`);
   }
 
+  // Round to an INTEGER width — a fractional DPR (browser zoom × a non-integer
+  // display scale) would otherwise emit e.g. /img/{id}/262.5, which the proxy
+  // 404s, so thumbnails silently vanish at some zoom levels (M69.4).
   const width = spec.ignoreDpr
     ? spec.base
-    : Math.min(spec.base * dpr, spec.cap);
+    : Math.min(Math.round(spec.base * dpr), spec.cap);
 
   return `/img/${fileId}/${width}`;
 }

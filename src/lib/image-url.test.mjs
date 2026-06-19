@@ -18,6 +18,14 @@ test('thumb intent caps at 280 even at DPR 3', () => {
   assert.equal(imageUrl('abc', 'thumb', { dpr: 3 }), '/img/abc/280');
 });
 
+test('M69.4: a fractional DPR yields an INTEGER width (no /img/abc/262.5 → proxy 404)', () => {
+  // 140 * 1.875 = 262.5 — browser zoom × a non-integer display DPR. The proxy
+  // needs an integer width, so it must be rounded.
+  const u = imageUrl('abc', 'thumb', { dpr: 1.875 });
+  assert.equal(u, '/img/abc/263');
+  assert.match(u, /\/img\/abc\/\d+$/, 'width must be an integer');
+});
+
 test('card intent: /360 at DPR 1 (preview hero)', () => {
   assert.equal(imageUrl('abc', 'card'), '/img/abc/360');
 });

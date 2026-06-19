@@ -27,9 +27,9 @@ test('M69.1: portrait — scrubber is a 22px vertical rail on its own reserved c
     /@media\s*\(max-width:\s*768px\)\s*and\s*\(orientation:\s*portrait\)\s*\{[^@]*?\.tl-page\s*\{[^}]*padding-right:\s*28px/,
     'portrait .tl-page must reserve a right column for the rail',
   );
-  // M69.3: the rail floats with a gap from the screen top/bottom/right edges
-  assert.match(rail, /top:\s*12px/);
-  assert.match(rail, /bottom:\s*12px/);
+  // M69.3/.4: the rail floats with a gap from the screen top/bottom edges
+  assert.match(rail, /top:\s*28px/);
+  assert.match(rail, /bottom:\s*28px/);
 });
 
 test('M69.3: portrait photo feed is a 3-up grid filling the width', () => {
