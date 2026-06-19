@@ -1692,9 +1692,12 @@ function renderTimelineView() {
   // rail on portrait phones. Set it on render + keep it fresh on resize/rotate.
   const applyScrubberOrient = () => {
     const sc = app.querySelector('.tl-scrubber');
-    if (sc) {
-      sc.dataset.orient = window.matchMedia('(max-width: 768px) and (orientation: portrait)').matches ? 'rail' : 'bar';
-    }
+    if (!sc) return;
+    const rail = window.matchMedia('(max-width: 768px) and (orientation: portrait)').matches;
+    sc.dataset.orient = rail ? 'rail' : 'bar';
+    // M69.3: the sticky day-heading sits just under the bar (desktop/landscape);
+    // in rail mode the scrubber is a side rail, so there's no top bar to clear.
+    document.documentElement.style.setProperty('--tl-bar-h', rail ? '0px' : `${sc.offsetHeight}px`);
   };
   applyScrubberOrient();
   // Reposition the scrubber handle after an orientation flip (set up below).
@@ -1715,18 +1718,19 @@ function renderTimelineView() {
   const handle = app.querySelector('.tl-scrubber-handle');
   const labelHe = Object.fromEntries(COUNTRIES.map((c) => [c.code, c.he]));
   let currentIdx = 0;
+  let scrubbing = false;
 
-  // Move the handle to a bucket's position (RTL bar: start = right edge; rail:
-  // start = top) + keep the aria value/text in sync.
+  // Put the handle at a raw fraction (RTL bar: start = right edge; rail: start =
+  // top) — used live while dragging so the thumb tracks the pointer (M69.3).
+  const setHandleFrac = (frac) => {
+    if (!handle) return;
+    const f = Math.max(0, Math.min(1, frac)) * 100;
+    if (scrubber.dataset.orient === 'rail') { handle.style.top = `${f}%`; handle.style.right = ''; }
+    else { handle.style.right = `${f}%`; handle.style.top = ''; }
+  };
+  // Snap the handle to a bucket (used by scroll-sync, jump, keyboard) + aria.
   const positionHandle = (idx) => {
-    const frac = bucketToScrubFraction(idx, timelineData);
-    if (handle) {
-      if (scrubber.dataset.orient === 'rail') {
-        handle.style.top = `${frac * 100}%`; handle.style.right = '';
-      } else {
-        handle.style.right = `${frac * 100}%`; handle.style.top = '';
-      }
-    }
+    setHandleFrac(bucketToScrubFraction(idx, timelineData));
     scrubber.setAttribute('aria-valuenow', String(idx));
     scrubber.setAttribute('aria-valuetext', timelineData[idx]?.label || '');
   };
@@ -1744,12 +1748,14 @@ function renderTimelineView() {
   };
 
   // Scroll → slide the handle to the day nearest the top (cached offsets).
+  // Skipped while dragging so a live-scrub's own scrolling doesn't fight the
+  // pointer-driven handle.
   let scrollRaf = null;
   timelineScrollHandler = () => {
-    if (scrollRaf) return;
+    if (scrollRaf || scrubbing) return;
     scrollRaf = requestAnimationFrame(() => {
       scrollRaf = null;
-      if (dayOffsets.length === 0) return;
+      if (dayOffsets.length === 0 || scrubbing) return;
       currentIdx = scrollYToBucketIndex(window.scrollY, dayOffsets);
       positionHandle(currentIdx);
     });
@@ -1783,14 +1789,29 @@ function renderTimelineView() {
     tip.style.top = `${y}px`;
     return idx;
   };
-  let scrubbing = false;
+  // Live scrub: while dragging, the thumb tracks the pointer AND the feed scrolls
+  // in real time to that day (instant, so it keeps up) — M69.3 #1.
+  const liveScrub = (e) => {
+    const frac = fracAt(e);
+    setHandleFrac(frac);
+    const idx = scrubToBucketIndex(frac, timelineData);
+    currentIdx = idx;
+    scrubber.setAttribute('aria-valuenow', String(idx));
+    scrubber.setAttribute('aria-valuetext', timelineData[idx]?.label || '');
+    const strip = app.querySelector(`.tl-photo-strip[data-bucket-index="${idx}"]`);
+    if (strip) hydrate(strip);
+    const day = app.querySelector(`.tl-day[data-bucket-index="${idx}"]`);
+    if (day) day.scrollIntoView({ block: 'start' }); // instant, keeps up with the drag
+    showTip(e);
+  };
   scrubber.addEventListener('pointerdown', (e) => {
     scrubbing = true;
     try { scrubber.setPointerCapture(e.pointerId); } catch { /* unsupported */ }
-    showTip(e);
+    liveScrub(e);
   });
   scrubber.addEventListener('pointermove', (e) => {
-    if (scrubbing || e.pointerType === 'mouse') showTip(e);
+    if (scrubbing) liveScrub(e);
+    else if (e.pointerType === 'mouse') showTip(e); // hover (no drag) → tooltip only
   });
   scrubber.addEventListener('pointerup', (e) => {
     const idx = bucketAt(e);

@@ -1584,9 +1584,9 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .tl-scrubber[data-orient="rail"] {
   width: 22px;
   position: fixed;
-  top: 0;
-  bottom: 0;
-  right: 0;
+  top: 12px;          /* M69.3: a gap from the screen top/bottom/right edges (#4) */
+  bottom: 12px;
+  right: 4px;
   z-index: 40;
   padding: 0;
   background: none;
@@ -1607,6 +1607,7 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .tl-scrubber[data-orient="rail"] .tl-scrub-track {
   flex-direction: column;
   flex: 1 1 auto;
+  border-radius: 11px;          /* rounded floating pill (#4) */
 }
 /* slider THUMB — a raised rounded knob that reads as a draggable handle (M69.2);
    main.js positions it to mirror the current scroll/jump position. */
@@ -1640,6 +1641,14 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   text-overflow: clip;
   font-size: 10px;
   color: var(--text-muted);
+}
+/* M69.3: a too-narrow segment shows a short "ת'" that's allowed to spill its
+   cell (otherwise it would clip to nothing). */
+.tl-scrub-label.is-mini {
+  overflow: visible;
+  flex-basis: auto;
+  color: var(--accent);
+  font-weight: 500;
 }
 .tl-scrubber[data-orient="rail"] .tl-scrub-labels { display: none; }
 .tl-seg {
@@ -1684,11 +1693,10 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
    keeps its height. */
 @media (orientation: landscape) and (max-height: 500px) {
   .tl-scrubber[data-orient="bar"] {
-    width: 100vw;
+    width: 94vw;                       /* wide, but with a margin from each edge (#4) */
     max-width: none;
-    margin-inline: calc(50% - 50vw);
+    margin-inline: calc(50% - 47vw);
     padding-inline: 0;
-    border-radius: 0;
   }
   .tl-scrub-labels { display: none; }
 }
@@ -1698,10 +1706,18 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .tl-day {
   margin-bottom: var(--space-4, 2rem);
 }
+/* M69.3: the day's date floats at the top as you scroll (like the album
+   day-headers). --tl-bar-h (set by main.js) clears the sticky scrubber bar on
+   desktop/landscape; it's 0 in portrait (the scrubber is a side rail there). */
 .tl-day-heading {
+  position: sticky;
+  top: var(--tl-bar-h, 0px);
+  z-index: 5;
+  background: var(--bg);
   font-size: var(--type-h2);
   font-weight: 500;
   margin-bottom: var(--space-2);
+  padding: var(--space-1) 0;
   display: flex;
   align-items: baseline;
   gap: var(--space-2);
@@ -1782,10 +1798,20 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .tl-photo-strip { min-height: 64px; }
 @media (min-width: 600px)  { .tl-photo-strip { min-height: 84px; } }
 @media (min-width: 1200px) { .tl-photo-strip { min-height: 109px; } }
-/* M69.1: portrait reserves a right column so the fixed 22px scrubber rail sits
-   on its own strip and the photos/dates/country names start to its left. */
+/* M69.1/.3: portrait reserves a right column for the fixed scrubber rail; the
+   photos/dates start to its left. M69.3 tightens the margins so the 3-up photo
+   grid fills almost the whole width (small gap from the left edge + the rail). */
 @media (max-width: 768px) and (orientation: portrait) {
-  .tl-page { padding-right: 26px; }
+  main#app:has(.tl-page) { padding-left: 6px; padding-right: 0; }
+  .tl-page { padding-right: 28px; }       /* clears the rail (right:4 + 22) with a small gap (#5) */
+  .tl-feed { padding: var(--space-2) 0 0; }
+  .tl-photo-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);  /* 3 per line, filling the width (#5) */
+    gap: 3px;
+  }
+  .tl-album-tag { grid-column: 1 / -1; }
+  .tl-thumb { width: 100%; height: auto; aspect-ratio: 4 / 3; }
 }
 
 /* Slim header — shared across screens */

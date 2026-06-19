@@ -1,0 +1,7 @@
+$ npm test (M69.3 implemented)
+✔ M69.3: a tiny segment gets a short overflow label (ת′), normal ones full names
+✔ M69.3: a too-narrow segment label may overflow its cell (the "ת'" sliver)
+✔ M69.3: portrait photo feed is a 3-up grid filling the width
+✔ M69.3: the day heading floats (sticky) like the album day-headers
+...
+ℹ full suite: tests 845 / pass 845 / fail 0

@@ -36,11 +36,17 @@ function renderScrubber(segments, total) {
         <svg class="tl-seg-tex" preserveAspectRatio="none" aria-hidden="true"><rect width="100%" height="100%" fill="${motifFill(s.country)}"></rect></svg>
       </div>`;
   }).join('');
-  // M69.2: country names below the track (desktop), each cell aligned under its
-  // segment via the same flex-grow weight; narrow slivers clip to nothing.
-  const labels = segments.map((s) => (
-    `<span class="tl-scrub-label" style="flex-grow:${s.weight}">${escapeHTML(COUNTRY_HE[s.country] || s.country)}</span>`
-  )).join('');
+  // M69.2/.3: country names below the track (desktop), each cell aligned under
+  // its segment via the same flex-grow weight. A too-narrow segment (e.g. the
+  // tiny Thailand slivers) would clip its name to nothing, so it instead shows a
+  // short "ת'"-style abbreviation that's allowed to overflow its cell.
+  const totalW = segments.reduce((sum, x) => sum + x.weight, 0) || 1;
+  const labels = segments.map((s) => {
+    const he = COUNTRY_HE[s.country] || s.country;
+    const mini = (s.weight / totalW) < 0.012;
+    const text = mini ? `${he.slice(0, 1)}'` : he;
+    return `<span class="tl-scrub-label${mini ? ' is-mini' : ''}" style="flex-grow:${s.weight}">${escapeHTML(text)}</span>`;
+  }).join('');
   return `
     <svg class="tl-motif-defs" width="0" height="0" aria-hidden="true">${motifDefs()}</svg>
     <div class="tl-scrubber" data-orient="bar" role="slider" tabindex="0"
