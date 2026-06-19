@@ -100,6 +100,47 @@ test('renderTimeline: slider label shows first day label', () => {
   assert.match(html, /15 במרץ 2011/);
 });
 
+// ── M8: textured scrubber ────────────────────────────────────────
+const segs = [
+  { country: 'np', color: '#4f7a8c', weight: 5 },
+  { country: 'in', color: '#d6a13f', weight: 6 },
+];
+
+test('M8: renders a .tl-scrubber[data-orient] with one .tl-seg per segment', () => {
+  const html = renderTimeline({ manifest, timeline, segments: segs, dpr: 1 });
+  assert.match(html, /class="tl-scrubber"[^>]*data-orient/);
+  assert.equal((html.match(/class="tl-seg"/g) || []).length, 2);
+});
+
+test('M8: each segment carries its colour + motif fill, sized by weight', () => {
+  const html = renderTimeline({ manifest, timeline, segments: segs, dpr: 1 });
+  assert.match(html, /background:#4f7a8c/);
+  assert.match(html, /flex-grow:5/);
+  assert.match(html, /url\(#motif-np\)/);
+});
+
+test('M8: motif defs are inlined exactly once', () => {
+  const html = renderTimeline({ manifest, timeline, segments: segs, dpr: 1 });
+  assert.equal((html.match(/<pattern id="motif-np"/g) || []).length, 1);
+});
+
+test('M8: header shows ציר זמן + the inline day-count subtitle', () => {
+  const html = renderTimeline({ manifest, timeline, segments: segs, dpr: 1 });
+  assert.match(html, /ציר זמן/);
+  assert.match(html, /ימים · שנה אחת/);
+});
+
+test('M8: renders a tooltip element (populated on hold)', () => {
+  const html = renderTimeline({ manifest, timeline, segments: segs, dpr: 1 });
+  assert.match(html, /class="tl-tip"/);
+});
+
+test('M8: no scrubber when there are no segments (feed still renders)', () => {
+  const html = renderTimeline({ manifest, timeline, segments: [], dpr: 1 });
+  assert.doesNotMatch(html, /class="tl-scrubber"/);
+  assert.match(html, /tl-feed/);
+});
+
 // ── dayStripHTML (hydration payload) ─────────────────────────────
 test('dayStripHTML: renders photo thumbnails via /img/ proxy', () => {
   assert.match(dayStripHTML(timeline[0], 1), /src="\/img\/p1\//);

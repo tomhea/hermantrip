@@ -1,0 +1,5 @@
+$ node --test (M8 source reverted: scrubber.js + country-motifs.js removed, timeline.js + main.css at HEAD)
+...
+ℹ tests 30
+ℹ pass 19
+ℹ fail 11   (scrubber.test + country-motifs.test fail to import; timeline M8 tests + timeline-rail-css tests fail)
