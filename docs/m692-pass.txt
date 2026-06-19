@@ -1,0 +1,8 @@
+$ npm test   (M69.2 implemented)
+✔ M69.2: country labels render below the track (bar), hidden on the rail
+✔ M69.2: country names render below the track (one label per segment)
+✔ M69.2: on a wide desktop the bar stretches past the page width (full-bleed vw)
+✔ M69.2: the track wraps the segments + handle
+✔ M8/M69.2: desktop/landscape — the track is a horizontal bar (flex row)
+...
+ℹ full suite: tests 841 / pass 841 / fail 0

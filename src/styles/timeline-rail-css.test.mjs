@@ -17,7 +17,10 @@ test('M69.1: portrait — scrubber is a 22px vertical rail on its own reserved c
   const rail = ruleBlock('.tl-scrubber[data-orient="rail"]');
   assert.ok(rail, '.tl-scrubber[data-orient="rail"] rule missing');
   assert.match(rail, /width:\s*22px/);
-  assert.match(rail, /flex-direction:\s*column/);
+  // the rail's track runs vertically
+  const railTrack = ruleBlock('.tl-scrubber[data-orient="rail"] .tl-scrub-track');
+  assert.ok(railTrack, 'rail track rule missing');
+  assert.match(railTrack, /flex-direction:\s*column/);
   // the page reserves a column so the rail never overlaps the photos/dates/names
   assert.match(
     css,
@@ -26,14 +29,29 @@ test('M69.1: portrait — scrubber is a 22px vertical rail on its own reserved c
   );
 });
 
-test('M69.1: the scrubber has a position handle rule', () => {
-  assert.ok(ruleBlock('.tl-scrubber-handle'), '.tl-scrubber-handle rule missing');
+test('M69.1: the scrubber has a position handle rule (a rounded thumb)', () => {
+  const h = ruleBlock('.tl-scrubber-handle');
+  assert.ok(h, '.tl-scrubber-handle rule missing');
+  assert.match(h, /border-radius/);
 });
 
-test('M8: desktop/landscape — scrubber is a horizontal bar (flex row)', () => {
-  const bar = ruleBlock('.tl-scrubber[data-orient="bar"]');
-  assert.ok(bar, '.tl-scrubber[data-orient="bar"] rule missing');
-  assert.match(bar, /flex-direction:\s*row/);
+test('M8/M69.2: desktop/landscape — the track is a horizontal bar (flex row)', () => {
+  const barTrack = ruleBlock('.tl-scrubber[data-orient="bar"] .tl-scrub-track');
+  assert.ok(barTrack, 'bar track rule missing');
+  assert.match(barTrack, /flex-direction:\s*row/);
+});
+
+test('M69.2: country labels render below the track (bar), hidden on the rail', () => {
+  assert.ok(ruleBlock('.tl-scrub-labels'), '.tl-scrub-labels rule missing');
+  assert.match(css, /\.tl-scrubber\[data-orient="rail"\]\s*\.tl-scrub-labels\s*\{[^}]*display:\s*none/);
+});
+
+test('M69.2: on a wide desktop the bar stretches past the page width (full-bleed vw)', () => {
+  assert.match(
+    css,
+    /@media\s*\(min-width:\s*1000px\)\s*\{[^@]*?\.tl-scrubber\[data-orient="bar"\]\s*\{[^}]*width:\s*92vw/,
+    'desktop bar should stretch to ~92vw',
+  );
 });
 
 test('M8: each segment grows proportionally (flex-basis 0)', () => {

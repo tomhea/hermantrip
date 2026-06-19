@@ -1,0 +1,4 @@
+$ node --test (M69.2 source reverted: timeline.js/main.css/main.js at HEAD)
+ℹ tests 34
+ℹ pass 28
+ℹ fail 6   (track/labels view + track-row/labels/full-bleed CSS guards fail)

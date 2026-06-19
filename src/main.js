@@ -1710,6 +1710,7 @@ function renderTimelineView() {
   // they're GC'd on the next render.
   const scrubber = app.querySelector('.tl-scrubber');
   if (!scrubber) return;
+  const track = scrubber.querySelector('.tl-scrub-track') || scrubber;
   const tip = app.querySelector('.tl-tip');
   const handle = app.querySelector('.tl-scrubber-handle');
   const labelHe = Object.fromEntries(COUNTRIES.map((c) => [c.code, c.he]));
@@ -1756,9 +1757,10 @@ function renderTimelineView() {
   window.addEventListener('scroll', timelineScrollHandler, { passive: true });
   requestAnimationFrame(() => positionHandle(0));
 
-  // Pointer scrub: tooltip on hold/hover/drag, release jumps.
+  // Pointer scrub: tooltip on hold/hover/drag, release jumps. Measured off the
+  // TRACK (the segment area), not the padded toolbar / labels.
   const fracAt = (e) => {
-    const r = scrubber.getBoundingClientRect();
+    const r = track.getBoundingClientRect();
     return scrubber.dataset.orient === 'rail'
       ? (e.clientY - r.top) / r.height       // vertical rail: top = trip start
       : (r.right - e.clientX) / r.width;     // RTL bar: right edge = trip start
