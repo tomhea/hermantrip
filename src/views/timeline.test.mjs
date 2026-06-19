@@ -111,9 +111,21 @@ test('M69.2: country names render below the track (one label per segment)', () =
   const segs2 = [{ country: 'np', color: '#4f7a8c', weight: 5 }, { country: 'in', color: '#d6a13f', weight: 6 }];
   const html = renderTimeline({ manifest, timeline, segments: segs2, dpr: 1 });
   assert.match(html, /class="tl-scrub-labels"/);
-  assert.equal((html.match(/class="tl-scrub-label"/g) || []).length, 2);
+  // count individual labels (label" or "label is-mini"), not the labels container
+  assert.equal((html.match(/class="tl-scrub-label[ "]/g) || []).length, 2);
   assert.match(html, /נפאל/);  // Hebrew country name in a label
   assert.match(html, /הודו/);
+});
+
+test('M69.3: a tiny segment gets a short overflow label (ת′), normal ones full names', () => {
+  const segs3 = [
+    { country: 'in', color: '#d6a13f', weight: 50 },
+    { country: 'th', color: '#8a5fa3', weight: 0.2 }, // ~0.2% → mini
+    { country: 'au', color: '#c97b3c', weight: 50 },
+  ];
+  const html = renderTimeline({ manifest, timeline, segments: segs3, dpr: 1 });
+  assert.match(html, /class="tl-scrub-label is-mini"[^>]*>\s*ת/); // ת' (geresh)
+  assert.match(html, /הודו/);  // normal full name still shown
 });
 
 test('M69.1: header subtitle reads 365 ימים · שנה אחת', () => {

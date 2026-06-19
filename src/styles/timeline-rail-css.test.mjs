@@ -24,9 +24,32 @@ test('M69.1: portrait — scrubber is a 22px vertical rail on its own reserved c
   // the page reserves a column so the rail never overlaps the photos/dates/names
   assert.match(
     css,
-    /@media\s*\(max-width:\s*768px\)\s*and\s*\(orientation:\s*portrait\)\s*\{[^@]*?\.tl-page\s*\{[^}]*padding-right:\s*26px/,
-    'portrait .tl-page must reserve a 26px right column for the rail',
+    /@media\s*\(max-width:\s*768px\)\s*and\s*\(orientation:\s*portrait\)\s*\{[^@]*?\.tl-page\s*\{[^}]*padding-right:\s*28px/,
+    'portrait .tl-page must reserve a right column for the rail',
   );
+  // M69.3: the rail floats with a gap from the screen top/bottom/right edges
+  assert.match(rail, /top:\s*12px/);
+  assert.match(rail, /bottom:\s*12px/);
+});
+
+test('M69.3: portrait photo feed is a 3-up grid filling the width', () => {
+  assert.match(
+    css,
+    /@media\s*\(max-width:\s*768px\)\s*and\s*\(orientation:\s*portrait\)\s*\{[^@]*?\.tl-photo-strip\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*1fr\)/,
+  );
+});
+
+test('M69.3: the day heading floats (sticky) like the album day-headers', () => {
+  const h = ruleBlock('.tl-day-heading');
+  assert.ok(h, '.tl-day-heading rule missing');
+  assert.match(h, /position:\s*sticky/);
+  assert.match(h, /top:\s*var\(--tl-bar-h/);
+});
+
+test('M69.3: a too-narrow segment label may overflow its cell (the "ת\'" sliver)', () => {
+  const mini = ruleBlock('.tl-scrub-label.is-mini');
+  assert.ok(mini, '.tl-scrub-label.is-mini rule missing');
+  assert.match(mini, /overflow:\s*visible/);
 });
 
 test('M69.1: the scrubber has a position handle rule (a rounded thumb)', () => {
