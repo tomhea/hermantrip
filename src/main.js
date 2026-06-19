@@ -1805,6 +1805,7 @@ function renderTimelineView() {
     showTip(e);
   };
   scrubber.addEventListener('pointerdown', (e) => {
+    e.preventDefault();          // M69.5: don't start a native text selection on drag
     scrubbing = true;
     try { scrubber.setPointerCapture(e.pointerId); } catch { /* unsupported */ }
     liveScrub(e);
