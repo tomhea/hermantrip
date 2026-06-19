@@ -1,0 +1,4 @@
+$ node --test (M69.1 source reverted: scrubber.js/timeline.js/main.css/main.js at HEAD)
+ℹ tests 34
+ℹ pass 26
+ℹ fail 8   (bucketToScrubFraction missing; scrubber-nav/no-slider/365/22px-rail/sticky-scrubber tests fail)

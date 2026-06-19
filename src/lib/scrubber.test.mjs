@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import { strict as assert } from 'node:assert';
-import { buildScrubberSegments, scrubToBucketIndex } from './scrubber.js';
+import { buildScrubberSegments, scrubToBucketIndex, bucketToScrubFraction } from './scrubber.js';
 
 // timeline buckets: { key, label, photos:[{album:{primary,countries}}] }
 // As real buildTimeline does, all photos of one album share ONE album object
@@ -64,4 +64,19 @@ test('scrubToBucketIndex: clamps out-of-range + empty', () => {
   assert.equal(scrubToBucketIndex(-1, tl), 0);
   assert.equal(scrubToBucketIndex(2, tl), 0);
   assert.equal(scrubToBucketIndex(0.5, []), 0);
+});
+
+// ── bucketToScrubFraction (M69.1; positions the always-on scrubber handle) ──
+test('bucketToScrubFraction: increases with the bucket index (weight midpoint)', () => {
+  const tl = [day('np', null, 3), day('in', null, 6)]; // total 9
+  const f0 = bucketToScrubFraction(0, tl); // mid of np span: 1.5/9
+  const f1 = bucketToScrubFraction(1, tl); // mid of in span: 6/9
+  assert.ok(f0 > 0 && f0 < 0.5, `f0=${f0}`);
+  assert.ok(f1 > 0.5 && f1 <= 1, `f1=${f1}`);
+  assert.ok(f1 > f0, 'later bucket → larger fraction');
+});
+
+test('bucketToScrubFraction: clamps + empty → 0', () => {
+  assert.equal(bucketToScrubFraction(0, []), 0);
+  assert.equal(bucketToScrubFraction(99, [day('np', null, 2)]), bucketToScrubFraction(0, [day('np', null, 2)]));
 });

@@ -24,11 +24,11 @@ test('.tl-header is no longer sticky (it scrolls away, freeing the content)', ()
   assert.equal(/position:\s*sticky/.test(header), false, '.tl-header must not be sticky (ask #11)');
 });
 
-test('.tl-slider-wrap is the lone sticky bar, pinned to the very top', () => {
-  const slider = ruleBlock('.tl-slider-wrap');
-  assert.ok(slider, '.tl-slider-wrap rule missing');
-  assert.match(slider, /position:\s*sticky/);
-  assert.match(slider, /top:\s*0/, 'slider must stick at top:0 (header no longer occupies that space)');
+test('M69.1: the scrubber bar is the lone sticky navigator, pinned to the very top', () => {
+  const bar = ruleBlock('.tl-scrubber[data-orient="bar"]');
+  assert.ok(bar, '.tl-scrubber[data-orient="bar"] rule missing');
+  assert.match(bar, /position:\s*sticky/);
+  assert.match(bar, /top:\s*0/, 'the scrubber bar must stick at top:0 (it replaced the slider)');
 });
 
 test('.tl-day scroll-margin clears only the slider, not the old 108px header+slider', () => {

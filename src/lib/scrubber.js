@@ -80,3 +80,17 @@ export function scrubToBucketIndex(fraction, timeline) {
   }
   return timeline.length - 1;
 }
+
+// Inverse of the above: a bucket index → its fraction (0..1) along the scrubber,
+// at the MIDPOINT of the bucket's cumulative-weight span. Positions the
+// always-on scrubber handle to mirror the current scroll position. Clamps.
+export function bucketToScrubFraction(idx, timeline) {
+  if (!Array.isArray(timeline) || timeline.length === 0) return 0;
+  const total = timeline.reduce((s, b) => s + b.photos.length, 0);
+  if (total === 0) return 0;
+  const i = Math.max(0, Math.min(timeline.length - 1, Math.round(Number(idx) || 0)));
+  let before = 0;
+  for (let k = 0; k < i; k += 1) before += timeline[k].photos.length;
+  const mid = before + timeline[i].photos.length / 2;
+  return Math.max(0, Math.min(1, mid / total));
+}

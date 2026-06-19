@@ -21,19 +21,12 @@ import { motifDefs, motifFill } from '../lib/country-motifs.js';
 
 const COUNTRY_HE = Object.fromEntries(COUNTRIES.map((c) => [c.code, c.he]));
 
-// Span of the trip in days (first → last dated bucket), for the header subtitle.
-function daysCovered(timeline) {
-  const keys = timeline.map((b) => b.key).filter(Boolean).sort();
-  if (keys.length === 0) return timeline.length;
-  const d0 = new Date(keys[0]);
-  const d1 = new Date(keys[keys.length - 1]);
-  return Math.round((d1 - d0) / 86400000) + 1;
-}
-
-// The textured chronological scrubber: one coloured, motif-filled segment per
-// country run, sized by weight. main.js sets data-orient (bar vs rail) + wires
-// the press/hold tooltip + jump. Returns '' when there are no segments.
-function renderScrubber(segments) {
+// The textured chronological scrubber — the timeline's sole navigator (M69.1,
+// replaces the old date slider). One coloured, motif-filled segment per country
+// run, sized by weight, plus an always-on position handle. main.js sets
+// data-orient (bar vs rail), scroll-syncs the handle, and wires
+// press/hold/keyboard → tooltip → jump. `total` = bucket count (for aria).
+function renderScrubber(segments, total) {
   if (!segments || segments.length === 0) return '';
   const segs = segments.map((s, i) => {
     const label = COUNTRY_HE[s.country] || s.country;
@@ -45,8 +38,11 @@ function renderScrubber(segments) {
   }).join('');
   return `
     <svg class="tl-motif-defs" width="0" height="0" aria-hidden="true">${motifDefs()}</svg>
-    <div class="tl-scrubber" data-orient="bar" role="presentation" aria-hidden="true">
+    <div class="tl-scrubber" data-orient="bar" role="slider" tabindex="0"
+         aria-label="ציר זמן — גררו, הקישו או השתמשו במקשי החצים כדי לקפוץ לתאריך"
+         aria-valuemin="0" aria-valuemax="${Math.max(0, total - 1)}" aria-valuenow="0">
       ${segs}
+      <div class="tl-scrubber-handle" aria-hidden="true"></div>
     </div>
     <div class="tl-tip" role="status" hidden></div>
   `;
@@ -109,28 +105,16 @@ export function renderTimeline({ manifest, error, timeline, segments, dpr }) {
   }
 
   const total = timeline.length;
-  const firstLabel = escapeHTML(timeline[0].label || '');
-  const lastLabel = escapeHTML(timeline[total - 1].label || '');
-  const days = daysCovered(timeline);
 
   return `
     <div class="tl-page">
-      <!-- Date slider FIRST so it's pinned at the very top (top:0) from scroll
-           0 and never shifts (#1a). The back/title header sits below it and
-           scrolls away. Slider is visually reversed (RTL) so the trip START
-           (value 0) sits on the RIGHT (M25). -->
-      <div class="tl-slider-wrap" aria-label="ניווט מהיר בציר הזמן">
-        <span class="tl-slider-edge tl-slider-start" aria-hidden="true">${firstLabel}</span>
-        <input type="range" id="tl-slider" class="tl-slider"
-               min="0" max="${total - 1}" value="0" step="1"
-               aria-label="בחר תאריך" aria-valuetext="${firstLabel}">
-        <span class="tl-slider-edge tl-slider-end" aria-hidden="true">${lastLabel}</span>
-        <output for="tl-slider" id="tl-slider-label" class="tl-slider-label">${firstLabel}</output>
-      </div>
-      ${renderScrubber(segments)}
+      <!-- The textured scrubber is the navigator (M69.1, replaced the old date
+           slider). Rendered FIRST so on desktop/landscape it sticks at top:0 and
+           stays visible while the header + feed scroll under it. -->
+      ${renderScrubber(segments, total)}
       <header class="tl-header">
         <a class="tl-back" href="/">← חזרה</a>
-        <h1 class="tl-title">ציר זמן <span class="tl-sub">${days} ימים · שנה אחת</span></h1>
+        <h1 class="tl-title">ציר זמן <span class="tl-sub">365 ימים · שנה אחת</span></h1>
         <button type="button" class="slim-nav slim-toggle" data-theme-toggle aria-label="מצב בהיר/כהה">${icon('moon')}${icon('sun')}</button>
       </header>
       <div class="tl-feed" id="tl-feed">

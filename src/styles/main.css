@@ -1562,23 +1562,31 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .tl-motif-defs { position: absolute; left: 0; top: 0; width: 0; height: 0; overflow: hidden; }
 .tl-scrubber {
   display: flex;
+  position: relative;          /* anchors the position handle */
   overflow: hidden;
   background: var(--divider);
   cursor: pointer;
   touch-action: none;          /* press-and-hold scrub without the page panning */
 }
-/* desktop + landscape phone: a horizontal bar on top */
+.tl-scrubber:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* desktop + landscape phone: a horizontal bar STICKY at the very top — the sole
+   navigator (M69.1, replaced the date slider); stays visible while the header +
+   feed scroll under it. */
 .tl-scrubber[data-orient="bar"] {
   flex-direction: row;
-  height: 14px;
+  height: 16px;
   border-radius: 4px;
   margin: 0 var(--space-3) var(--space-2);
+  position: sticky;
+  top: 0;
+  z-index: 40;
 }
-/* portrait phone: a 13px vertical rail pinned to the right edge (top = trip
-   start, bottom = end); doubles as the scroll indicator */
+/* portrait phone: a 22px vertical rail pinned to the right edge (top = trip
+   start, bottom = end), always visible; the page reserves a column for it (see
+   the portrait media query below) so it never overlaps the photos. */
 .tl-scrubber[data-orient="rail"] {
   flex-direction: column;
-  width: 13px;
+  width: 22px;
   position: fixed;
   top: 0;
   bottom: 0;
@@ -1587,6 +1595,17 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   margin: 0;
   border-radius: 0;
 }
+/* always-on position handle (mirrors the current scroll position; main.js moves
+   it). A contrasting line with a soft glow so it reads over any segment. */
+.tl-scrubber-handle {
+  position: absolute;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  border-radius: 2px;
+}
+.tl-scrubber[data-orient="bar"] .tl-scrubber-handle { top: -2px; bottom: -2px; width: 3px; right: 0; }
+.tl-scrubber[data-orient="rail"] .tl-scrubber-handle { left: -2px; right: -2px; height: 3px; top: 0; }
 .tl-seg {
   flex-basis: 0;
   flex-shrink: 1;
@@ -1682,69 +1701,8 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 }
 .tl-more-btn:hover { background: #f0e8df; }
 
-/* ── Timeline date slider (M22) ─────────────────────────────────── */
-.tl-slider-wrap {
-  position: sticky;
-  top: 0;             /* sticks to the very top; the header scrolls away (M36) */
-  z-index: 10;
-  background: var(--surface);
-  border-bottom: 1px solid var(--divider);
-  padding: var(--space-2) var(--space-3);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.tl-slider-edge {
-  font-size: 10px;
-  color: var(--text-muted);
-  white-space: nowrap;
-  flex: 0 0 auto;
-  max-width: 90px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.tl-slider {
-  flex: 1 1 auto;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--divider);
-  outline: none;
-  cursor: pointer;
-  direction: ltr; /* range inputs always LTR: left=min, right=max */
-}
-.tl-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: 2px solid #fff;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
-  cursor: pointer;
-  transition: transform 0.1s;
-}
-.tl-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
-.tl-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: 2px solid #fff;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
-  cursor: pointer;
-}
-.tl-slider-label {
-  display: block;
-  text-align: center;
-  font-size: var(--type-small);
-  color: var(--accent);
-  font-weight: 500;
-  min-width: 120px;
-  white-space: nowrap;
-}
+/* (The M22 date slider was removed in M69.1 — the textured scrubber above is
+   now the sole timeline navigator.) */
 
 /* ── Map trip trail (M24) ───────────────────────────────────────── */
 .trail-arrow-wrapper { background: none !important; border: none !important; }
@@ -1765,9 +1723,11 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .tl-photo-strip { min-height: 64px; }
 @media (min-width: 600px)  { .tl-photo-strip { min-height: 84px; } }
 @media (min-width: 1200px) { .tl-photo-strip { min-height: 109px; } }
-/* Reverse the range slider so the trip START (value 0) sits on the RIGHT,
-   matching the right-side start label and RTL reading direction. */
-.tl-slider { direction: rtl; }
+/* M69.1: portrait reserves a right column so the fixed 22px scrubber rail sits
+   on its own strip and the photos/dates/country names start to its left. */
+@media (max-width: 768px) and (orientation: portrait) {
+  .tl-page { padding-right: 26px; }
+}
 
 /* Slim header — shared across screens */
 .slim-header {
