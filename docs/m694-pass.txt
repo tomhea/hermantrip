@@ -1,0 +1,5 @@
+$ npm test (M69.4 implemented)
+✔ M69.4: .tl-day scroll-margin matches the sticky-heading offset (--tl-bar-h)
+✔ M69.4: a fractional DPR yields an INTEGER width (no /img/abc/262.5 → proxy 404)
+...
+ℹ full suite: tests 846 / pass 846 / fail 0

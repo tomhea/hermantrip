@@ -1584,8 +1584,8 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .tl-scrubber[data-orient="rail"] {
   width: 22px;
   position: fixed;
-  top: 12px;          /* M69.3: a gap from the screen top/bottom/right edges (#4) */
-  bottom: 12px;
+  top: 28px;          /* M69.4: shorter rail — ~2.3× the M69.3 edge gap (#3) */
+  bottom: 28px;
   right: 4px;
   z-index: 40;
   padding: 0;
@@ -1790,10 +1790,11 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 }
 
 /* ── Timeline overhaul (M25) ────────────────────────────────────── */
-/* Day headings land clear of the ONLY remaining sticky element — the slider
-   (~52px; the header scrolls away now, M36) — so slider-jump / scrollIntoView
-   don't hide the heading behind it. */
-.tl-day { scroll-margin-top: 60px; }
+/* M69.4: a jumped-to day lands exactly where its sticky heading pins — at the
+   scrubber-bar height (desktop/landscape) or the very top (portrait). Matching
+   scroll-margin to --tl-bar-h stops the PREVIOUS day's sticky heading from
+   peeking above the current one after a slide (#2). */
+.tl-day { scroll-margin-top: var(--tl-bar-h, 0px); }
 /* Empty strip keeps page height ~stable before a day hydrates. */
 .tl-photo-strip { min-height: 64px; }
 @media (min-width: 600px)  { .tl-photo-strip { min-height: 84px; } }

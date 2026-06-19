@@ -31,8 +31,9 @@ test('M69.1: the scrubber bar is the lone sticky navigator, pinned to the very t
   assert.match(bar, /top:\s*0/, 'the scrubber bar must stick at top:0 (it replaced the slider)');
 });
 
-test('.tl-day scroll-margin clears only the slider, not the old 108px header+slider', () => {
-  // (.tl-day has two rule blocks; check the stylesheet globally for the offset.)
-  assert.match(css, /\.tl-day\s*\{\s*scroll-margin-top:\s*60px/);
+test('M69.4: .tl-day scroll-margin matches the sticky-heading offset (--tl-bar-h)', () => {
+  // A jumped-to day lands where its sticky heading pins, so the previous day's
+  // heading doesn't peek above it.
+  assert.match(css, /\.tl-day\s*\{\s*scroll-margin-top:\s*var\(--tl-bar-h/);
   assert.equal(/scroll-margin-top:\s*108px/.test(css), false);
 });
