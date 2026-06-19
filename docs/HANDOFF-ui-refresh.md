@@ -2,7 +2,7 @@
 
 _For a fresh session: **the UI-refresh ladder is DONE.** All eight milestones
 (M1 Foundations … M8 Timeline) plus their hotfixes are shipped, deployed, and
-owner-approved — tags `v0.M62`…`v0.M69` (+ hotfixes through `v0.M69.2`), SW cache **v95**.
+owner-approved — tags `v0.M62`…`v0.M69` (+ hotfixes through `v0.M69.3`), SW cache **v96**.
 There is no "next milestone." Any further work is new polish hotfixes
 (`fix/<slug>` → `v0.M69.x`) or a brand-new initiative. The rest of this doc is the historical/reference
 trail (workflow, gotchas, CSS/UX lessons) — still useful for hotfixes._
@@ -44,11 +44,11 @@ Pure logic in `src/lib/` (unit-tested, no DOM/fetch), HTML-string view builders 
 | | |
 |---|---|
 | Branch | `main` (clean) |
-| Tests | **841 passing / 0 fail** (`npm test`) |
+| Tests | **845 passing / 0 fail** (`npm test`) |
 | Lint | clean (`npx eslint@9 --max-warnings=0 .`) |
-| SW cache | `hermantrip-shell-v95` (in `sw.js`) |
-| Latest tag | `v0.M69.2` (M8 Timeline + 2 scrubber hotfixes). Ladder M1–M8 complete |
-| Next SW bump | **v96** (only if a future hotfix ships) |
+| SW cache | `hermantrip-shell-v96` (in `sw.js`) |
+| Latest tag | `v0.M69.3` (M8 Timeline + 3 scrubber hotfixes). Ladder M1–M8 complete |
+| Next SW bump | **v97** (only if a future hotfix ships) |
 
 **Shipped milestones:** M1 Foundations (`v0.M62`, themes+toggle+slim header+icons+country colours) · M2 Home (`v0.M63`, photo-forward 4-parts bento-ish home) · M3 Country page (`v0.M64`, featured-first overlay grid) · M4 Album grid (`v0.M65`, justified rows + sticky day headers) · M5 Slideshow (`v0.M66`, charcoal stage + floating auto-hide bar + on-demand filmstrip) · M6 Map/Globe (`v0.M67`, Hebrew vector map via MapLibre GL + distinct country-colour pins + globe comet + immediate starfield) · M7 Game (`v0.M68`, progress strip + landscape options-beside-photo via a new `.game-body` flex wrapper) · M8 Timeline (`v0.M69`, textured chronological scrubber — per-album country journey via `scrubber.js` + per-country SVG motifs via `country-motifs.js`, responsive bar↔13px-rail, press-hold country+date tooltip → jump).
 **M6 follow-ups (live):** `v0.M67.1` (RTL fix so Hebrew map labels aren't reversed — `setRTLTextPlugin`; globe trip-lines made SOLID/persistent; the disliked cylinder pins reverted to the 3D **houses** at short quarter height with per-country-coloured roofs) · `v0.M67.2` (globe: dice-pip clusters for co-located visits + trail threads the exact houses, thinner arcs + 3D arrowheads, bigger click target, anisotropy; map: removed "מפה" title, light/dark toggle on map/timeline/game, portrait-phone zoom+recenter on Pare-pare, landscape-phone globe sizing fix) · `v0.M67.3` (globe: **reversed the dice decision** — co-located visits now COLLAPSE into ONE tower, height ∝ Σ days, click opens the album picker of all visits [Bangkok = 1 tower/5 albums]; trail arrowheads shrunk + placed on the arc APEX [new pure `src/lib/globe-arrows.js`; arcs use per-arc `arcAltitude` not autoScale]; houses moved to globe.gl's **objects layer** so a click raycasts the actual house mesh) · `v0.M67.4` (globe trail declutter: arrowheads only on segments ≥ `MIN_ARROW_ANGLE` ~3.4° so the Nepal/India cluster isn't a swarm [arrows 102→23, route line kept]; the two גבעת שמואל↔Bangkok legs bowed to different altitudes via `israelBangkokLeg`/`ISRAEL_LEG_ALT_SCALE` so the green outbound and red return don't overlap — the globe analog of the map's opposite-side bowing).
