@@ -41,12 +41,12 @@ test('renderTimeline: renders back link', () => {
   assert.match(renderTimeline({ manifest, timeline, dpr: 1 }), /href="\/"/);
 });
 
-test('renderTimeline: slider comes BEFORE the header so it stays pinned at top (#1a)', () => {
-  const html = renderTimeline({ manifest, timeline, dpr: 1 });
-  const sliderAt = html.indexOf('tl-slider-wrap');
+test('M69.1: the scrubber comes BEFORE the header so it pins at top while the header scrolls away', () => {
+  const html = renderTimeline({ manifest, timeline, segments: [{ country: 'np', color: '#4f7a8c', weight: 5 }], dpr: 1 });
+  const scrubAt = html.indexOf('tl-scrubber');
   const headerAt = html.indexOf('tl-header');
-  assert.ok(sliderAt !== -1 && headerAt !== -1, 'both slider and header present');
-  assert.ok(sliderAt < headerAt, 'slider-wrap must render before the header');
+  assert.ok(scrubAt !== -1 && headerAt !== -1, 'both scrubber and header present');
+  assert.ok(scrubAt < headerAt, 'scrubber must render before the header');
 });
 
 test('renderTimeline: renders every day heading (no pagination)', () => {
@@ -83,21 +83,28 @@ test('renderTimeline: no load-more button (pagination removed)', () => {
   assert.doesNotMatch(renderTimeline({ manifest, timeline, dpr: 1 }), /data-tl-more/);
 });
 
-// ── Slider (M22) ─────────────────────────────────────────────────
-test('renderTimeline: renders the range slider input', () => {
-  const html = renderTimeline({ manifest, timeline, dpr: 1 });
-  assert.match(html, /id="tl-slider"/);
-  assert.match(html, /type="range"/);
+// ── Navigator: the scrubber REPLACED the old range slider (M69.1) ──
+test('M69.1: the old range slider is gone (scrubber replaces it)', () => {
+  const html = renderTimeline({ manifest, timeline, segments: [{ country: 'np', color: '#4f7a8c', weight: 5 }], dpr: 1 });
+  assert.doesNotMatch(html, /type="range"/);
+  assert.doesNotMatch(html, /id="tl-slider"/);
 });
 
-test('renderTimeline: slider max equals timeline.length - 1', () => {
-  assert.match(renderTimeline({ manifest, timeline, dpr: 1 }), /max="1"/);
+test('M69.1: the scrubber is the navigator — role=slider, focusable, with aria range', () => {
+  const html = renderTimeline({ manifest, timeline, segments: [{ country: 'np', color: '#4f7a8c', weight: 5 }], dpr: 1 });
+  assert.match(html, /class="tl-scrubber"[^>]*role="slider"/);
+  assert.match(html, /tabindex="0"/);
+  assert.match(html, /aria-valuemax="1"/); // timeline.length - 1
 });
 
-test('renderTimeline: slider label shows first day label', () => {
-  const html = renderTimeline({ manifest, timeline, dpr: 1 });
-  assert.match(html, /id="tl-slider-label"/);
-  assert.match(html, /15 במרץ 2011/);
+test('M69.1: the scrubber has an always-on position handle', () => {
+  const html = renderTimeline({ manifest, timeline, segments: [{ country: 'np', color: '#4f7a8c', weight: 5 }], dpr: 1 });
+  assert.match(html, /class="tl-scrubber-handle"/);
+});
+
+test('M69.1: header subtitle reads 365 ימים · שנה אחת', () => {
+  const html = renderTimeline({ manifest, timeline, segments: [{ country: 'np', color: '#4f7a8c', weight: 5 }], dpr: 1 });
+  assert.match(html, /365 ימים · שנה אחת/);
 });
 
 // ── M8: textured scrubber ────────────────────────────────────────

@@ -13,11 +13,21 @@ function ruleBlock(selector) {
   return m ? m[2] : null;
 }
 
-test('M8: portrait — scrubber is a 13px vertical rail', () => {
+test('M69.1: portrait — scrubber is a 22px vertical rail on its own reserved column', () => {
   const rail = ruleBlock('.tl-scrubber[data-orient="rail"]');
   assert.ok(rail, '.tl-scrubber[data-orient="rail"] rule missing');
-  assert.match(rail, /width:\s*13px/);
+  assert.match(rail, /width:\s*22px/);
   assert.match(rail, /flex-direction:\s*column/);
+  // the page reserves a column so the rail never overlaps the photos/dates/names
+  assert.match(
+    css,
+    /@media\s*\(max-width:\s*768px\)\s*and\s*\(orientation:\s*portrait\)\s*\{[^@]*?\.tl-page\s*\{[^}]*padding-right:\s*26px/,
+    'portrait .tl-page must reserve a 26px right column for the rail',
+  );
+});
+
+test('M69.1: the scrubber has a position handle rule', () => {
+  assert.ok(ruleBlock('.tl-scrubber-handle'), '.tl-scrubber-handle rule missing');
 });
 
 test('M8: desktop/landscape — scrubber is a horizontal bar (flex row)', () => {

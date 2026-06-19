@@ -43,8 +43,8 @@ import { globePickerHTML } from './lib/globe-picker.js';
 import { stopPopupHTML, albumHrefsForStops } from './lib/map-popup.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline, dayStripHTML } from './views/timeline.js';
-import { buildTimeline, sliderValueToBucketIndex, scrollYToBucketIndex } from './lib/timeline.js';
-import { buildScrubberSegments, scrubToBucketIndex } from './lib/scrubber.js';
+import { buildTimeline, scrollYToBucketIndex } from './lib/timeline.js';
+import { buildScrubberSegments, scrubToBucketIndex, bucketToScrubFraction } from './lib/scrubber.js';
 import { eligibleAlbums, albumChoices, countryChoices, scoreCountry, scoreAlbum, generateRounds, shouldCelebrate, nextRoundPhoto, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
 import { resolveTheme, nextTheme } from './lib/theme.js';
 
@@ -1697,96 +1697,120 @@ function renderTimelineView() {
     }
   };
   applyScrubberOrient();
+  // Reposition the scrubber handle after an orientation flip (set up below).
+  let repositionHandle = () => {};
   // Recompute on resize (debounced to a frame) — widths change strip wrapping.
-  timelineResizeHandler = () => { applyScrubberOrient(); scheduleRecompute(); };
+  timelineResizeHandler = () => { applyScrubberOrient(); repositionHandle(); scheduleRecompute(); };
   window.addEventListener('resize', timelineResizeHandler, { passive: true });
 
-  // Slider → jump to a day. All shells exist up front, so any index is
-  // addressable; hydrate the target immediately so it isn't blank on arrival.
-  const slider = app.querySelector('#tl-slider');
-  const sliderLabel = app.querySelector('#tl-slider-label');
-  if (!slider) return;
+  // ── M69.1: the textured scrubber is the SOLE navigator (replaced the date
+  // slider). It carries an always-on position handle (scroll-synced), and
+  // press/hold (touch) · hover/drag (mouse) · arrow keys jump to a date via a
+  // country+date tooltip. Listeners live on the freshly-rendered scrubber, so
+  // they're GC'd on the next render.
+  const scrubber = app.querySelector('.tl-scrubber');
+  if (!scrubber) return;
+  const tip = app.querySelector('.tl-tip');
+  const handle = app.querySelector('.tl-scrubber-handle');
+  const labelHe = Object.fromEntries(COUNTRIES.map((c) => [c.code, c.he]));
+  let currentIdx = 0;
 
-  slider.addEventListener('input', () => {
-    const idx = sliderValueToBucketIndex(slider.value, totalBuckets);
-    const label = timelineData[idx]?.label || '';
-    if (sliderLabel) { sliderLabel.textContent = label; sliderLabel.value = label; }
-    slider.setAttribute('aria-valuetext', label);
-    const day = app.querySelector(`.tl-day[data-bucket-index="${idx}"]`);
-    const strip = app.querySelector(`.tl-photo-strip[data-bucket-index="${idx}"]`);
+  // Move the handle to a bucket's position (RTL bar: start = right edge; rail:
+  // start = top) + keep the aria value/text in sync.
+  const positionHandle = (idx) => {
+    const frac = bucketToScrubFraction(idx, timelineData);
+    if (handle) {
+      if (scrubber.dataset.orient === 'rail') {
+        handle.style.top = `${frac * 100}%`; handle.style.right = '';
+      } else {
+        handle.style.right = `${frac * 100}%`; handle.style.top = '';
+      }
+    }
+    scrubber.setAttribute('aria-valuenow', String(idx));
+    scrubber.setAttribute('aria-valuetext', timelineData[idx]?.label || '');
+  };
+  repositionHandle = () => positionHandle(currentIdx);
+
+  // Jump to a bucket: hydrate it so it isn't blank on arrival, scroll it up, sync.
+  const goToBucket = (idx) => {
+    const i = Math.max(0, Math.min(totalBuckets - 1, idx));
+    currentIdx = i;
+    const strip = app.querySelector(`.tl-photo-strip[data-bucket-index="${i}"]`);
     if (strip) hydrate(strip);
+    positionHandle(i);
+    const day = app.querySelector(`.tl-day[data-bucket-index="${i}"]`);
     if (day) day.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
+  };
 
-  // Scroll → update the slider position to the day nearest the top. Uses the
-  // CACHED dayOffsets (no offsetTop reads here), so scrolling stays smooth.
+  // Scroll → slide the handle to the day nearest the top (cached offsets).
   let scrollRaf = null;
   timelineScrollHandler = () => {
     if (scrollRaf) return;
     scrollRaf = requestAnimationFrame(() => {
       scrollRaf = null;
       if (dayOffsets.length === 0) return;
-      const idx = scrollYToBucketIndex(window.scrollY, dayOffsets);
-      slider.value = idx;
-      const label = timelineData[idx]?.label || '';
-      if (sliderLabel) { sliderLabel.textContent = label; sliderLabel.value = label; }
+      currentIdx = scrollYToBucketIndex(window.scrollY, dayOffsets);
+      positionHandle(currentIdx);
     });
   };
   window.addEventListener('scroll', timelineScrollHandler, { passive: true });
+  requestAnimationFrame(() => positionHandle(0));
 
-  // ── M8 scrubber: press/hold (touch) or hover/drag (mouse) shows a country+date
-  // tooltip; release jumps there (reuses the slider's input→jump). Listeners live
-  // on the freshly-rendered scrubber element, so they're GC'd on the next render.
-  const scrubber = app.querySelector('.tl-scrubber');
-  const tip = app.querySelector('.tl-tip');
-  if (scrubber && tip) {
-    const labelHe = Object.fromEntries(COUNTRIES.map((c) => [c.code, c.he]));
-    const bucketAt = (e) => {
-      const r = scrubber.getBoundingClientRect();
-      const frac = scrubber.dataset.orient === 'rail'
-        ? (e.clientY - r.top) / r.height       // vertical rail: top = trip start
-        : (r.right - e.clientX) / r.width;     // RTL bar: right edge = trip start
-      return scrubToBucketIndex(frac, timelineData);
-    };
-    const showTip = (e) => {
-      const idx = bucketAt(e);
-      const bucket = timelineData[idx];
-      if (!bucket) return idx;
-      const name = labelHe[bucket.photos[0]?.album?.primary] || '';
-      tip.textContent = name ? `${name} · ${bucket.label || ''}` : (bucket.label || '');
-      tip.hidden = false;
-      const tw = tip.offsetWidth;
-      const th = tip.offsetHeight;
-      let x = e.clientX - tw / 2;
-      let y = e.clientY - th - 12;
-      x = Math.max(4, Math.min(window.innerWidth - tw - 4, x));
-      if (y < 4) y = e.clientY + 16;
-      tip.style.left = `${x}px`;
-      tip.style.top = `${y}px`;
-      return idx;
-    };
-    let scrubbing = false;
-    scrubber.addEventListener('pointerdown', (e) => {
-      scrubbing = true;
-      try { scrubber.setPointerCapture(e.pointerId); } catch { /* not supported */ }
-      showTip(e);
-    });
-    scrubber.addEventListener('pointermove', (e) => {
-      if (scrubbing || e.pointerType === 'mouse') showTip(e);
-    });
-    const endScrub = (e) => {
-      const idx = bucketAt(e);
-      scrubbing = false;
-      tip.hidden = true;
-      if (Number.isInteger(idx)) {
-        slider.value = idx;
-        slider.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-    };
-    scrubber.addEventListener('pointerup', endScrub);
-    scrubber.addEventListener('pointercancel', () => { scrubbing = false; tip.hidden = true; });
-    scrubber.addEventListener('pointerleave', () => { if (!scrubbing) tip.hidden = true; });
-  }
+  // Pointer scrub: tooltip on hold/hover/drag, release jumps.
+  const fracAt = (e) => {
+    const r = scrubber.getBoundingClientRect();
+    return scrubber.dataset.orient === 'rail'
+      ? (e.clientY - r.top) / r.height       // vertical rail: top = trip start
+      : (r.right - e.clientX) / r.width;     // RTL bar: right edge = trip start
+  };
+  const bucketAt = (e) => scrubToBucketIndex(fracAt(e), timelineData);
+  const showTip = (e) => {
+    const idx = bucketAt(e);
+    const bucket = timelineData[idx];
+    if (!bucket || !tip) return idx;
+    const name = labelHe[bucket.photos[0]?.album?.primary] || '';
+    tip.textContent = name ? `${name} · ${bucket.label || ''}` : (bucket.label || '');
+    tip.hidden = false;
+    const tw = tip.offsetWidth;
+    const th = tip.offsetHeight;
+    let x = e.clientX - tw / 2;
+    let y = e.clientY - th - 12;
+    x = Math.max(4, Math.min(window.innerWidth - tw - 4, x));
+    if (y < 4) y = e.clientY + 16;
+    tip.style.left = `${x}px`;
+    tip.style.top = `${y}px`;
+    return idx;
+  };
+  let scrubbing = false;
+  scrubber.addEventListener('pointerdown', (e) => {
+    scrubbing = true;
+    try { scrubber.setPointerCapture(e.pointerId); } catch { /* unsupported */ }
+    showTip(e);
+  });
+  scrubber.addEventListener('pointermove', (e) => {
+    if (scrubbing || e.pointerType === 'mouse') showTip(e);
+  });
+  scrubber.addEventListener('pointerup', (e) => {
+    const idx = bucketAt(e);
+    scrubbing = false;
+    if (tip) tip.hidden = true;
+    goToBucket(idx);
+  });
+  scrubber.addEventListener('pointercancel', () => { scrubbing = false; if (tip) tip.hidden = true; });
+  scrubber.addEventListener('pointerleave', () => { if (tip && !scrubbing) tip.hidden = true; });
+
+  // Keyboard (a11y parity with the removed slider): arrows step a day, PageUp/
+  // Down jump 10, Home/End go to the trip's start/end.
+  scrubber.addEventListener('keydown', (e) => {
+    let next = null;
+    if (e.key === 'ArrowUp' || e.key === 'ArrowRight') next = currentIdx - 1;
+    else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') next = currentIdx + 1;
+    else if (e.key === 'PageUp') next = currentIdx - 10;
+    else if (e.key === 'PageDown') next = currentIdx + 10;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = totalBuckets - 1;
+    if (next !== null) { e.preventDefault(); goToBucket(next); }
+  });
 }
 
 function renderNotFound(path) {

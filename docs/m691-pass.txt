@@ -1,0 +1,13 @@
+$ npm test   (M69.1 implemented)
+✔ M69.1: header subtitle reads 365 ימים · שנה אחת
+✔ M69.1: portrait — scrubber is a 22px vertical rail on its own reserved column
+✔ M69.1: the old range slider is gone (scrubber replaces it)
+✔ M69.1: the scrubber bar is the lone sticky navigator, pinned to the very top
+✔ M69.1: the scrubber comes BEFORE the header so it pins at top while the header scrolls away
+✔ M69.1: the scrubber has a position handle rule
+✔ M69.1: the scrubber has an always-on position handle
+✔ M69.1: the scrubber is the navigator — role=slider, focusable, with aria range
+✔ bucketToScrubFraction: clamps + empty → 0
+✔ bucketToScrubFraction: increases with the bucket index (weight midpoint)
+...
+ℹ full suite: tests 837 / pass 837 / fail 0
