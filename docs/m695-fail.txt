@@ -1,0 +1,2 @@
+$ node --test (M69.5 source reverted)
+ℹ fail 1   (user-select guard fails)

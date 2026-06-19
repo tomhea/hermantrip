@@ -39,6 +39,12 @@ test('M69.3: portrait photo feed is a 3-up grid filling the width', () => {
   );
 });
 
+test('M69.5: the scrubber suppresses text selection (a drag must not mark labels/feed)', () => {
+  const sc = ruleBlock('.tl-scrubber');
+  assert.ok(sc, '.tl-scrubber rule missing');
+  assert.match(sc, /user-select:\s*none/);
+});
+
 test('M69.3: the day heading floats (sticky) like the album day-headers', () => {
   const h = ruleBlock('.tl-day-heading');
   assert.ok(h, '.tl-day-heading rule missing');

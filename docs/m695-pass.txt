@@ -1,0 +1,3 @@
+$ npm test (M69.5 implemented)
+✔ M69.5: the scrubber suppresses text selection (a drag must not mark labels/feed)
+ℹ full suite: tests 847 / pass 847 / fail 0
