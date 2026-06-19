@@ -1556,6 +1556,64 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 }
 .tl-back  { font-size: var(--type-small); color: var(--accent); white-space: nowrap; }
 .tl-title { font-size: var(--type-h2); font-weight: 500; }
+.tl-sub   { font-size: var(--type-small); font-weight: 300; color: var(--text-muted); margin-inline-start: .35em; }
+
+/* ── M8: textured chronological scrubber ─────────────────────────── */
+.tl-motif-defs { position: absolute; left: 0; top: 0; width: 0; height: 0; overflow: hidden; }
+.tl-scrubber {
+  display: flex;
+  overflow: hidden;
+  background: var(--divider);
+  cursor: pointer;
+  touch-action: none;          /* press-and-hold scrub without the page panning */
+}
+/* desktop + landscape phone: a horizontal bar on top */
+.tl-scrubber[data-orient="bar"] {
+  flex-direction: row;
+  height: 14px;
+  border-radius: 4px;
+  margin: 0 var(--space-3) var(--space-2);
+}
+/* portrait phone: a 13px vertical rail pinned to the right edge (top = trip
+   start, bottom = end); doubles as the scroll indicator */
+.tl-scrubber[data-orient="rail"] {
+  flex-direction: column;
+  width: 13px;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 40;
+  margin: 0;
+  border-radius: 0;
+}
+.tl-seg {
+  flex-basis: 0;
+  flex-shrink: 1;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+.tl-seg-tex {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.tl-tip {
+  position: fixed;
+  z-index: 60;
+  background: rgba(20, 17, 14, 0.9);
+  color: #fff;
+  padding: 0.3em 0.6em;
+  border-radius: 6px;
+  font-size: var(--type-small);
+  font-weight: 500;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.tl-tip[hidden] { display: none; }
 
 .tl-feed { padding: var(--space-3) var(--space-3) 0; }
 

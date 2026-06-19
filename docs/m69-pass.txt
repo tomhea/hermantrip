@@ -1,0 +1,28 @@
+$ npm test   (M8 implemented)
+...
+✔ M8: a tooltip rule exists and hides when [hidden]
+✔ M8: desktop/landscape — scrubber is a horizontal bar (flex row)
+✔ M8: each segment carries its colour + motif fill, sized by weight
+✔ M8: each segment grows proportionally (flex-basis 0)
+✔ M8: header shows ציר זמן + the inline day-count subtitle
+✔ M8: motif defs are inlined exactly once
+✔ M8: no scrubber when there are no segments (feed still renders)
+✔ M8: portrait — scrubber is a 13px vertical rail
+✔ M8: renders a .tl-scrubber[data-orient] with one .tl-seg per segment
+✔ M8: renders a tooltip element (populated on hold)
+✔ a multi-country album day splits per country, ordered by SHARED_ORDER override
+✔ a recurring country produces multiple segments
+✔ adjacent same-country slivers merge across a shared-album boundary
+✔ defs include a <pattern> per country (7)
+✔ empty / missing timeline → no segments
+✔ every segment carries its colour
+✔ motifFill references the pattern by id
+✔ motifs are white strokes (read as light texture over the colour)
+✔ one segment per contiguous country run, weight = photo count
+✔ scrubToBucketIndex: 0 → first bucket, 1 → last bucket
+✔ scrubToBucketIndex: clamps out-of-range + empty
+✔ scrubToBucketIndex: maps by cumulative photo weight, not bucket-linear
+...
+ℹ tests 41 (these files) / 833 (full suite)
+ℹ pass 833
+ℹ fail 0

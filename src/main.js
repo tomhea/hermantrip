@@ -13,7 +13,7 @@ import { controlsVisible, CONTROLS_HIDE_MS } from './lib/controls-timer.js';
 import { albumById, albumBySlug } from './lib/album-query.js';
 import { sortPhotosByDate } from './lib/ordering.js';
 import { imageUrl } from './lib/image-url.js';
-import { codeFromSlug } from './lib/countries.js';
+import { codeFromSlug, COUNTRIES } from './lib/countries.js';
 import { albumPath, slidePath, countryPath } from './lib/paths.js';
 import { transformManifest } from './lib/album-transform.js';
 import { shuffle } from './lib/random.js';
@@ -44,6 +44,7 @@ import { stopPopupHTML, albumHrefsForStops } from './lib/map-popup.js';
 import { renderGame, renderGameCountry, renderGameAlbum, renderGameResult, renderGameDone } from './views/game.js';
 import { renderTimeline, dayStripHTML } from './views/timeline.js';
 import { buildTimeline, sliderValueToBucketIndex, scrollYToBucketIndex } from './lib/timeline.js';
+import { buildScrubberSegments, scrubToBucketIndex } from './lib/scrubber.js';
 import { eligibleAlbums, albumChoices, countryChoices, scoreCountry, scoreAlbum, generateRounds, shouldCelebrate, nextRoundPhoto, TOTAL_ROUNDS, MAX_SCORE } from './lib/game.js';
 import { resolveTheme, nextTheme } from './lib/theme.js';
 
@@ -1624,8 +1625,9 @@ function teardownTimeline() {
 function renderTimelineView() {
   if (manifest && !timelineData) timelineData = buildTimeline(manifest);
   teardownTimeline(); // fresh wiring for this render
+  const segments = timelineData ? buildScrubberSegments(timelineData) : [];
   app.innerHTML = renderTimeline({
-    manifest, error: manifestError, timeline: timelineData, dpr: dpr(),
+    manifest, error: manifestError, timeline: timelineData, segments, dpr: dpr(),
   });
   window.scrollTo(0, 0);
 
@@ -1686,8 +1688,17 @@ function renderTimelineView() {
   }
   // Initial offset cache once layout has settled.
   requestAnimationFrame(recomputeOffsets);
+  // M8: the scrubber is a horizontal bar on desktop/landscape, a vertical right
+  // rail on portrait phones. Set it on render + keep it fresh on resize/rotate.
+  const applyScrubberOrient = () => {
+    const sc = app.querySelector('.tl-scrubber');
+    if (sc) {
+      sc.dataset.orient = window.matchMedia('(max-width: 768px) and (orientation: portrait)').matches ? 'rail' : 'bar';
+    }
+  };
+  applyScrubberOrient();
   // Recompute on resize (debounced to a frame) — widths change strip wrapping.
-  timelineResizeHandler = scheduleRecompute;
+  timelineResizeHandler = () => { applyScrubberOrient(); scheduleRecompute(); };
   window.addEventListener('resize', timelineResizeHandler, { passive: true });
 
   // Slider → jump to a day. All shells exist up front, so any index is
@@ -1722,6 +1733,60 @@ function renderTimelineView() {
     });
   };
   window.addEventListener('scroll', timelineScrollHandler, { passive: true });
+
+  // ── M8 scrubber: press/hold (touch) or hover/drag (mouse) shows a country+date
+  // tooltip; release jumps there (reuses the slider's input→jump). Listeners live
+  // on the freshly-rendered scrubber element, so they're GC'd on the next render.
+  const scrubber = app.querySelector('.tl-scrubber');
+  const tip = app.querySelector('.tl-tip');
+  if (scrubber && tip) {
+    const labelHe = Object.fromEntries(COUNTRIES.map((c) => [c.code, c.he]));
+    const bucketAt = (e) => {
+      const r = scrubber.getBoundingClientRect();
+      const frac = scrubber.dataset.orient === 'rail'
+        ? (e.clientY - r.top) / r.height       // vertical rail: top = trip start
+        : (r.right - e.clientX) / r.width;     // RTL bar: right edge = trip start
+      return scrubToBucketIndex(frac, timelineData);
+    };
+    const showTip = (e) => {
+      const idx = bucketAt(e);
+      const bucket = timelineData[idx];
+      if (!bucket) return idx;
+      const name = labelHe[bucket.photos[0]?.album?.primary] || '';
+      tip.textContent = name ? `${name} · ${bucket.label || ''}` : (bucket.label || '');
+      tip.hidden = false;
+      const tw = tip.offsetWidth;
+      const th = tip.offsetHeight;
+      let x = e.clientX - tw / 2;
+      let y = e.clientY - th - 12;
+      x = Math.max(4, Math.min(window.innerWidth - tw - 4, x));
+      if (y < 4) y = e.clientY + 16;
+      tip.style.left = `${x}px`;
+      tip.style.top = `${y}px`;
+      return idx;
+    };
+    let scrubbing = false;
+    scrubber.addEventListener('pointerdown', (e) => {
+      scrubbing = true;
+      try { scrubber.setPointerCapture(e.pointerId); } catch { /* not supported */ }
+      showTip(e);
+    });
+    scrubber.addEventListener('pointermove', (e) => {
+      if (scrubbing || e.pointerType === 'mouse') showTip(e);
+    });
+    const endScrub = (e) => {
+      const idx = bucketAt(e);
+      scrubbing = false;
+      tip.hidden = true;
+      if (Number.isInteger(idx)) {
+        slider.value = idx;
+        slider.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    };
+    scrubber.addEventListener('pointerup', endScrub);
+    scrubber.addEventListener('pointercancel', () => { scrubbing = false; tip.hidden = true; });
+    scrubber.addEventListener('pointerleave', () => { if (!scrubbing) tip.hidden = true; });
+  }
 }
 
 function renderNotFound(path) {

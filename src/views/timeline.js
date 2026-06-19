@@ -16,6 +16,41 @@ import { imageUrl } from '../lib/image-url.js';
 import { slidePath } from '../lib/paths.js';
 import { slideIndexInAlbum } from '../lib/album-query.js';
 import { icon } from '../lib/nav-icons.js';
+import { COUNTRIES } from '../lib/countries.js';
+import { motifDefs, motifFill } from '../lib/country-motifs.js';
+
+const COUNTRY_HE = Object.fromEntries(COUNTRIES.map((c) => [c.code, c.he]));
+
+// Span of the trip in days (first → last dated bucket), for the header subtitle.
+function daysCovered(timeline) {
+  const keys = timeline.map((b) => b.key).filter(Boolean).sort();
+  if (keys.length === 0) return timeline.length;
+  const d0 = new Date(keys[0]);
+  const d1 = new Date(keys[keys.length - 1]);
+  return Math.round((d1 - d0) / 86400000) + 1;
+}
+
+// The textured chronological scrubber: one coloured, motif-filled segment per
+// country run, sized by weight. main.js sets data-orient (bar vs rail) + wires
+// the press/hold tooltip + jump. Returns '' when there are no segments.
+function renderScrubber(segments) {
+  if (!segments || segments.length === 0) return '';
+  const segs = segments.map((s, i) => {
+    const label = COUNTRY_HE[s.country] || s.country;
+    return `
+      <div class="tl-seg" data-seg="${i}" data-country="${escapeHTML(s.country)}"
+           style="flex-grow:${s.weight}; background:${s.color}" title="${escapeHTML(label)}">
+        <svg class="tl-seg-tex" preserveAspectRatio="none" aria-hidden="true"><rect width="100%" height="100%" fill="${motifFill(s.country)}"></rect></svg>
+      </div>`;
+  }).join('');
+  return `
+    <svg class="tl-motif-defs" width="0" height="0" aria-hidden="true">${motifDefs()}</svg>
+    <div class="tl-scrubber" data-orient="bar" role="presentation" aria-hidden="true">
+      ${segs}
+    </div>
+    <div class="tl-tip" role="status" hidden></div>
+  `;
+}
 
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -66,7 +101,7 @@ function dayShell(bucket, index) {
   `;
 }
 
-export function renderTimeline({ manifest, error, timeline, dpr }) {
+export function renderTimeline({ manifest, error, timeline, segments, dpr }) {
   if (error) return errorHTML('לא הצלחנו לטעון את האלבום. נסו לרענן.');
   if (!manifest || !timeline) return loadingHTML();
   if (timeline.length === 0) {
@@ -76,6 +111,7 @@ export function renderTimeline({ manifest, error, timeline, dpr }) {
   const total = timeline.length;
   const firstLabel = escapeHTML(timeline[0].label || '');
   const lastLabel = escapeHTML(timeline[total - 1].label || '');
+  const days = daysCovered(timeline);
 
   return `
     <div class="tl-page">
@@ -91,9 +127,10 @@ export function renderTimeline({ manifest, error, timeline, dpr }) {
         <span class="tl-slider-edge tl-slider-end" aria-hidden="true">${lastLabel}</span>
         <output for="tl-slider" id="tl-slider-label" class="tl-slider-label">${firstLabel}</output>
       </div>
+      ${renderScrubber(segments)}
       <header class="tl-header">
         <a class="tl-back" href="/">← חזרה</a>
-        <h1 class="tl-title">ציר זמן</h1>
+        <h1 class="tl-title">ציר זמן <span class="tl-sub">${days} ימים · שנה אחת</span></h1>
         <button type="button" class="slim-nav slim-toggle" data-theme-toggle aria-label="מצב בהיר/כהה">${icon('moon')}${icon('sun')}</button>
       </header>
       <div class="tl-feed" id="tl-feed">
