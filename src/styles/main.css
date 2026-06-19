@@ -1562,50 +1562,86 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
 .tl-motif-defs { position: absolute; left: 0; top: 0; width: 0; height: 0; overflow: hidden; }
 .tl-scrubber {
   display: flex;
-  position: relative;          /* anchors the position handle */
-  overflow: hidden;
-  background: var(--divider);
+  flex-direction: column;      /* track + labels (bar) / vertical track (rail) */
   cursor: pointer;
   touch-action: none;          /* press-and-hold scrub without the page panning */
 }
 .tl-scrubber:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-/* desktop + landscape phone: a horizontal bar STICKY at the very top — the sole
-   navigator (M69.1, replaced the date slider); stays visible while the header +
-   feed scroll under it. */
+/* desktop + landscape phone: a horizontal slider STICKY at the very top — the
+   sole navigator (M69.1); stays visible while the header + feed scroll under it.
+   M69.2: an opaque toolbar so the country labels below the track stay readable. */
 .tl-scrubber[data-orient="bar"] {
-  flex-direction: row;
-  height: 16px;
-  border-radius: 4px;
-  margin: 0 var(--space-3) var(--space-2);
   position: sticky;
   top: 0;
   z-index: 40;
+  background: var(--surface);
+  border-bottom: 1px solid var(--divider);
+  padding: var(--space-2) var(--space-3) var(--space-1);
 }
 /* portrait phone: a 22px vertical rail pinned to the right edge (top = trip
    start, bottom = end), always visible; the page reserves a column for it (see
    the portrait media query below) so it never overlaps the photos. */
 .tl-scrubber[data-orient="rail"] {
-  flex-direction: column;
   width: 22px;
   position: fixed;
   top: 0;
   bottom: 0;
   right: 0;
   z-index: 40;
-  margin: 0;
-  border-radius: 0;
+  padding: 0;
+  background: none;
+  border: none;
 }
-/* always-on position handle (mirrors the current scroll position; main.js moves
-   it). A contrasting line with a soft glow so it reads over any segment. */
+/* the track = the coloured/textured segment bar (anchors the thumb). */
+.tl-scrub-track {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  background: var(--divider);
+}
+.tl-scrubber[data-orient="bar"] .tl-scrub-track {
+  flex-direction: row;
+  height: 18px;
+  border-radius: 9px;
+}
+.tl-scrubber[data-orient="rail"] .tl-scrub-track {
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+/* slider THUMB — a raised rounded knob that reads as a draggable handle (M69.2);
+   main.js positions it to mirror the current scroll/jump position. */
 .tl-scrubber-handle {
   position: absolute;
   background: #fff;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.5);
+  border: 2px solid var(--accent);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
   pointer-events: none;
-  border-radius: 2px;
+  border-radius: 7px;
 }
-.tl-scrubber[data-orient="bar"] .tl-scrubber-handle { top: -2px; bottom: -2px; width: 3px; right: 0; }
-.tl-scrubber[data-orient="rail"] .tl-scrubber-handle { left: -2px; right: -2px; height: 3px; top: 0; }
+.tl-scrubber[data-orient="bar"] .tl-scrubber-handle {
+  top: 50%; right: 0; width: 14px; height: 26px; transform: translate(50%, -50%);
+}
+.tl-scrubber[data-orient="rail"] .tl-scrubber-handle {
+  left: 50%; top: 0; width: 30px; height: 14px; transform: translate(-50%, -50%);
+}
+/* country names under the track (bar only); each cell flex-grows like its
+   segment so it sits under it. Narrow slivers clip to nothing. */
+.tl-scrub-labels {
+  display: flex;
+  flex-direction: row;
+  margin-top: 3px;
+}
+.tl-scrub-label {
+  flex-basis: 0;
+  min-width: 0;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: clip;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.tl-scrubber[data-orient="rail"] .tl-scrub-labels { display: none; }
 .tl-seg {
   flex-basis: 0;
   flex-shrink: 1;
@@ -1633,6 +1669,29 @@ h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0 0 var(--space-3); }
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 .tl-tip[hidden] { display: none; }
+
+/* M69.2: on a real desktop, stretch the slider toward the full screen width
+   (it otherwise caps at .tl-page's 860px) — full-bleed ~92vw, centred. */
+@media (min-width: 1000px) {
+  .tl-scrubber[data-orient="bar"] {
+    width: 92vw;
+    max-width: none;
+    margin-inline: calc(50% - 46vw);
+  }
+}
+/* M69.2: short landscape phones — make the slider full-bleed edge-to-edge (it
+   was boxed inside the page padding) + drop the labels row so the photo feed
+   keeps its height. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .tl-scrubber[data-orient="bar"] {
+    width: 100vw;
+    max-width: none;
+    margin-inline: calc(50% - 50vw);
+    padding-inline: 0;
+    border-radius: 0;
+  }
+  .tl-scrub-labels { display: none; }
+}
 
 .tl-feed { padding: var(--space-3) var(--space-3) 0; }
 

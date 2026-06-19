@@ -36,13 +36,21 @@ function renderScrubber(segments, total) {
         <svg class="tl-seg-tex" preserveAspectRatio="none" aria-hidden="true"><rect width="100%" height="100%" fill="${motifFill(s.country)}"></rect></svg>
       </div>`;
   }).join('');
+  // M69.2: country names below the track (desktop), each cell aligned under its
+  // segment via the same flex-grow weight; narrow slivers clip to nothing.
+  const labels = segments.map((s) => (
+    `<span class="tl-scrub-label" style="flex-grow:${s.weight}">${escapeHTML(COUNTRY_HE[s.country] || s.country)}</span>`
+  )).join('');
   return `
     <svg class="tl-motif-defs" width="0" height="0" aria-hidden="true">${motifDefs()}</svg>
     <div class="tl-scrubber" data-orient="bar" role="slider" tabindex="0"
          aria-label="ציר זמן — גררו, הקישו או השתמשו במקשי החצים כדי לקפוץ לתאריך"
          aria-valuemin="0" aria-valuemax="${Math.max(0, total - 1)}" aria-valuenow="0">
-      ${segs}
-      <div class="tl-scrubber-handle" aria-hidden="true"></div>
+      <div class="tl-scrub-track">
+        ${segs}
+        <div class="tl-scrubber-handle" aria-hidden="true"></div>
+      </div>
+      <div class="tl-scrub-labels" aria-hidden="true">${labels}</div>
     </div>
     <div class="tl-tip" role="status" hidden></div>
   `;

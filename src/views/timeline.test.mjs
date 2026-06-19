@@ -102,6 +102,20 @@ test('M69.1: the scrubber has an always-on position handle', () => {
   assert.match(html, /class="tl-scrubber-handle"/);
 });
 
+test('M69.2: the track wraps the segments + handle', () => {
+  const html = renderTimeline({ manifest, timeline, segments: [{ country: 'np', color: '#4f7a8c', weight: 5 }], dpr: 1 });
+  assert.match(html, /class="tl-scrub-track"/);
+});
+
+test('M69.2: country names render below the track (one label per segment)', () => {
+  const segs2 = [{ country: 'np', color: '#4f7a8c', weight: 5 }, { country: 'in', color: '#d6a13f', weight: 6 }];
+  const html = renderTimeline({ manifest, timeline, segments: segs2, dpr: 1 });
+  assert.match(html, /class="tl-scrub-labels"/);
+  assert.equal((html.match(/class="tl-scrub-label"/g) || []).length, 2);
+  assert.match(html, /נפאל/);  // Hebrew country name in a label
+  assert.match(html, /הודו/);
+});
+
 test('M69.1: header subtitle reads 365 ימים · שנה אחת', () => {
   const html = renderTimeline({ manifest, timeline, segments: [{ country: 'np', color: '#4f7a8c', weight: 5 }], dpr: 1 });
   assert.match(html, /365 ימים · שנה אחת/);
